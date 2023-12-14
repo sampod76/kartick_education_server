@@ -26,8 +26,12 @@ const files = [
         'price_type',
       ];
       
-      // export const ${capitalize(folderName)}_TYPES = ['free', 'paid', 'open', 'closed', 'recurrig'];
-      // export const ${capitalize(folderName)}_STATUS = ['active', 'deactive', 'save'];
+      // export const ${capitalize(
+        folderName
+      )}_TYPES = ['free', 'paid', 'open', 'closed', 'recurrig'];
+      // export const ${capitalize(
+        folderName
+      )}_STATUS = ['active', 'deactive', 'save'];
       
 `,
   },
@@ -36,9 +40,13 @@ const files = [
     getCode: folderName =>
       `
       import { Schema, model } from 'mongoose';
-      import { ${capitalize(folderName)}Model, I${capitalize(folderName)} } from './${capitalize(folderName)}.interface';
+      import { ${capitalize(folderName)}Model, I${capitalize(
+        folderName
+      )} } from './${capitalize(folderName)}.interface';
       
-      const ${capitalize(folderName)}Schema = new Schema<I${capitalize(folderName)}, ${capitalize(folderName)}Model>(
+      const ${capitalize(folderName)}Schema = new Schema<I${capitalize(
+        folderName
+      )}, ${capitalize(folderName)}Model>(
         {
           title: {
             type: String,
@@ -65,7 +73,11 @@ const files = [
         }
       );
       
-      export const ${capitalize(folderName)} = model<I${capitalize(folderName)}, ${capitalize(folderName)}Model>('${capitalize(folderName)}', ${capitalize(folderName)}Schema);
+      export const ${capitalize(folderName)} = model<I${capitalize(
+        folderName
+      )}, ${capitalize(folderName)}Model>('${capitalize(
+        folderName
+      )}', ${capitalize(folderName)}Schema);
       
       
 `,
@@ -109,7 +121,9 @@ const files = [
         demo_video_id: Types.ObjectId;
       };
       
-      export type ${capitalize(folderName)}Model = Model<I${capitalize(folderName)}, Record<string, unknown>>;
+      export type ${capitalize(folderName)}Model = Model<I${capitalize(
+        folderName
+      )}, Record<string, unknown>>;
       
 `,
   },
@@ -152,7 +166,9 @@ const files = [
         demo_video_id: Types.ObjectId;
       };
       
-      export type ${capitalize(folderName)}Model = Model<I${capitalize(folderName)}, Record<string, unknown>>;
+      export type ${capitalize(folderName)}Model = Model<I${capitalize(
+        folderName
+      )}, Record<string, unknown>>;
       
 `,
   },
@@ -168,10 +184,16 @@ const files = [
       import pick from '../../share/pick';
       import sendResponse from '../../share/sendResponse';
 
-      const create${capitalize(folderName)} = catchAsync(async (req: Request, res: Response) => {
+      const create${capitalize(
+        folderName
+      )} = catchAsync(async (req: Request, res: Response) => {
         const { ...${capitalize(folderName)}Data } = req.body;
       
-        const result = await ${capitalize(folderName)}Service.create${capitalize(folderName)}ByDb(${capitalize(folderName)}Data);
+        const result = await ${capitalize(
+          folderName
+        )}Service.create${capitalize(folderName)}ByDb(${capitalize(
+        folderName
+      )}Data);
       
         sendResponse<I${capitalize(folderName)}>(res, {
           success: true,
@@ -227,7 +249,7 @@ export const ${capitalize(folderName)}Service = {
     getCode: folderName =>
       `
 import { z } from 'zod';
-const create${capitalize(folderName)} = z.object({
+const  create${capitalize(folderName)}ZodSchema = z.object({
   body: z.object({
     year: z.number({
       required_error: 'year is Required (zod)',
@@ -237,7 +259,7 @@ const create${capitalize(folderName)} = z.object({
     })
   }),
 });
-const update${capitalize(folderName)} = z.object({
+const update${capitalize(folderName)}ZodSchema = z.object({
   body: z.object({
     year: z.number({
       required_error: 'year is Required (zod)',
@@ -249,9 +271,9 @@ const update${capitalize(folderName)} = z.object({
 });
 
 
-export const ${capitalize(folderName)}Validation = { create${capitalize(
+export const ${capitalize(folderName)}Validation = {create${capitalize(
         folderName
-      )},update${capitalize(folderName)} };
+      )}ZodSchema ,update${capitalize(folderName)}ZodSchema};
 `,
   },
   {
@@ -266,16 +288,17 @@ import { ${capitalize(
         folderName
       )}Controller } from './${folderName}.controller';
 import {${capitalize(folderName)}Validation } from './${folderName}.validation';
-const router = Router();
+
+const router = express.Router();
 
 router
   .route('/')
   .get(${capitalize(folderName)}Controller.getAll${capitalize(folderName)})
   .post(
     authMiddleware(ENUM_USER_ROLE.ADMIN),
-    validateRequestZod(${capitalize(
-      folderName
-    )}Validation.create${capitalize(folderName)}ZodSchema),
+    validateRequestZod(${capitalize(folderName)}Validation.create${capitalize(
+        folderName
+      )}ZodSchema),
     ${capitalize(folderName)}Controller.create${capitalize(folderName)}
   );
 
@@ -284,9 +307,9 @@ router
   .get(${capitalize(folderName)}Controller.getSingle${capitalize(folderName)})
   .put(
     authMiddleware(ENUM_USER_ROLE.ADMIN),
-    validateRequestZod(${capitalize(
-      folderName
-    )}Validation.update${capitalize(folderName)}ZodSchema),
+    validateRequestZod(${capitalize(folderName)}Validation.update${capitalize(
+        folderName
+      )}ZodSchema),
     ${capitalize(folderName)}Controller.update${capitalize(folderName)}
   )
   .delete(authMiddleware(ENUM_USER_ROLE.ADMIN), ${capitalize(
