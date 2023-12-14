@@ -1,124 +1,59 @@
-import { Schema, Types, model } from 'mongoose';
-import { COURSE_TYPES } from './course.consent';
+import { Schema, model } from 'mongoose';
 import { CourseModel, ICourse } from './course.interface';
-// import { format } from 'date-fns';
 
 const courseSchema = new Schema<ICourse, CourseModel>(
   {
-    courseId: {
-      type: String,
-      unique: true,
-      required: true,
-    },
     title: {
       type: String,
       required: true,
-      trim: true,
-      unique: true,
+    },
+    img: {
+      type: String,
+      required: false,
+    },
+    details: {
+      type: String,
+      required: true,
+    },
+    author_id: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    main_course_category_id: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+      required: true,
+    },
+    sub1_course_category_id: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+      required: true,
     },
     price: {
       type: Number,
       required: true,
-      min: 0,
     },
-    type: {
+    duration: {
       type: String,
-      enum: COURSE_TYPES, // ['free', 'paid', 'open', 'closed', 'recurrig'];
+      required: true,
     },
-    course_mode: {
+    level: {
       type: String,
-      // enum: COURSE_MODES, 
+      required: true,
     },
-    categoryDetails: {
-      type: {
-        category: {
-          type: Types.ObjectId,
-          ref: 'Category',
-        },
-        title: {
-          type: String,
-          lowercase: true,
-          trim: true,
-        },
-      },
-    },
-    discount: {
-      type: {
-        value: {
-          type: Number,
-          default: 0,
-        },
-        startDate: {
-          type: Date,
-        },
-        expiryDate: {
-          type: Date,
-        },
-      },
-    },
-    vat: {
-      type: Number,
-      default: 0,
-    },
-    header_1: String,
-    header_2: String,
-    description: String,
-    // thumbnail: {
-    //   type: Types.ObjectId,
-    //   ref: 'FileUploade',
-    // },
-    publish: {
-      type: {
-        date: {
-          type: Date,
-          // default: () => {
-          //   // Get the current date
-          //   const today = new Date();
-          //   const dateString = format(today, 'yyyy-MM-dd');
-          //   return dateString;
-          // },
-        },
-      },
-    },
-    // publisher: {
-    //   // type: mongoose.Schema.Types.ObjectId,
-    //   type: Schema.Types.ObjectId,
-    //   ref: 'Moderator',
-    //   required: true,
-    // },
-    publisherName: {
+    price_type: {
       type: String,
       required: true,
     },
     status: {
       type: String,
-      enum: ['active', 'deactive', 'save'],
-      default: 'active',
+      required: true,
     },
-    tag: [
-      {
-        type: String,
-        trim: true,
-      },
-    ],
-
-    // after user
-    reviews: [
-      {
-        userId: {
-          type: Types.ObjectId,
-          ref: 'General_user',
-        },
-        star: {
-          type: Number,
-          min: 0,
-          max: 5,
-        },
-        message: {
-          type: String,
-        },
-      },
-    ],
+    demo_video_id: {
+      type: Schema.Types.ObjectId,
+      required: true,
+    },
   },
   {
     timestamps: true,
@@ -128,16 +63,5 @@ const courseSchema = new Schema<ICourse, CourseModel>(
     },
   }
 );
-// courseSchema.pre('save', async function (next) {
-//   try {
-//     if (!this.publish?.date || this.status === 'active') {
-//       const today = new Date();
-//       const date = format(today, 'yyyy-MM-dd');
-//       this.publish?.date = date
-//     }
-//   } catch (error) {
-//     throw new ApiError(404, 'Internal error');
-//   }
-// });
 
 export const Course = model<ICourse, CourseModel>('Course', courseSchema);

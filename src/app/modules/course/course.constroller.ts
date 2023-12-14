@@ -6,7 +6,7 @@ import { PAGINATION_FIELDS } from '../../../constant/pagination';
 import catchAsync from '../../share/catchAsync';
 import pick from '../../share/pick';
 import sendResponse from '../../share/sendResponse';
-import { COURSE_FILTERABLE_FIELDS } from './course.consent';
+import { COURSE_FILTERABLE_FIELDS } from './course.constant';
 import { ICourse } from './course.interface';
 import { CourseService } from './course.service';
 
