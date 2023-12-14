@@ -31,7 +31,7 @@ const files = [
       )}_TYPES = ['free', 'paid', 'open', 'closed', 'recurrig'];
       // export const ${capitalize(
         folderName
-      )}_STATUS = ['active', 'deactive', 'save'];
+      )}_STATUS = ['active', 'deactive'];
       
 `,
   },
@@ -249,14 +249,12 @@ export const ${capitalize(folderName)}Service = {
     getCode: folderName =>
       `
 import { z } from 'zod';
+import { ${capitalize(folderName)}_STATUS } from './${folderName}.constant';
 const  create${capitalize(folderName)}ZodSchema = z.object({
   body: z.object({
-    year: z.number({
-      required_error: 'year is Required (zod)',
-    }),
-    title: z.string({
-      required_error: 'title is Required (zod)',
-    })
+    year: z.number({required_error: 'year is Required (zod)'}),
+    title: z.string({required_error: 'title is Required (zod)'}),
+    status: z.enum([...${capitalize(folderName)}_STATUS] as [string, ...string[]]),
   }),
 });
 const update${capitalize(folderName)}ZodSchema = z.object({
