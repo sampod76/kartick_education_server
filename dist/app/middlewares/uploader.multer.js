@@ -3,14 +3,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadVideoFile = exports.uploadMultipleImage = exports.uploadSingleImageByProfile = exports.uploadSingleImage = void 0;
+exports.uploadVideoFile = exports.uploadMultiplePhotoContestImage = exports.uploadMultipleImage = exports.uploadSingleImageByProfile = exports.uploadSingleImage = exports.multerImgbbUploder = void 0;
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 // import express from 'express';
 //*******************note********* */
 // create multer.d.ts
 //*******************note********* */
-//-------------single file upload----start------------
+// ! ---- upload only imgbb helper ---------------------
+const storageFack = multer_1.default.memoryStorage();
+exports.multerImgbbUploder = (0, multer_1.default)({ storage: storageFack });
+//!-------------single file upload----start------------
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
         console.log(req);
@@ -47,7 +50,7 @@ exports.uploadSingleImage = (0, multer_1.default)({
     fileFilter: fileFilter,
 }).single('image');
 //-------------single file upload----end------------
-//-------------single file upload----start------------
+//!-------------single file upload----start------------
 const storageByProfile = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
         cb(null, path_1.default.join(__dirname, '../../uploadFile/images/'));
@@ -117,6 +120,41 @@ exports.uploadMultipleImage = (0, multer_1.default)({
     fileFilter: fileFilterMultiple,
 }).array('images', 10);
 //------------upload multiple images--end---------------
+//!-----------upload multiple photo-contest---start---------------
+const storageMultiplePhotoContest = multer_1.default.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path_1.default.join(__dirname, '../../uploadFile/photo-contest/'));
+    },
+    filename: (req, file, cb) => {
+        const fileExt = path_1.default.extname(file.originalname);
+        const fileName = file.originalname
+            .replace(fileExt, '')
+            .toLowerCase()
+            .split(' ')
+            .join('-') +
+            '-' +
+            Date.now();
+        cb(null, fileName + fileExt);
+    },
+});
+const fileFilterMultiplePhotoContest = (req, file, cb) => {
+    if (file.mimetype === 'image/png' ||
+        file.mimetype === 'image/jpg' ||
+        file.mimetype === 'image/jpeg') {
+        cb(null, true);
+    }
+    else {
+        cb(new Error('Only jpg, jpeg, png formats are allowed!'));
+    }
+};
+exports.uploadMultiplePhotoContestImage = (0, multer_1.default)({
+    storage: storageMultiplePhotoContest,
+    limits: {
+        fileSize: 50 * 1024 * 1024, // 50 MB
+    },
+    fileFilter: fileFilterMultiplePhotoContest,
+}).array('images', 10);
+//!------------upload multiple-photo-contest--end---------------
 //------------upload video file ---start-----------
 const videoStorage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {

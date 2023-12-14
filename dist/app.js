@@ -19,9 +19,15 @@ const express_1 = __importDefault(require("express"));
 const paypal_rest_sdk_1 = __importDefault(require("paypal-rest-sdk"));
 // create xss-clean.d.ts file after work this xss
 const path_1 = __importDefault(require("path"));
-const xss_clean_1 = __importDefault(require("xss-clean"));
+// import xss from 'xss-clean';
+const helmet_1 = __importDefault(require("helmet"));
+const http_status_1 = __importDefault(require("http-status"));
+const globalErrorHandler_1 = __importDefault(require("./app/middlewares/globalErrorHandler"));
+// import { uploadSingleImage } from './app/middlewares/uploader.multer';
+const index_route_1 = __importDefault(require("./app/routes/index_route"));
 const app = (0, express_1.default)();
 // app.use(cors());
+app.use((0, helmet_1.default)());
 app.use((0, cors_1.default)({
     origin: ['https://salontrainingpro.app', 'http://localhost:3000'],
     credentials: true,
@@ -51,7 +57,7 @@ app.use((0, cors_1.default)({
 //     allowedHeaders: allowedHeaders,
 //   })
 // );
-app.use((0, xss_clean_1.default)());
+// app.use(xss());
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -75,10 +81,6 @@ app.use('/profile', run, express_1.default.static(path_1.default.join(__dirname,
 app.use('/vedios', run, express_1.default.static(path_1.default.join(__dirname, '../dist/uploadFile/vedios/')));
 app.set('view engine', 'ejs');
 app.set('views', path_1.default.resolve('./views/success.ejs'));
-const http_status_1 = __importDefault(require("http-status"));
-const globalErrorHandler_1 = __importDefault(require("./app/middlewares/globalErrorHandler"));
-// import { uploadSingleImage } from './app/middlewares/uploader.multer';
-const index_route_1 = __importDefault(require("./app/routes/index_route"));
 app.get('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         res.send({ message: 'server is running....' });
@@ -88,6 +90,44 @@ app.get('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () 
     }
     // res.send('server is running');
 }));
+/*
+ const revenuecat = new Revenuecat({
+  secretKey: "sk_AwzheKPxGcMLbnqWdOeFWhRfcwKIA",
+  iosKey: "993dd49ebcba4546aa3c4657330ac6e0",
+  androidKey: process.env.androidKey as string,
+})
+*/
+const test = () => __awaiter(void 0, void 0, void 0, function* () {
+    /*
+     const url = 'https://api.revenuecat.com/v1/apps/appcadee85965/subscribers/882b1b28b5664a0ea3ecc7a6efb56b9b';
+    
+      try {
+    const data =await revenuecat
+    .getSubscriptions({ userId:"$RCAnonymousID:882b1b28b5664a0ea3ecc7a6efb56b9b" })
+    // .then(res => console.log(res.subscriber, 'getSubscriptions'))
+    console.log(data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+       
+      }
+      */
+    //  const result= await firebaseAdmin.auth().setCustomUserClaims("St9VaFVV3JX8QFEGwFQd3A3psR23",{_id:"650fd9626e7c6052b7e19242",role:"general-user"});
+    // console.log(result);
+    // const updateArray = await Course.find({});
+    // const promess: any = [];
+    // updateArray.forEach((data, index) => {
+    //   console.log(index);
+    //   promess.push(
+    //     Course.findByIdAndUpdate(data._id, {
+    //       courseId: `00${index + 1}`,
+    //     })
+    //   );
+    // });
+    // Promise.all(promess).then(values => {
+    //   console.log(values);
+    // });
+});
+test();
 //Application route
 app.use('/api/v1', index_route_1.default);
 // Set the views directory and the view engine
@@ -107,37 +147,4 @@ app.use((req, res, next) => {
     });
     next();
 });
-const test = () => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        // console.log(result, result2);
-        // const result = await Lession.updateMany(
-        //   {},
-        //   {
-        //     $set: {
-        //       vedio:
-        //         'https://player.vimeo.com/video/829783962?h=47a19669a0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479',
-        //     },
-        //   }
-        // );
-        // console.log(result);
-        // const result = await PhotoContestUser.deleteMany();
-        // console.log(result);
-        // const result3 = await GeneralUser.updateMany(
-        //   {},
-        //   {
-        //     purchase_courses: [],
-        //   }
-        // );
-        // const result = await FileUploade.deleteMany({});
-        // const result = await RunContest.find({});
-        // const result5 = await Purchased_courses.deleteMany();
-        // const result2 = await PhotoContestUser.deleteMany({});
-        // const result2 = await RunContest.deleteMany({});
-        // console.log(result2);
-    }
-    catch (error) {
-        console.log(error);
-    }
-});
-test();
 exports.default = app;

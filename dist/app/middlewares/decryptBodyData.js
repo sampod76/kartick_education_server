@@ -12,21 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deshbord = void 0;
-const http_status_1 = __importDefault(require("http-status"));
-const catchAsync_1 = __importDefault(require("../../share/catchAsync"));
-const sendResponse_1 = __importDefault(require("../../share/sendResponse"));
-// import { deshbordService } from './deshbord.service';
-// import { IUser } from './users.interface';
-const getDeshbordData = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // const result = await deshbordService.deshbordFromDb();
-    (0, sendResponse_1.default)(res, {
-        success: true,
-        statusCode: http_status_1.default.OK,
-        message: 'successfull create user',
-        // data: result,
-    });
-}));
-exports.deshbord = {
-    getDeshbordData,
-};
+const config_1 = __importDefault(require("../../config"));
+const cryptoEncryptDecrypt_1 = require("../../utils/cryptoEncryptDecrypt");
+const decryptMiddleware = () => (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const decryptedData = (0, cryptoEncryptDecrypt_1.decryptCryptoData)(
+        //! important notice decryptData is a valide object but front end to send json object so front end to send json object {data:"encryptedcode"}
+        req.body.data, config_1.default.crypto_key);
+        req.body = decryptedData;
+        next();
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.default = decryptMiddleware;

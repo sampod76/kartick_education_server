@@ -1,6 +1,6 @@
 import { Model, Types } from 'mongoose';
-import { IFileUploade } from '../fileUploade/interface.fileUploade';
-import { IUser } from '../users/users.interface';
+// import { IFileUploade } from '../fileUploade/interface.fileUploade';
+// import { IUser } from '../users/users.interface';
 
 export type ICourseFilters = {
   searchTerm?: string;
@@ -46,14 +46,14 @@ export type ICourse = {
   header_1?: string;
   header_2?: string;
   description?: string;
-  thumbnail?: string | IFileUploade;
-  images_album: Array<string | IFileUploade>;
+  // thumbnail?: string | IFileUploade;
+  // images_album: Array<string | IFileUploade>;
   categoryDetails?: {
     category?: string; //_id
     title?: string; //category name
   };
   publish?: IPublish;
-  publisher: Types.ObjectId | IUser;
+  // publisher: Types.ObjectId | IUser;
   publisherName: string;
   status?: 'active' | 'deactive' | 'save';
   tag?: string[];

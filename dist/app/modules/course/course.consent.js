@@ -17,6 +17,7 @@ exports.COURSE_FILTERABLE_FIELDS = [
     'reviews.star',
     'select',
     'course_mode',
+    "type", // price type free/paid
 ];
 exports.COURSE_TYPES = ['free', 'paid', 'open', 'closed', 'recurrig'];
 exports.COURSE_MODES = ['pre_recorded', 'jobs', 'events'];

@@ -10,12 +10,14 @@ dotenv_1.default.config({ path: path_1.default.join(process.cwd(), '.env') }); /
 exports.default = {
     env: process.env.NODE_ENV,
     port: process.env.PORT,
-    database_url: process.env.DATABASE_URL_COMPASS,
-    // database_url: process.env.DATABASE_URL_ATLAS,
+    // database_url: process.env.DATABASE_URL_COMPASS,
+    database_url: process.env.DATABASE_URL_ATLAS,
     default_student_pass: process.env.DEFAULT_STUDENT_PASS,
     default_faculty_pass: process.env.DEFAULT_FACULTY_PASS,
     default_admin_pass: process.env.DEFAULT_ADMIN_PASS,
     bycrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS,
+    imgbb_key: process.env.IMGBB_KEY,
+    crypto_key: process.env.ENCRYPTION_SECRET,
     jwt: {
         secret: process.env.JWT_SECRET,
         refresh_secret: process.env.JWT_REFRESH_SECRET,

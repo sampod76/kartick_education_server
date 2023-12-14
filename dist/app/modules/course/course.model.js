@@ -63,10 +63,10 @@ const courseSchema = new mongoose_1.Schema({
     header_1: String,
     header_2: String,
     description: String,
-    thumbnail: {
-        type: mongoose_1.Types.ObjectId,
-        ref: 'FileUploade',
-    },
+    // thumbnail: {
+    //   type: Types.ObjectId,
+    //   ref: 'FileUploade',
+    // },
     publish: {
         type: {
             date: {
@@ -80,12 +80,12 @@ const courseSchema = new mongoose_1.Schema({
             },
         },
     },
-    publisher: {
-        // type: mongoose.Schema.Types.ObjectId,
-        type: mongoose_1.Schema.Types.ObjectId,
-        ref: 'Moderator',
-        required: true,
-    },
+    // publisher: {
+    //   // type: mongoose.Schema.Types.ObjectId,
+    //   type: Schema.Types.ObjectId,
+    //   ref: 'Moderator',
+    //   required: true,
+    // },
     publisherName: {
         type: String,
         required: true,
