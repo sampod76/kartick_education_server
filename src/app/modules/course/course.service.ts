@@ -6,11 +6,11 @@ import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 
 import ApiError from '../../errors/ApiError';
+const { ObjectId } = mongoose.Types;
 import { COURSE_SEARCHABLE_FIELDS } from './course.constant';
 import { ICourse, ICourseFilters } from './course.interface';
 import { Course } from './course.model';
 import { generateCourseId } from './course.utils';
-const { ObjectId } = mongoose.Types;
 const createCourseByDb = async (payload: ICourse): Promise<ICourse> => {
   payload.courseId = await generateCourseId();
   const result = (await Course.create(payload)).populate([
