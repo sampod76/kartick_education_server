@@ -1,12 +1,11 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { PAGINATION_FIELDS } from '../../../constant/pagination';
-// import { globalImport } from '../../../import/global_Import';
-// import ApiError from '../../errors/ApiError';
+
 import catchAsync from '../../share/catchAsync';
 import pick from '../../share/pick';
 import sendResponse from '../../share/sendResponse';
-import { COURSE_FILTERABLE_FIELDS } from './course.consent';
+import { COURSE_FILTERABLE_FIELDS } from './course.constant';
 import { ICourse } from './course.interface';
 import { CourseService } from './course.service';
 
@@ -29,7 +28,7 @@ const getAllCourse = catchAsync(async (req: Request, res: Response) => {
   // console.log(req.query);
   let queryObject = req.query;
   queryObject = Object.fromEntries(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     Object.entries(queryObject).filter(([_, value]) => Boolean(value))
   );
   const filters = pick(queryObject, COURSE_FILTERABLE_FIELDS);

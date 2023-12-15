@@ -1,5 +1,4 @@
 import express from 'express';
-
 import { ENUM_USER_ROLE } from '../../../enums/users';
 import authMiddleware from '../../middlewares/authMiddleware';
 import validateRequestZod from '../../middlewares/validateRequestZod';
@@ -16,15 +15,6 @@ router
     validateRequestZod(CourseValidation.createCourseZodSchema),
     CourseController.createCourse
   );
-
-router
-  .route('/review/:id')
-  .post(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.GENERAL_USER),
-    validateRequestZod(CourseValidation.courseReviewZodSchema),
-    CourseController.courseReviewsByUser
-  )
-  .delete(authMiddleware(ENUM_USER_ROLE.ADMIN), CourseController.deleteCourse);
 
 router
   .route('/:id')

@@ -5,63 +5,34 @@ import { Model, Types } from 'mongoose';
 export type ICourseFilters = {
   searchTerm?: string;
   price?: number;
-  date?: string;
-  type?: string;
+  duration?: string;
+  level?: string;
   status?: string;
-  course_mode?: string;
-  'categoryDetails.category'?: string;
-  'reviews.star'?: number;
-  select?: string;
-  publisher?: string;
+  price_type?: string;
 };
 
-// export type ICourseSearchableField = {
-//   title: string;
-//   publisherName: string;
-//   header_1: string;
-//   header_2: string;
-//   description: string;
-//   courseId: string;
-// };
-
-export type IPublish = {
-  status: 'active' | 'deactive' | 'save';
-  date: string;
+export type ICourseSearchableField = {
+  title: string;
+  price: string;
+  level: string;
+  status: string;
+  details: string;
 };
 
 export type ICourse = {
-  courseId: string;
   title: string;
-  price?: number;
-  type: 'free' | 'paid' | 'open' | 'closed' | 'recurrig';
-  // course_mode: 'pre_recorded' | 'jobs' | 'events' 
-  course_mode?: string 
-  category: string;
-  discount?: {
-    value: number;
-    startDate?: string;
-    expiryDate?: string;
-  };
-  vat?: number;
-  header_1?: string;
-  header_2?: string;
-  description?: string;
-  // thumbnail?: string | IFileUploade;
-  // images_album: Array<string | IFileUploade>;
-  categoryDetails?: {
-    category?: string; //_id
-    title?: string; //category name
-  };
-  publish?: IPublish;
-  // publisher: Types.ObjectId | IUser;
-  publisherName: string;
-  status?: 'active' | 'deactive' | 'save';
-  tag?: string[];
-  reviews?: {
-    userId: Types.ObjectId;
-    star: number;
-    message?: string;
-  }[];
+  img: string;
+  details: string;
+  author_id: Types.ObjectId;
+  main_course_category_id: Types.ObjectId;
+  sub1_course_category_id: Types.ObjectId;
+  price: number;
+  duration: string;
+  level: string;
+  price_type: 'free' | 'paid' | 'open' | 'closed' | 'recurrig';
+  status: 'active' | 'deactive' | 'save';
+  //! incomplete
+  demo_video_id: Types.ObjectId;
 };
 
 export type CourseModel = Model<ICourse, Record<string, unknown>>;
