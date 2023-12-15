@@ -35,6 +35,6 @@ const updateStudentZodSchema = z.object({
   }),
 });
 
-export const StudentValidaion = {
+export const StudentValidation = {
   updateStudentZodSchema,
 };
