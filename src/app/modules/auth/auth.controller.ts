@@ -14,7 +14,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   const cookieOptions = {
     secure: config.env === 'production',
     httpOnly: true,
-  };cl
+  };
 
   res.cookie('refreshToken', refreshToken, cookieOptions);
 
