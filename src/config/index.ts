@@ -9,7 +9,7 @@ export default {
   // database_url: process.env.DATABASE_URL_COMPASS,
   database_url: process.env.DATABASE_URL_ATLAS,
   default_student_pass: process.env.DEFAULT_STUDENT_PASS,
-  default_faculty_pass: process.env.DEFAULT_FACULTY_PASS,
+  default_moderator_pass: process.env.DEFAULT_MODERATOR_PASS,
   default_admin_pass: process.env.DEFAULT_ADMIN_PASS,
   bycrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS,
   imgbb_key: process.env.IMGBB_KEY,
