@@ -1,18 +1,26 @@
 import express from 'express';
-import validateRequest from '../../middlewares/validateRequest';
+
 import { AdminController } from './admin.controller';
 import { AdminValidation } from './admin.validation';
+import validateRequestZod from '../../middlewares/validateRequestZod';
+import authMiddleware from '../../middlewares/authMiddleware';
+import { ENUM_USER_ROLE } from '../../../enums/users';
 const router = express.Router();
 
-router.get('/:id', AdminController.getSingleAdmin);
-router.get('/', AdminController.getAllAdmins);
+router
+  .route('/')
+  .get( authMiddleware(ENUM_USER_ROLE.ADMIN,"super_admin"), AdminController.getAllAdmins)
 
-router.delete('/:id', AdminController.deleteAdmin);
 
-router.patch(
-  '/:id',
-  validateRequest(AdminValidation.updateAdmin),
-  AdminController.updateAdmin
-);
+router
+  .route('/:id')
+  .get( authMiddleware(ENUM_USER_ROLE.ADMIN,"super_admin"),AdminController.getSingleAdmin)
+  .put(
+    authMiddleware(ENUM_USER_ROLE.ADMIN,"super_admin"),
+    validateRequestZod(AdminValidation.updateAdmin),
+    AdminController.updateAdmin
+  )
+  .delete(authMiddleware("super_admin"), AdminController.deleteAdmin);
+  
 
 export const AdminRoutes = router;

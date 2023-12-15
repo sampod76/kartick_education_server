@@ -1,22 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import httpStatus from 'http-status';
 import mongoose, { SortOrder } from 'mongoose';
-import ApiError from '../../../errors/ApiError';
-import { paginationHelpers } from '../../../helpers/paginationHelper';
-import { IGenericResponse } from '../../../interfaces/common';
-import { IPaginationOptions } from '../../../interfaces/pagination';
+
 import { User } from '../user/user.model';
 import { adminSearchableFields } from './admin.constant';
 import { IAdmin, IAdminFilters } from './admin.interface';
 import { Admin } from './admin.model';
+import { IPaginationOption } from '../../interface/pagination';
+import { IGenericResponse } from '../../interface/common';
+import { paginationHelper } from '../../../helper/paginationHelper';
+import ApiError from '../../errors/ApiError';
 
-const getAllAdmins = async (
+const getAllAdminsDB = async (
   filters: IAdminFilters,
-  paginationOptions: IPaginationOptions
+  paginationOptions: IPaginationOption
 ): Promise<IGenericResponse<IAdmin[]>> => {
   const { searchTerm, ...filtersData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
-    paginationHelpers.calculatePagination(paginationOptions);
+    paginationHelper.calculatePagination(paginationOptions);
 
   const andConditions = [];
 
@@ -65,12 +66,12 @@ const getAllAdmins = async (
   };
 };
 
-const getSingleAdmin = async (id: string): Promise<IAdmin | null> => {
+const getSingleAdminDB = async (id: string): Promise<IAdmin | null> => {
   const result = await Admin.findOne({ id }).populate('ManagementDepartment');
   return result;
 };
 
-const updateAdmin = async (
+const updateAdminDB = async (
   id: string,
   payload: Partial<IAdmin>
 ): Promise<IAdmin | null> => {
@@ -97,7 +98,7 @@ const updateAdmin = async (
   return result;
 };
 
-const deleteAdmin = async (id: string): Promise<IAdmin | null> => {
+const deleteAdminDB = async (id: string): Promise<IAdmin | null> => {
   // check if the faculty is exist
   const isExist = await Admin.findOne({ id });
 
@@ -127,8 +128,8 @@ const deleteAdmin = async (id: string): Promise<IAdmin | null> => {
 };
 
 export const AdminService = {
-  getAllAdmins,
-  getSingleAdmin,
-  updateAdmin,
-  deleteAdmin,
+  getAllAdminsDB,
+  getSingleAdminDB,
+  updateAdminDB,
+  deleteAdminDB,
 };

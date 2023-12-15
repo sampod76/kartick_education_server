@@ -1,5 +1,5 @@
 import { Model, Types } from 'mongoose';
-import { IManagementDepartment } from '../managementDepartment/managementDepartment.inerface';
+
 
 export type UserName = {
   firstName: string;
@@ -8,20 +8,15 @@ export type UserName = {
 };
 
 export type IAdmin = {
-  id: string;
-  name: UserName;
-  profileImage: string;
-  dateOfBirth?: string;
+  name: UserName; //embedded object
+  gender: 'male' | 'female';
+  dateOfBirth: string;
   email: string;
   phoneNumber: string;
-  emergencyphoneNumber: string;
-  gender?: 'male' | 'female';
-  permanentAddress?: string;
-  presentAddress?: string;
   bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
-
-  managementDepartment: Types.ObjectId | IManagementDepartment;
-  designation: string;
+  address: string;
+  courseId: Types.ObjectId 
+  img: string;
 };
 
 export type AdminModel = Model<IAdmin, Record<string, unknown>>;
@@ -29,11 +24,7 @@ export type AdminModel = Model<IAdmin, Record<string, unknown>>;
 export type IAdminFilters = {
   searchTerm?: string;
   id?: string;
+  bloodGroup?: string;
   email?: string;
   phoneNumber?: string;
-  emergencyphoneNumber?: string;
-  gender?: 'male' | 'female';
-  bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
-  managementDepartment?: string;
-  designation?: string;
 };
