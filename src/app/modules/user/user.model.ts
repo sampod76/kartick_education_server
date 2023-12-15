@@ -40,7 +40,7 @@ const userSchema = new Schema<IUser,UserModel>(
   }
 );
 
-userSchema.statics.isUserExistsMethod = async function (
+userSchema.statics.isUserExistMethod = async function (
   email: string
 ): Promise<Pick<
   IUser,

@@ -119,7 +119,7 @@ const createAdminZodSchema = z.object({
 });
 
 export const UserValidation = {
-  createUserZodSchema: SignUpZodSchema,
-  createFacultyZodSchema: createModeratorZodSchema,
+  SignUpZodSchema,
+ createModeratorZodSchema,
   createAdminZodSchema,
 };

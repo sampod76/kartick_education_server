@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import config from '../../../config';
-import catchAsync from '../../../shared/catchAsync';
-import sendResponse from '../../../shared/sendResponse';
+
 import { ILoginUserResponse, IRefreshTokenResponse } from './auth.interface';
 import { AuthService } from './auth.service';
+import catchAsync from '../../share/catchAsync';
+import sendResponse from '../../share/sendResponse';
 
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const { ...loginData } = req.body;
@@ -13,7 +14,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   const cookieOptions = {
     secure: config.env === 'production',
     httpOnly: true,
-  };
+  };cl
 
   res.cookie('refreshToken', refreshToken, cookieOptions);
 

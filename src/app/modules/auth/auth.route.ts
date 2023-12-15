@@ -1,42 +1,42 @@
 import express from 'express';
-import { ENUM_USER_ROLE } from '../../../enums/user';
-import auth from '../../middlewares/auth';
-import validateRequest from '../../middlewares/validateRequest';
+
 import { AuthController } from './auth.controller';
 import { AuthValidation } from './auth.validation';
+import validateRequestZod from '../../middlewares/validateRequestZod';
+import authMiddleware from '../../middlewares/authMiddleware';
+import { ENUM_USER_ROLE } from '../../../enums/users';
 const router = express.Router();
 
 router.post(
   '/login',
-  validateRequest(AuthValidation.loginZodSchema),
+  validateRequestZod(AuthValidation.loginZodSchema),
   AuthController.loginUser
 );
 
 router.post(
   '/refresh-token',
-  validateRequest(AuthValidation.refreshTokenZodSchema),
+  validateRequestZod(AuthValidation.refreshTokenZodSchema),
   AuthController.refreshToken
 );
 
 router.post(
   '/change-password',
-  validateRequest(AuthValidation.changePasswordZodSchema),
-  auth(
-    ENUM_USER_ROLE.SUPER_ADMIN,
+  validateRequestZod(AuthValidation.changePasswordZodSchema),
+  authMiddleware(
     ENUM_USER_ROLE.ADMIN,
-    ENUM_USER_ROLE.FACULTY,
-    ENUM_USER_ROLE.STUDENT
+    ENUM_USER_ROLE.MODERATOR,
+    ENUM_USER_ROLE.student
   ),
   AuthController.changePassword
 );
-router.post(
-  '/forgot-password',
-  AuthController.forgotPass
-);
+// router.post(
+//   '/forgot-password',
+//   AuthController.forgotPass
+// );
 
-router.post(
-  '/reset-password',
-  AuthController.resetPassword
-);
+// router.post(
+//   '/reset-password',
+//   AuthController.resetPassword
+// );
 
 export const AuthRoutes = router;

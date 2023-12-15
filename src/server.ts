@@ -5,6 +5,7 @@ import { Server } from 'http';
 // import { errorLogger, logger } from './app/share/logger';
 import { errorLogger, logger } from './app/share/logger';
 import config from './config/index';
+import "colors"
 mongoose.set('strictQuery', false);
 
 process.on('uncaughtException', error => {
@@ -19,14 +20,14 @@ let server: Server; // এটা তারা বুঝায় সার্ভ
 async function connection() {
   try {
     await mongoose.connect(config.database_url as string);
-    logger.info(`Database connection successfull`);
+    logger.info(`Database connection successfull`.green.underline.bold);
     // console.log(`Database connection successfull`);
     app.listen(config.port, (): void => {
-      logger.info(`Server is listening on port ${config.port}`);
+      logger.info(`Server is listening on port ${config.port}`.red.underline.bold);
       // console.log(`Server is listening on port ${config.port}`);
     });
   } catch (error) {
-    errorLogger.error(`Failed to connect database: ${error}`);
+    errorLogger.error(`Failed to connect database: ${error}`.red.bold);
     // console.log(`Failed to connect database: ${error}`);
   }
 
