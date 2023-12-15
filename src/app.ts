@@ -25,22 +25,22 @@ const app: Application = express();
 // app.use(cors());
 
 app.use(helmetOriginal());
-app.use(
-  cors({
-    origin: ['https://salontrainingpro.app', 'http://localhost:3000'],
-    credentials: true,
-  })
-);
-
-
-
 // app.use(
 //   cors({
-//     origin: '*',
+//     origin: ['https://salontrainingpro.app', 'http://localhost:3000'],
 //     credentials: true,
-//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
 //   })
 // );
+
+
+
+app.use(
+  cors({
+    origin: '*',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  })
+);
 
 //  app.use(function (req, res, next) {
 //   res.header("Access-Control-Allow-Origin", 'https://salontrainingpro.app')

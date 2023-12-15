@@ -1,14 +1,15 @@
-import { ENUM_USER_ROLE } from '../../../enums/user';
+import { ENUM_USER_ROLE } from "../../../enums/users";
+
 
 export type ILoginUser = {
-  id: string;
+  email: string;
   password: string;
 };
 
 export type ILoginUserResponse = {
   accessToken: string;
   refreshToken?: string;
-  needsPasswordChange: boolean;
+  // needsPasswordChange: boolean;
 };
 
 export type IRefreshTokenResponse = {
