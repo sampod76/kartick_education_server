@@ -1,16 +1,16 @@
 import httpStatus from 'http-status';
 import mongoose from 'mongoose';
 import config from '../../../config/index';
+import { ENUM_USER_ROLE } from '../../../enums/users';
+import ApiError from '../../errors/ApiError';
+import { IModerator } from '../Moderator/moderator.interface';
+import { Moderator } from '../Moderator/moderator.model';
 import { IAdmin } from '../admin/admin.interface';
 import { Admin } from '../admin/admin.model';
 import { IStudent } from '../student/student.interface';
 import { Student } from '../student/student.model';
 import { IUser } from './user.interface';
 import { User } from './user.model';
-import ApiError from '../../errors/ApiError';
-import { IModerator } from '../Moderator/moderator.interface';
-import { Moderator } from '../Moderator/moderator.model';
-import { ENUM_USER_ROLE } from '../../../enums/users';
 
 const createStudent = async (
   student: IStudent,
@@ -19,6 +19,10 @@ const createStudent = async (
   // default password
   if (!user.password) {
     user.password = config.default_student_pass as string;
+  }
+  const exist = await User.isUserExistMethod(user.email)
+  if(exist){
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
   }
   // set role
   user.role = 'student';
@@ -91,6 +95,10 @@ const createModerator = async (
   if (!user.password) {
     user.password = config.default_moderator_pass as string;
   }
+  const exist = await User.isUserExistMethod(user.email)
+  if(exist){
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
+  }
   // set role
   user.role = ENUM_USER_ROLE.MODERATOR;
 
@@ -150,6 +158,10 @@ const createAdmin = async (
   // default password
   if (!user.password) {
     user.password = config.default_admin_pass as string;
+  }
+  const exist = await User.isUserExistMethod(user.email)
+  if(exist){
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
   }
   // set role
   user.role = 'admin';

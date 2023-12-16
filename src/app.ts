@@ -36,7 +36,7 @@ app.use(helmetOriginal());
 
 app.use(
   cors({
-    origin: '*',
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   })
@@ -113,13 +113,7 @@ app.get('/', async (req: Request, res: Response, next: NextFunction) => {
   // res.send('server is running');
 });
 
-/*
- const revenuecat = new Revenuecat({
-  secretKey: "sk_AwzheKPxGcMLbnqWdOeFWhRfcwKIA",
-  iosKey: "993dd49ebcba4546aa3c4657330ac6e0",
-  androidKey: process.env.androidKey as string,
-}) 
-*/
+
 const test = async () => {
 /*  
  const url = 'https://api.revenuecat.com/v1/apps/appcadee85965/subscribers/882b1b28b5664a0ea3ecc7a6efb56b9b';

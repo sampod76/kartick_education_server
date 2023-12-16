@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
-import { Schema, model } from 'mongoose';
-import { IUser, UserModel } from './user.interface';
 import bcrypt from 'bcrypt';
+import { Schema, model } from 'mongoose';
 import config from '../../../config';
+import { IUser, UserModel } from './user.interface';
 
 const userSchema = new Schema<IUser,UserModel>(
   {
     email:{
       type: String,
       required: true,
-      unique: true,
+      //unique: true,
     },
     role: {
       type: String,

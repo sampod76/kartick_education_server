@@ -3,7 +3,7 @@ import { gender } from '../student/student.constant';
 
 const SignUpZodSchema = z.object({
   body: z.object({
-    password: z.string().optional(),
+    password: z.string(),
     student: z.object({
       name: z.object({
         firstName: z.string({

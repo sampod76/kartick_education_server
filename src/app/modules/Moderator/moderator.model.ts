@@ -1,4 +1,4 @@
-import { Schema,  model } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { IModerator, ModeratorModel } from './moderator.interface';
 
 const ModeratorSchema = new Schema<IModerator, ModeratorModel>(
@@ -33,12 +33,12 @@ const ModeratorSchema = new Schema<IModerator, ModeratorModel>(
     },
     email: {
       type: String,
-      unique: true,
+      //unique: true,
       required: true,
     },
     phoneNumber: {
       type: String,
-      unique: true,
+      //unique: true,
       required: true,
     },
 
