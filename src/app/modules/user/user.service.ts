@@ -27,20 +27,11 @@ const createStudent = async (
   // set role
   user.role = 'student';
 
-  // const academicsemester = await AcademicSemester.findById(
-  //   student.academicSemester
-  // ).lean();
-
-  // generate student id
   let newUserAllData = null;
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
 
-    // const id = await generateStudentId(academicsemester as IAcademicSemester);
-
-    // user.id = id;
-    // student.id = id;
 
     //array
     const newStudent = await Student.create([student], { session });
@@ -48,7 +39,6 @@ const createStudent = async (
     if (!newStudent.length) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create student');
     }
-
     //set student -->  _id into user.student
     user.student = newStudent[0]._id;
 
@@ -58,7 +48,7 @@ const createStudent = async (
       throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create user');
     }
     newUserAllData = newUser[0];
-
+  
     await session.commitTransaction();
     await session.endSession();
   } catch (error) {
@@ -108,9 +98,6 @@ const createModerator = async (
   try {
     session.startTransaction();
 
-    // const id = await generateFacultyId();
-    // user.id = id;
-    // faculty.id = id;
 
     const newModerator = await Moderator.create([moderator], { session });
 
@@ -123,7 +110,7 @@ const createModerator = async (
     const newUser = await User.create([user], { session });
 
     if (!newUser.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create faculty');
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create moderator');
     }
     newUserAllData = newUser[0];
 
