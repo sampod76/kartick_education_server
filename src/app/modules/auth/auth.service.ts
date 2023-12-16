@@ -39,13 +39,13 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   const { email: existEmail, role } = isUserExist;
 
   const accessToken = jwtHelpers.createToken(
-    { email:existEmail, role },
+    { email: existEmail, role },
     config.jwt.secret as Secret,
     config.jwt.expires_in as string
   );
 
   const refreshToken = jwtHelpers.createToken(
-    { email:existEmail, role },
+    { email: existEmail, role },
     config.jwt.refresh_secret as Secret,
     config.jwt.refresh_expires_in as string
   );
@@ -144,7 +144,7 @@ const changePassword = async (
 };
 
 const forgotPass = async (payload: { id: string }) => {
-  const user = await User.findOne({ id: payload.id }, { id: 1, role: 1 });
+  const user = await User.findOne({ _id: payload.id }, { role: 1 });
 
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User does not exist!');
