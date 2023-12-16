@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
-import { COURSE_STATUS, COURSE_TYPES } from './course.constant';
+import { STATUS } from '../../../constant/globalConstant';
+import { COURSE_TYPES } from './course.constant';
 import { CourseModel, ICourse } from './course.interface';
 
 const courseSchema = new Schema<ICourse, CourseModel>(
@@ -44,7 +45,7 @@ const courseSchema = new Schema<ICourse, CourseModel>(
     },
     status: {
       type: String,
-      enum: COURSE_STATUS,
+      enum: STATUS,
       default: 'active',
     },
     demo_video: {

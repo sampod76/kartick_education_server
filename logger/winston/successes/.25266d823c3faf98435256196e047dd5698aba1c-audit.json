@@ -1,0 +1,25 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "D:\\programming hero\\INTERSHIP\\ronjit\\eductaion\\kartick_education_server\\logger\\winston\\successes\\.25266d823c3faf98435256196e047dd5698aba1c-audit.json",
+    "files": [
+        {
+            "date": 1702714661280,
+            "name": "D:\\programming hero\\INTERSHIP\\ronjit\\eductaion\\kartick_education_server\\logger\\winston\\successes\\PHU-2023-12-16-14-success.log",
+            "hash": "74613035cf63980404c22c6adf2fb05e0264c482c0f93c4baa5b1a8712c97893"
+        },
+        {
+            "date": 1702735158335,
+            "name": "D:\\programming hero\\INTERSHIP\\ronjit\\eductaion\\kartick_education_server\\logger\\winston\\successes\\PHU-2023-12-16-19-success.log",
+            "hash": "925b247f76cec4d81db1f6b3a992cddd2dabcc9828710738f4bac5933f900eab"
+        },
+        {
+            "date": 1702735521673,
+            "name": "D:\\programming hero\\INTERSHIP\\ronjit\\eductaion\\kartick_education_server\\logger\\winston\\successes\\PHU-2023-12-16-20-success.log",
+            "hash": "972c09829a5fed1db63ad811d6a313956e5bdf4b519d3c94a675845e8d45d659"
+        }
+    ],
+    "hashType": "sha256"
+}
