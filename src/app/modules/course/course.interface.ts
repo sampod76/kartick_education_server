@@ -12,27 +12,26 @@ export type ICourseFilters = {
 };
 
 export type ICourseSearchableField = {
-  title: string;
-  price: string;
-  level: string;
-  status: string;
-  details: string;
+  title?: string;
+  details?: string;
 };
 
 export type ICourse = {
   title: string;
   img: string;
-  details: string;
-  author_id: Types.ObjectId;
-  main_course_category_id: Types.ObjectId;
-  sub1_course_category_id: Types.ObjectId;
+  details?: string;
+  author: Types.ObjectId;
+  category: Types.ObjectId;
+  // sub1_course_category_id: Types.ObjectId;
   price: number;
-  duration: string;
-  level: string;
-  price_type: 'free' | 'paid' | 'open' | 'closed' | 'recurrig';
+  tax?: number;
+  vat?: number;
+  duration?: string;
+  level?: string;
+  price_type: 'free' | 'paid' | 'closed' | 'recurrig';
   status: 'active' | 'deactive' | 'save';
   //! incomplete
-  demo_video_id: Types.ObjectId;
+  demo_video?:Record<string,string>
 };
 
 export type CourseModel = Model<ICourse, Record<string, unknown>>;

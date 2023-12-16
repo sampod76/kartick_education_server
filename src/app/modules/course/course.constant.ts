@@ -1,8 +1,5 @@
 export const COURSE_SEARCHABLE_FIELDS = [
   'title',
-  'price',
-  'level',
-  'status',
   'details',
 ];
 export const COURSE_FILTERABLE_FIELDS = [
