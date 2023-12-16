@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { bloodGroup, gender } from '../student/student.constant';
+import { gender } from '../student/student.constant';
 
 const SignUpZodSchema = z.object({
   body: z.object({
@@ -12,7 +12,6 @@ const SignUpZodSchema = z.object({
         lastName: z.string({
           required_error: 'Last name is required',
         }),
-        middleName: z.string().optional(),
       }),
       gender: z.enum([...gender] as [string, ...string[]], {
         required_error: 'Gender is required',
@@ -25,16 +24,12 @@ const SignUpZodSchema = z.object({
           required_error: 'Email is required',
         })
         .email(),
-        phoneNumber: z.string({
+      phoneNumber: z.string({
         required_error: 'phoneNumber is required',
-      }),   
-      bloodGroup: z.enum([...bloodGroup] as [string, ...string[]]).optional(),
- 
-      address: z.string({
-        required_error: 'address is required',
       }),
-      img: z.string({required_error:"img is required"}),
-      courseId: z.string({required_error:"courseId is required"}).optional(),
+
+      address: z.string(),
+      img: z.string({ required_error: 'img is required' }),
     }),
   }),
 });
@@ -43,37 +38,18 @@ const createModeratorZodSchema = z.object({
   body: z.object({
     password: z.string().optional(),
     moderator: z.object({
-      name: z.object({
-        firstName: z.string({
-          required_error: 'First name is required',
-        }),
-        lastName: z.string({
-          required_error: 'Last name is required',
-        }),
-        middleName: z.string().optional(),
-      }),
-      gender: z.enum([...gender] as [string, ...string[]], {
-        required_error: 'Gender is required',
-      }),
-      dateOfBirth: z.string({
-        required_error: 'Date of birth is required',
-      }),
-      email: z
-        .string({
-          required_error: 'Email is required',
+      name: z
+        .object({
+          firstName: z.string(),
+          lastName: z.string(),
         })
-        .email(),
-        phoneNumber: z.string({
-        required_error: 'phoneNumber is required',
-      }),   
-      bloodGroup: z.enum([...bloodGroup] as [string, ...string[]]).optional(),
- 
-      address: z.string({
-        required_error: 'address is required',
-      }),
-      img: z.string({required_error:"img is required"}),
-      courseId: z.string({required_error:"courseId is required"}),
-
+        .optional(),
+      gender: z.enum([...gender] as [string, ...string[]]).optional(),
+      dateOfBirth: z.string().optional(),
+      email: z.string().email().optional(),
+      phoneNumber: z.string().optional(),
+      address: z.string().optional(),
+      img: z.string().optional(),
     }),
   }),
 });
@@ -83,43 +59,24 @@ const createAdminZodSchema = z.object({
     password: z.string().optional(),
 
     admin: z.object({
-      name: z.object({
-        firstName: z.string({
-          required_error: 'First name is required',
-        }),
-        lastName: z.string({
-          required_error: 'Last name is required',
-        }),
-        middleName: z.string().optional(),
-      }),
-      gender: z.enum([...gender] as [string, ...string[]], {
-        required_error: 'Gender is required',
-      }),
-      dateOfBirth: z.string({
-        required_error: 'Date of birth is required',
-      }),
-      email: z
-        .string({
-          required_error: 'Email is required',
+      name: z
+        .object({
+          firstName: z.string(),
+          lastName: z.string(),
         })
-        .email(),
-        phoneNumber: z.string({
-        required_error: 'phoneNumber is required',
-      }),   
-      bloodGroup: z.enum([...bloodGroup] as [string, ...string[]]).optional(),
-
-      address: z.string({
-        required_error: 'address is required',
-      }),
-      img: z.string({required_error:"img is required"}),
-      
-      
+        .optional(),
+      gender: z.enum([...gender] as [string, ...string[]]).optional(),
+      dateOfBirth: z.string().optional(),
+      email: z.string().email().optional(),
+      phoneNumber: z.string().optional(),
+      address: z.string().optional(),
+      img: z.string().optional(),
     }),
   }),
 });
 
 export const UserValidation = {
   SignUpZodSchema,
- createModeratorZodSchema,
+  createModeratorZodSchema,
   createAdminZodSchema,
 };

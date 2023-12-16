@@ -49,7 +49,6 @@ const getAllAdminsDB = async (
     andConditions.length > 0 ? { $and: andConditions } : {};
 
   const result = await Admin.find(whereConditions)
-    .populate('managementDepartment')
     .sort(sortConditions)
     .skip(skip)
     .limit(limit);
@@ -67,7 +66,7 @@ const getAllAdminsDB = async (
 };
 
 const getSingleAdminDB = async (id: string): Promise<IAdmin | null> => {
-  const result = await Admin.findOne({ id }).populate('ManagementDepartment');
+  const result = await Admin.findById(id);
   return result;
 };
 
@@ -75,7 +74,7 @@ const updateAdminDB = async (
   id: string,
   payload: Partial<IAdmin>
 ): Promise<IAdmin | null> => {
-  const isExist = await Admin.findOne({ id });
+  const isExist = await Admin.findById(id);
 
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Admin not found !');
@@ -92,7 +91,7 @@ const updateAdminDB = async (
     });
   }
 
-  const result = await Admin.findOneAndUpdate({ id }, updatedStudentData, {
+  const result = await Admin.findOneAndUpdate({ _id:id }, updatedStudentData, {
     new: true,
   });
   return result;
@@ -100,7 +99,7 @@ const updateAdminDB = async (
 
 const deleteAdminDB = async (id: string): Promise<IAdmin | null> => {
   // check if the faculty is exist
-  const isExist = await Admin.findOne({ id });
+  const isExist = await Admin.findById(id);
 
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Faculty not found !');
@@ -111,18 +110,19 @@ const deleteAdminDB = async (id: string): Promise<IAdmin | null> => {
   try {
     session.startTransaction();
     //delete student first
-    const student = await Admin.findOneAndDelete({ id }, { session });
+    const student = await Admin.findOneAndDelete({ _id:id }, { session });
     if (!student) {
       throw new ApiError(404, 'Failed to delete student');
     }
     //delete user
-    await User.deleteOne({ id });
+    await User.deleteOne({ _id:id });
     session.commitTransaction();
     session.endSession();
 
     return student;
   } catch (error) {
     session.abortTransaction();
+    session.endSession();
     throw error;
   }
 };

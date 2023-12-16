@@ -4,7 +4,7 @@ import { Model, Types } from 'mongoose';
 export type UserName = {
   firstName: string;
   lastName: string;
-  middleName: string;
+
 };
 
 export type IAdmin = {

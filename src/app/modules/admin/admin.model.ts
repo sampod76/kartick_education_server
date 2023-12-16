@@ -13,9 +13,7 @@ const AdminSchema = new Schema<IAdmin, AdminModel>(
           type: String,
           required: true,
         },
-        middleName: {
-          type: String,
-        },
+       
       },
       required: true,
     },
@@ -26,10 +24,7 @@ const AdminSchema = new Schema<IAdmin, AdminModel>(
       type: String,
       enum: ['male', 'female'],
     },
-    bloodGroup: {
-      type: String,
-      enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
-    },
+   
     email: {
       type: String,
       unique: true,
@@ -43,15 +38,18 @@ const AdminSchema = new Schema<IAdmin, AdminModel>(
 
     address: {
       type: String,
-      required: true,
+     
     },
     img: {
       type: String,
-      required: true,
+      
     },
   },
   {
     timestamps: true,
+    toJSON: {
+      virtuals: true,
+    },
   }
 );
 
