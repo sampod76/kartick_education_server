@@ -10,6 +10,7 @@ import { User } from './user.model';
 import ApiError from '../../errors/ApiError';
 import { IModerator } from '../Moderator/moderator.interface';
 import { Moderator } from '../Moderator/moderator.model';
+import { ENUM_USER_ROLE } from '../../../enums/users';
 
 const createStudent = async (
   student: IStudent,
@@ -91,7 +92,7 @@ const createModerator = async (
     user.password = config.default_moderator_pass as string;
   }
   // set role
-  user.role = 'faculty';
+  user.role = ENUM_USER_ROLE.MODERATOR;
 
   
   let newUserAllData = null;
@@ -128,7 +129,7 @@ const createModerator = async (
 
   if (newUserAllData) {
     newUserAllData = await User.findOne({ id: newUserAllData.id }).populate({
-      path: 'faculty',
+      path: 'moderator',
       // populate: [
       //   {
       //     path: 'academicDepartment',
@@ -189,11 +190,7 @@ const createAdmin = async (
   if (newUserAllData) {
     newUserAllData = await User.findOne({ id: newUserAllData.id }).populate({
       path: 'admin',
-      populate: [
-        {
-          path: 'managementDepartment',
-        },
-      ],
+      
     });
   }
 
