@@ -126,9 +126,16 @@ const getAllLessonFromDb = async (
     },
     {
       $addFields: {
-        module: '$moduleDetails',
+        module: {
+          $cond: {
+            if: { $eq: [{ $size: '$moduleDetails' }, 0] },
+            then: [{}],
+            else: '$moduleDetails',
+          },
+        },
       },
     },
+   
     {
       $project: { moduleDetails: 0 },
     },

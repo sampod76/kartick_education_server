@@ -2,8 +2,8 @@
 import bcrypt from 'bcrypt';
 import { Schema, model } from 'mongoose';
 import config from '../../../config';
-import { IUser, UserModel } from './user.interface';
 import { STATUS_ARRAY } from '../../../constant/globalConstant';
+import { IUser, UserModel } from './user.interface';
 
 const userSchema = new Schema<IUser, UserModel>(
   {
