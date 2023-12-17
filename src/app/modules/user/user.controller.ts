@@ -42,7 +42,6 @@ const createAdmin: RequestHandler = catchAsync(
     const { admin, ...userData } = req.body;
     userData.email=admin?.email
     const result = await UserService.createAdmin(admin, userData);
-
     sendResponse<IUser>(res, {
       statusCode: httpStatus.OK,
       success: true,

@@ -98,7 +98,6 @@ const createModerator = async (
   try {
     session.startTransaction();
 
-
     const newModerator = await Moderator.create([moderator], { session });
 
     if (!newModerator.length) {

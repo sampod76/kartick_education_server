@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { STATUS } from '../../../constant/globalConstant';
+import { STATUS_ARRAY, YN_ARRAY } from '../../../constant/globalConstant';
 import { COURSE_TYPES } from './course.constant';
 import { CourseModel, ICourse } from './course.interface';
 
@@ -8,6 +8,10 @@ const courseSchema = new Schema<ICourse, CourseModel>(
     title: {
       type: String,
       trim: true,
+      index: true,
+    },
+    snid: {
+      type: String,
     },
     img: {
       type: String,
@@ -30,7 +34,7 @@ const courseSchema = new Schema<ICourse, CourseModel>(
     // },
     price: {
       type: Number,
-      min:0
+      min: 0,
     },
     duration: {
       type: String,
@@ -45,13 +49,24 @@ const courseSchema = new Schema<ICourse, CourseModel>(
     },
     status: {
       type: String,
-      enum: STATUS,
+      enum: STATUS_ARRAY,
       default: 'active',
     },
     demo_video: {
       type: Object,
       default: {},
     },
+
+    showing_number: {
+      type: Number,
+      default: 9999,
+    },
+    favorite: {
+      type: String,
+      enum: YN_ARRAY,
+      default: 'no',
+    },
+    tags: [String],
   },
   {
     timestamps: true,

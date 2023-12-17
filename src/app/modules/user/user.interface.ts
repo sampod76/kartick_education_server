@@ -8,6 +8,8 @@ export type IUser = {
   role: string;
   email: string;
   password: string;
+  status: 'active' | 'deactivate' | 'disabled' |'block';
+  blockingTimeout?: number;
   student?: Types.ObjectId | IStudent;
   moderator?: Types.ObjectId | IModerator;
   admin?: Types.ObjectId | IAdmin;

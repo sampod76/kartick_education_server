@@ -1,35 +1,36 @@
 import { z } from 'zod';
-import { Module_STATUS } from './module.constant';
+import { STATUS_ARRAY } from '../../../constant/globalConstant';
+
 const createModuleZodSchema = z.object({
   body: z.object({
-    title: z.string({ required_error: 'title is Required (zod)' }),
-    module_number: z.string({
-      required_error: 'module_number is Required (zod)',
-    }),
-    img: z.string({ required_error: 'img is Required (zod)' }),
-    details: z.string({ required_error: 'details is Required (zod)' }),
-    milestone_id: z.string({
-      required_error: 'milestone_id is Required (zod)',
-    }),
-    status: z.enum([...Module_STATUS] as [string, ...string[]]),
-  }),
-});
-const updateModuleZodSchema = z.object({
-  body: z.object({
-    title: z.string({ required_error: 'title is Required (zod)' }).optional(),
-    module_number: z.string({
-      required_error: 'module_number is Required (zod)',
-    }).optional(),
-    img: z.string({ required_error: 'img is Required (zod)' }).optional(),
-    details: z.string({ required_error: 'details is Required (zod)' }).optional(),
-    milestone_id: z.string({
-      required_error: 'milestone_id is Required (zod)',
-    }).optional(),
-    status: z.enum([...Module_STATUS] as [string, ...string[]]).optional(),
+    title: z.string({ required_error: 'title field is required' }),
+    milestone: z.string({ required_error: 'milestone field is required' }),
+    img: z.string().url().optional(),
+    details: z.string().optional(),
+    author: z.string().optional(),
+    status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
+    module_number: z.number().min(0).optional(),
+    demo_video: z.object({}).optional(),
+    tags: z.array(z.string()).optional(),
   }),
 });
 
-export const ModuleValidation = {
-  createModuleZodSchema,
-  updateModuleZodSchema,
+const updateModuleZodSchema = z.object({
+  body: z.object({
+    title: z.string().optional(),
+    milestone: z.string().optional(),
+    img: z.string().url().optional(),
+    course: z.string().optional(),
+    details: z.string().optional(),
+    author: z.string().optional(),
+    status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
+    module_number: z.number().min(0).optional(),
+    demo_video: z.object({}).optional(),
+    tags: z.array(z.string()).optional(),
+  }),
+});
+
+export const moduleValidation = {
+ createModuleZodSchema,
+ updateModuleZodSchema,
 };

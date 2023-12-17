@@ -15,6 +15,7 @@ export type IStudent = {
   email: string;
   phoneNumber?: string;
   address?: string;
+  status: string;
   img?: string;
 };
 
