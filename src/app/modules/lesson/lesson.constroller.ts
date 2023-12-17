@@ -5,95 +5,95 @@ import { PAGINATION_FIELDS } from '../../../constant/pagination';
 import catchAsync from '../../share/catchAsync';
 import pick from '../../share/pick';
 import sendResponse from '../../share/sendResponse';
-import { MODULE_FILTERABLE_FIELDS } from './lesson.constant';
-import { IModule } from './lesson.interface';
-import { ModuleService } from './lesson.service';
+import { LESSON_FILTERABLE_FIELDS } from './lesson.constant';
+import { ILesson } from './lesson.interface';
+import { LessonService } from './lesson.service';
 
 // import { z } from 'zod'
-const createModule = catchAsync(async (req: Request, res: Response) => {
-  const { ...ModuleData } = req.body;
+const createLesson = catchAsync(async (req: Request, res: Response) => {
+  const { ...LessonData } = req.body;
 
-  const result = await ModuleService.createModuleByDb(ModuleData);
+  const result = await LessonService.createLessonByDb(LessonData);
 
-  sendResponse<IModule>(res, {
+  sendResponse<ILesson>(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: 'successfull create Module',
+    message: 'successfull create Lesson',
     data: result,
   });
 });
 
-const getAllModule = catchAsync(async (req: Request, res: Response) => {
+const getAllLesson = catchAsync(async (req: Request, res: Response) => {
   //****************search and filter start******* */
   // console.log(req.query);
   const queryObject = req.query;
 
-  const filters = pick(queryObject, MODULE_FILTERABLE_FIELDS);
+  const filters = pick(queryObject, LESSON_FILTERABLE_FIELDS);
 
   //****************pagination start************ */
 
   const paginationOptions = pick(queryObject, PAGINATION_FIELDS);
 
-  const result = await ModuleService.getAllModuleFromDb(
+  const result = await LessonService.getAllLessonFromDb(
     filters,
     paginationOptions
   );
 
-  sendResponse<IModule[]>(res, {
+  sendResponse<ILesson[]>(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: 'successfull Get  Module',
+    message: 'successfull Get  Lesson',
     meta: result.meta,
     data: result.data,
   });
   // next();
 });
 
-const getSingleModule = catchAsync(async (req: Request, res: Response) => {
+const getSingleLesson = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await ModuleService.getSingleModuleFromDb(id);
-  sendResponse<IModule>(res, {
+  const result = await LessonService.getSingleLessonFromDb(id);
+  sendResponse<ILesson>(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: 'successfull get  Module',
+    message: 'successfull get  Lesson',
     data: result,
   });
 });
-const updateModule = catchAsync(async (req: Request, res: Response) => {
+const updateLesson = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const updateData = req.body;
 
-  const result = await ModuleService.updateModuleFromDb(id, updateData);
+  const result = await LessonService.updateLessonFromDb(id, updateData);
 
-  sendResponse<IModule>(res, {
+  sendResponse<ILesson>(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: 'successfull update  Module',
+    message: 'successfull update  Lesson',
     data: result,
   });
 });
 
-const deleteModule = catchAsync(async (req: Request, res: Response) => {
+const deleteLesson = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await ModuleService.deleteModuleByIdFromDb(
+  const result = await LessonService.deleteLessonByIdFromDb(
     id,
     req.query
   );
-  sendResponse<IModule>(res, {
+  sendResponse<ILesson>(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: 'successfull delete  Module',
+    message: 'successfull delete  Lesson',
     data: result,
   });
 });
 
-const ModuleReviewsByUser = catchAsync(
+const LessonReviewsByUser = catchAsync(
   async (req: Request, res: Response) => {
     // const { id } = req.params;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const result = await ModuleService.ModuleReviewsByUserFromDb();
+    const result = await LessonService.LessonReviewsByUserFromDb();
 
-    sendResponse<IModule>(res, {
+    sendResponse<ILesson>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: 'successfull update reviews',
@@ -101,11 +101,11 @@ const ModuleReviewsByUser = catchAsync(
     });
   }
 );
-export const ModuleController = {
-  createModule,
-  getAllModule,
-  getSingleModule,
-  updateModule,
-  deleteModule,
-  ModuleReviewsByUser,
+export const LessonController = {
+  createLesson,
+  getAllLesson,
+  getSingleLesson,
+  updateLesson,
+  deleteLesson,
+  LessonReviewsByUser,
 };

@@ -1,8 +1,8 @@
 import { Schema, model } from 'mongoose';
 import { STATUS_ARRAY } from '../../../constant/globalConstant';
-import { IModule, ModuleModel } from './lesson.interface';
+import { ILesson, LessonModel } from './lesson.interface';
 
-const moduleSchema = new Schema<IModule,ModuleModel>(
+const lessonSchema = new Schema<ILesson,LessonModel>(
   {
     title: {
       type: String,
@@ -13,6 +13,7 @@ const moduleSchema = new Schema<IModule,ModuleModel>(
     img: {
       type: String,
     },
+    
     details: {
       type: String,
       trim: true,
@@ -21,21 +22,25 @@ const moduleSchema = new Schema<IModule,ModuleModel>(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    milestone: {
+    module: {
       type: Schema.Types.ObjectId,
-      ref: 'Milestone',
+      ref: 'Module',
     },
     status: {
       type: String,
       enum: STATUS_ARRAY,
       default: 'active',
     },
-    module_number: {
+    lesson_number: {
       type: Number,
     },
+   
     demo_video: {
       type: Object,
       default: {},
+    },
+    video: {
+      type: String,
     },
     tags: [String],
   },
@@ -48,4 +53,4 @@ const moduleSchema = new Schema<IModule,ModuleModel>(
   }
 );
 
-export const Module = model<IModule,ModuleModel>('Module', moduleSchema);
+export const Lesson = model<ILesson,LessonModel>('Lesson', lessonSchema);

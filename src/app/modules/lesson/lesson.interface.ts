@@ -3,7 +3,6 @@ import { IUser } from '../user/user.interface';
 
 import { IModule } from '../module/module.interface';
 
-
 export type ILessonFilters = {
   searchTerm?: string;
   status?: string;
@@ -21,12 +20,14 @@ export type ILesson = {
   title: string;
   img?: string;
   details?: string;
+  lecture: number;
+  lesson_number: number;
   author?: Types.ObjectId | IUser;
   module: Types.ObjectId | IModule | string;
   status: 'active' | 'deactivate' | 'save';
-  module_number?: number;
   demo_video?: Record<string, string>;
+  video?: string;
   tags?: string[];
 };
 
-export type ModuleModel = Model<IModule, Record<string, unknown>>;
+export type LessonModel = Model<ILesson, Record<string, unknown>>;

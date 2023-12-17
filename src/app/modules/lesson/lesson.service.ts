@@ -7,13 +7,13 @@ import { IPaginationOption } from '../../interface/pagination';
 
 import { ENUM_STATUS } from '../../../enums/globalEnums';
 import ApiError from '../../errors/ApiError';
-import { MODULE_SEARCHABLE_FIELDS } from './lesson.constant';
-import { IModule, IModuleFilters } from './lesson.interface';
-import { Module } from './lesson.model';
+import { LESSON_SEARCHABLE_FIELDS } from './lesson.constant';
+import { ILesson, ILessonFilters } from './lesson.interface';
+import { Lesson } from './lesson.model';
 
 const { ObjectId } = mongoose.Types;
-const createModuleByDb = async (payload: IModule): Promise<IModule> => {
-  const result = (await Module.create(payload)).populate([
+const createLessonByDb = async (payload: ILesson): Promise<ILesson> => {
+  const result = (await Lesson.create(payload)).populate([
     {
       path: 'author',
       select: {
@@ -27,11 +27,11 @@ const createModuleByDb = async (payload: IModule): Promise<IModule> => {
   return result;
 };
 
-//getAllModuleFromDb
-const getAllModuleFromDb = async (
-  filters: IModuleFilters,
+//getAllLessonFromDb
+const getAllLessonFromDb = async (
+  filters: ILessonFilters,
   paginationOptions: IPaginationOption
-): Promise<IGenericResponse<IModule[]>> => {
+): Promise<IGenericResponse<ILesson[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
 
@@ -48,7 +48,7 @@ const getAllModuleFromDb = async (
   const andConditions = [];
   if (searchTerm) {
     andConditions.push({
-      $or: MODULE_SEARCHABLE_FIELDS.map(field =>
+      $or: LESSON_SEARCHABLE_FIELDS.map(field =>
         //search array value
         field === 'tags'
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
@@ -62,7 +62,7 @@ const getAllModuleFromDb = async (
   if (Object.keys(filtersData).length) {
     andConditions.push({
       $and: Object.entries(filtersData).map(([field, value]) =>
-         field === 'milestone'
+         field === 'module'
           ? { [field]: new Types.ObjectId(value) }
           : { [field]: value }
       ),
@@ -99,8 +99,8 @@ const getAllModuleFromDb = async (
     { $limit: Number(limit) || 15 },
     {
       $lookup: {
-        from: 'milestones',
-        let: { id: '$milestone' },
+        from: 'modules',
+        let: { id: '$module' },
         pipeline: [
           {
             $match: {
@@ -117,37 +117,37 @@ const getAllModuleFromDb = async (
           //   },
           // },
         ],
-        as: 'milestoneDetails',
+        as: 'moduleDetails',
       },
     },
     
     {
-      $project: { milestone: 0 },
+      $project: { module: 0 },
     },
     {
       $addFields: {
-        milestone: '$milestoneDetails',
+        module: '$moduleDetails',
       },
     },
     {
-      $project: { milestoneDetails: 0 },
+      $project: { moduleDetails: 0 },
     },
     {
-      $unwind: '$milestone',
+      $unwind: '$module',
     },
    
   ];
 
   let result = null;
   if (select) {
-    result = await Module.find({})
+    result = await Lesson.find({})
       .sort({ title: 1 })
       .select({ ...projection });
   } else {
-    result = await Module.aggregate(pipeline);
+    result = await Lesson.aggregate(pipeline);
   }
 
-  const total = await Module.countDocuments(whereConditions);
+  const total = await Lesson.countDocuments(whereConditions);
   return {
     meta: {
       page,
@@ -159,10 +159,10 @@ const getAllModuleFromDb = async (
 };
 
 // get single e form db
-const getSingleModuleFromDb = async (
+const getSingleLessonFromDb = async (
   id: string
-): Promise<IModule | null> => {
-  const result = await Module.aggregate([
+): Promise<ILesson | null> => {
+  const result = await Lesson.aggregate([
     { $match: { _id: new ObjectId(id) } },
   ]);
 
@@ -170,10 +170,10 @@ const getSingleModuleFromDb = async (
 };
 
 // update e form db
-const updateModuleFromDb = async (
+const updateLessonFromDb = async (
   id: string,
-  payload: Partial<IModule>
-): Promise<IModule | null> => {
+  payload: Partial<ILesson>
+): Promise<ILesson | null> => {
   const { demo_video, ...otherData } = payload;
   const updateData = { ...otherData };
   if (demo_video && Object.keys(demo_video).length > 0) {
@@ -184,40 +184,40 @@ const updateModuleFromDb = async (
     });
   }
 
-  const result = await Module.findOneAndUpdate({ _id: id }, updateData, {
+  const result = await Lesson.findOneAndUpdate({ _id: id }, updateData, {
     new: true,
     runValidators: true,
   });
   if (!result) {
-    throw new ApiError(500, 'Module update fail!!😪😭😰');
+    throw new ApiError(500, 'Lesson update fail!!😪😭😰');
   }
   return result;
 };
 
 // delete e form db
-const deleteModuleByIdFromDb = async (
+const deleteLessonByIdFromDb = async (
   id: string,
   query: any
-): Promise<IModule | null> => {
+): Promise<ILesson | null> => {
   let result;
   if (query === 'permanent') {
-    result = await Module.findByIdAndDelete(id);
+    result = await Lesson.findByIdAndDelete(id);
   } else {
-    result = await Module.findOneAndUpdate({ status: ENUM_STATUS.DEACTIVATE });
+    result = await Lesson.findOneAndUpdate({ status: ENUM_STATUS.DEACTIVATE });
   }
   return result;
 };
 
 // set user reviews e form db
-const ModuleReviewsByUserFromDb = async (): Promise<IModule | null> => {
+const LessonReviewsByUserFromDb = async (): Promise<ILesson | null> => {
   return null;
 };
 
-export const ModuleService = {
-  createModuleByDb,
-  getAllModuleFromDb,
-  getSingleModuleFromDb,
-  updateModuleFromDb,
-  deleteModuleByIdFromDb,
-  ModuleReviewsByUserFromDb,
+export const LessonService = {
+  createLessonByDb,
+  getAllLessonFromDb,
+  getSingleLessonFromDb,
+  updateLessonFromDb,
+  deleteLessonByIdFromDb,
+  LessonReviewsByUserFromDb,
 };
