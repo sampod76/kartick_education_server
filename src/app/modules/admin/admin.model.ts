@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { AdminModel, IAdmin } from './admin.interface';
+import { GENDER_ARRAY } from '../../../constant/globalConstant';
 
 const AdminSchema = new Schema<IAdmin, AdminModel>(
   {
@@ -13,9 +14,6 @@ const AdminSchema = new Schema<IAdmin, AdminModel>(
           type: String,
           required: true,
         },
-        middleName: {
-          type: String,
-        },
       },
       required: true,
     },
@@ -24,34 +22,30 @@ const AdminSchema = new Schema<IAdmin, AdminModel>(
     },
     gender: {
       type: String,
-      enum: ['male', 'female'],
-    },
-    bloodGroup: {
-      type: String,
-      enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+      enum: GENDER_ARRAY,
     },
     email: {
       type: String,
-      unique: true,
+      //unique: true,
       required: true,
     },
     phoneNumber: {
       type: String,
-      unique: true,
+      //unique: true,
       required: true,
     },
-
     address: {
       type: String,
-      required: true,
     },
     img: {
       type: String,
-      required: true,
     },
   },
   {
     timestamps: true,
+    toJSON: {
+      virtuals: true,
+    },
   }
 );
 

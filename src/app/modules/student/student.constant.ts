@@ -6,14 +6,12 @@ export const studentSearchableFields = [
   'email',
   'phoneNumber',
   'name.firstName',
-  'name.middleName',
   'name.lastName',
 ];
 
 export const studentFilterableFields = [
   'searchTerm',
-  'id',
   'bloodGroup',
-  'email',
-  'phoneNumber',
+  'gender',
+  'dateOfBirth',
 ];

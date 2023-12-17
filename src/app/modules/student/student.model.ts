@@ -1,22 +1,18 @@
 import { Schema, model } from 'mongoose';
-import { bloodGroup, gender } from './student.constant';
+import { gender } from './student.constant';
 import { IStudent, StudentModel } from './student.interface';
+import { STATUS_ARRAY } from '../../../constant/globalConstant';
 
 export const StudentSchema = new Schema<IStudent, StudentModel>(
   {
     name: {
       type: {
         firstName: {
-          type: String,
-          required: true,
+          type: String, 
         },
         lastName: {
           type: String,
           // required: true,
-        },
-        middleName: {
-          type: String,
-          required: false,
         },
       },
       required: true,
@@ -28,29 +24,25 @@ export const StudentSchema = new Schema<IStudent, StudentModel>(
     dateOfBirth: {
       type: String,
     },
+
     email: {
       type: String,
-      unique: true,
+      //unique: true,
       required: true,
     },
     phoneNumber: {
       type: String,
-      unique: true,
       required: true,
     },
-    bloodGroup: {
+    status: {
       type: String,
-      enum: bloodGroup,
+      enum: STATUS_ARRAY,
+      default: 'active',
     },
    address: {
       type: String,
-      required: true,
     },
 
-    courseId: {
-      type: Schema.Types.ObjectId, 
-      ref: 'Course',
-    },
     img: {
       type: String,
       // required: true,

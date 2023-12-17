@@ -9,18 +9,18 @@ const router = express.Router();
 
 router
   .route('/')
-  .get( authMiddleware(ENUM_USER_ROLE.ADMIN,"super_admin"), AdminController.getAllAdmins)
+  .get( authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN), AdminController.getAllAdmins)
 
 
 router
   .route('/:id')
-  .get( authMiddleware(ENUM_USER_ROLE.ADMIN,"super_admin"),AdminController.getSingleAdmin)
+  .get( authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),AdminController.getSingleAdmin)
   .put(
-    authMiddleware(ENUM_USER_ROLE.ADMIN,"super_admin"),
+    authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),
     validateRequestZod(AdminValidation.updateAdmin),
     AdminController.updateAdmin
   )
-  .delete(authMiddleware("super_admin"), AdminController.deleteAdmin);
+  .delete(authMiddleware(ENUM_USER_ROLE.SUPER_ADMIN), AdminController.deleteAdmin);
   
 
 export const AdminRoutes = router;

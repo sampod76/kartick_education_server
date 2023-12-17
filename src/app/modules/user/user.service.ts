@@ -1,15 +1,16 @@
 import httpStatus from 'http-status';
 import mongoose from 'mongoose';
 import config from '../../../config/index';
+import { ENUM_USER_ROLE } from '../../../enums/users';
+import ApiError from '../../errors/ApiError';
+import { IModerator } from '../Moderator/moderator.interface';
+import { Moderator } from '../Moderator/moderator.model';
 import { IAdmin } from '../admin/admin.interface';
 import { Admin } from '../admin/admin.model';
 import { IStudent } from '../student/student.interface';
 import { Student } from '../student/student.model';
 import { IUser } from './user.interface';
 import { User } from './user.model';
-import ApiError from '../../errors/ApiError';
-import { IModerator } from '../Moderator/moderator.interface';
-import { Moderator } from '../Moderator/moderator.model';
 
 const createStudent = async (
   student: IStudent,
@@ -19,23 +20,18 @@ const createStudent = async (
   if (!user.password) {
     user.password = config.default_student_pass as string;
   }
+  const exist = await User.isUserExistMethod(user.email)
+  if(exist){
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
+  }
   // set role
   user.role = 'student';
 
-  // const academicsemester = await AcademicSemester.findById(
-  //   student.academicSemester
-  // ).lean();
-
-  // generate student id
   let newUserAllData = null;
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
 
-    // const id = await generateStudentId(academicsemester as IAcademicSemester);
-
-    // user.id = id;
-    // student.id = id;
 
     //array
     const newStudent = await Student.create([student], { session });
@@ -43,7 +39,6 @@ const createStudent = async (
     if (!newStudent.length) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create student');
     }
-
     //set student -->  _id into user.student
     user.student = newStudent[0]._id;
 
@@ -53,7 +48,7 @@ const createStudent = async (
       throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create user');
     }
     newUserAllData = newUser[0];
-
+  
     await session.commitTransaction();
     await session.endSession();
   } catch (error) {
@@ -90,18 +85,18 @@ const createModerator = async (
   if (!user.password) {
     user.password = config.default_moderator_pass as string;
   }
+  const exist = await User.isUserExistMethod(user.email)
+  if(exist){
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
+  }
   // set role
-  user.role = 'faculty';
+  user.role = ENUM_USER_ROLE.MODERATOR;
 
   
   let newUserAllData = null;
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
-
-    // const id = await generateFacultyId();
-    // user.id = id;
-    // faculty.id = id;
 
     const newModerator = await Moderator.create([moderator], { session });
 
@@ -114,7 +109,7 @@ const createModerator = async (
     const newUser = await User.create([user], { session });
 
     if (!newUser.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create faculty');
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create moderator');
     }
     newUserAllData = newUser[0];
 
@@ -128,7 +123,7 @@ const createModerator = async (
 
   if (newUserAllData) {
     newUserAllData = await User.findOne({ id: newUserAllData.id }).populate({
-      path: 'faculty',
+      path: 'moderator',
       // populate: [
       //   {
       //     path: 'academicDepartment',
@@ -149,6 +144,10 @@ const createAdmin = async (
   // default password
   if (!user.password) {
     user.password = config.default_admin_pass as string;
+  }
+  const exist = await User.isUserExistMethod(user.email)
+  if(exist){
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
   }
   // set role
   user.role = 'admin';
@@ -189,11 +188,7 @@ const createAdmin = async (
   if (newUserAllData) {
     newUserAllData = await User.findOne({ id: newUserAllData.id }).populate({
       path: 'admin',
-      populate: [
-        {
-          path: 'managementDepartment',
-        },
-      ],
+      
     });
   }
 

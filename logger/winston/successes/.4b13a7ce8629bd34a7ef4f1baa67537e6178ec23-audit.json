@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/home/sarwar/Desktop/Ashik/WEB/JOB/Sampod_vai/kartick_education_server-dev/logger/winston/successes/.4b13a7ce8629bd34a7ef4f1baa67537e6178ec23-audit.json",
+    "files": [
+        {
+            "date": 1702801095262,
+            "name": "/home/sarwar/Desktop/Ashik/WEB/JOB/Sampod_vai/kartick_education_server-dev/logger/winston/successes/PHU-2023-12-17-14-success.log",
+            "hash": "220f104bbb2c4e5b3b07e5eb0721f60d159f2d94ca9c7bde4de2e599b678972a"
+        }
+    ],
+    "hashType": "sha256"
+}

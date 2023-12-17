@@ -39,13 +39,13 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   const { email: existEmail, role } = isUserExist;
 
   const accessToken = jwtHelpers.createToken(
-    { email:existEmail, role },
+    { email: existEmail, role },
     config.jwt.secret as Secret,
     config.jwt.expires_in as string
   );
 
   const refreshToken = jwtHelpers.createToken(
-    { email:existEmail, role },
+    { email: existEmail, role },
     config.jwt.refresh_secret as Secret,
     config.jwt.refresh_expires_in as string
   );
@@ -144,7 +144,7 @@ const changePassword = async (
 };
 
 const forgotPass = async (payload: { id: string }) => {
-  const user = await User.findOne({ id: payload.id }, { id: 1, role: 1 });
+  const user = await User.findById(payload.id, { role: 1 });
 
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User does not exist!');
@@ -152,11 +152,11 @@ const forgotPass = async (payload: { id: string }) => {
 
   let profile = null;
   if (user.role === ENUM_USER_ROLE.ADMIN) {
-    profile = await Admin.findOne({ id: user.id });
+    profile = await Admin.findById(user.id)
   } else if (user.role === ENUM_USER_ROLE.MODERATOR) {
-    profile = await Moderator.findOne({ id: user.id });
+    profile = await Moderator.findById(user.id)
   } else if (user.role === ENUM_USER_ROLE.student) {
-    profile = await Student.findOne({ id: user.id });
+    profile = await Student.findById(user.id)
   }
 
   if (!profile) {
@@ -197,7 +197,7 @@ const resetPassword = async (
   token: string
 ) => {
   const { id, newPassword } = payload;
-  const user = await User.findOne({ id }, { id: 1 });
+  const user = await User.findById({ _id:id }, { _id: 1 });
 
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User not found!');

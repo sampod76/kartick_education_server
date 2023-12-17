@@ -42,7 +42,7 @@ const files = [
       import { Schema, model } from 'mongoose';
       import { ${capitalize(folderName)}Model, I${capitalize(
         folderName
-      )} } from './${capitalize(folderName)}.interface';
+      )} } from './${folderName}.interface';
       
       const ${capitalize(folderName)}Schema = new Schema<I${capitalize(
         folderName

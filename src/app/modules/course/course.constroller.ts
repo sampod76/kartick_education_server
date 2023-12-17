@@ -26,11 +26,8 @@ const createCourse = catchAsync(async (req: Request, res: Response) => {
 const getAllCourse = catchAsync(async (req: Request, res: Response) => {
   //****************search and filter start******* */
   // console.log(req.query);
-  let queryObject = req.query;
-  queryObject = Object.fromEntries(
-
-    Object.entries(queryObject).filter(([_, value]) => Boolean(value))
-  );
+  const queryObject = req.query;
+ 
   const filters = pick(queryObject, COURSE_FILTERABLE_FIELDS);
 
   //****************pagination start************ */
@@ -78,7 +75,7 @@ const updateCourse = catchAsync(async (req: Request, res: Response) => {
 
 const deleteCourse = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await CourseService.deleteCourseByIdFromDb(id);
+  const result = await CourseService.deleteCourseByIdFromDb(id,req.query);
   sendResponse<ICourse>(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -88,12 +85,10 @@ const deleteCourse = catchAsync(async (req: Request, res: Response) => {
 });
 
 const courseReviewsByUser = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  // const { id } = req.params;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const result = await CourseService.courseReviewsByUserFromDb(
-    id,
-    req.body,
-    req
+
   );
 
   sendResponse<ICourse>(res, {
