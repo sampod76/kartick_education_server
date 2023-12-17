@@ -118,7 +118,7 @@ const getAllMilestoneFromDb = async (
             },
           },
         ],
-        as: 'courseDetails',
+        as: '',
       },
     },
     
@@ -127,9 +127,16 @@ const getAllMilestoneFromDb = async (
     },
     {
       $addFields: {
-        course: '$courseDetails',
+        course: {
+          $cond: {
+            if: { $eq: [{ $size: '$courseDetails' }, 0] },
+            then: [{}],
+            else: '$courseDetails',
+          },
+        },
       },
     },
+   
     {
       $project: { courseDetails: 0 },
     },

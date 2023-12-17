@@ -141,9 +141,16 @@ const getAllCourseFromDb = async (
     },
     {
       $addFields: {
-        author: '$authorDetails',
+        author: {
+          $cond: {
+            if: { $eq: [{ $size: '$authorDetails' }, 0] },
+            then: [{}],
+            else: '$authorDetails',
+          },
+        },
       },
     },
+  
     {
       $project: { authorDetails: 0 },
     },
@@ -180,7 +187,13 @@ const getAllCourseFromDb = async (
     },
     {
       $addFields: {
-        category: '$categoryDetails',
+        category: {
+          $cond: {
+            if: { $eq: [{ $size: '$categoryDetails' }, 0] },
+            then: [{}],
+            else: '$categoryDetails',
+          },
+        },
       },
     },
     {
