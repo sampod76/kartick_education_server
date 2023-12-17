@@ -15,9 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const app_1 = __importDefault(require("./app"));
 // import { errorLogger, logger } from './app/share/logger';
+require("colors");
 const logger_1 = require("./app/share/logger");
 const index_1 = __importDefault(require("./config/index"));
-require("colors");
 mongoose_1.default.set('strictQuery', false);
 process.on('uncaughtException', error => {
     // console.log('uncaugthException is detected ......', error);
@@ -30,16 +30,16 @@ function connection() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield mongoose_1.default.connect(index_1.default.database_url);
-            logger_1.logger.info(`Database connection successfull`.green.underline.bold);
-            // console.log(`Database connection successfull`);
+            // logger.info(`Database connection successfull`.green.underline.bold);
+            console.log(`Database connection successfull`.green.underline.bold);
             app_1.default.listen(index_1.default.port, () => {
-                logger_1.logger.info(`Server is listening on port ${index_1.default.port}`.red.underline.bold);
-                // console.log(`Server is listening on port ${config.port}`);
+                // logger.info(`Server is listening on port ${config.port}`.red.underline.bold);
+                console.log(`Server is listening on port ${index_1.default.port}`.red.underline.bold);
             });
         }
         catch (error) {
-            logger_1.errorLogger.error(`Failed to connect database: ${error}`.red.bold);
-            // console.log(`Failed to connect database: ${error}`);
+            // errorLogger.error(`Failed to connect database: ${error}`.red.bold);
+            console.log(`Failed to connect database: ${error}`.red.bold);
         }
         //যদি এমন কোন error হয় যেটা আমি জানি না ওটার জন্য এটি
         process.on('unhandledRejection', error => {

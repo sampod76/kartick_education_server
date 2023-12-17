@@ -25,9 +25,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const http_status_1 = __importDefault(require("http-status"));
+const pagination_1 = require("../../../constant/pagination");
 const catchAsync_1 = __importDefault(require("../../share/catchAsync"));
+const pick_1 = __importDefault(require("../../share/pick"));
 const sendResponse_1 = __importDefault(require("../../share/sendResponse"));
+const user_constant_1 = require("./user.constant");
 const user_service_1 = require("./user.service");
+const getUsers = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const filters = (0, pick_1.default)(req.query, user_constant_1.userFilterableFields);
+    const paginationOptions = (0, pick_1.default)(req.query, pagination_1.PAGINATION_FIELDS);
+    const result = yield user_service_1.UserService.getAllUsers(filters, paginationOptions);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Get all users!',
+        data: result,
+    });
+}));
 const createStudent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const _a = req.body, { student } = _a, userData = __rest(_a, ["student"]);
     userData.email = student === null || student === void 0 ? void 0 : student.email;
@@ -65,4 +79,5 @@ exports.UserController = {
     createStudent,
     createModerator,
     createAdmin,
+    getUsers
 };

@@ -139,7 +139,7 @@ const getAllMilestoneFromDb = (filters, paginationOptions) => __awaiter(void 0, 
                         },
                     },
                 ],
-                as: 'courseDetails',
+                as: '',
             },
         },
         {
@@ -147,7 +147,13 @@ const getAllMilestoneFromDb = (filters, paginationOptions) => __awaiter(void 0, 
         },
         {
             $addFields: {
-                course: '$courseDetails',
+                course: {
+                    $cond: {
+                        if: { $eq: [{ $size: '$courseDetails' }, 0] },
+                        then: [{}],
+                        else: '$courseDetails',
+                    },
+                },
             },
         },
         {

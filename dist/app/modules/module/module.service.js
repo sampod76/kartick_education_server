@@ -147,7 +147,13 @@ const getAllModuleFromDb = (filters, paginationOptions) => __awaiter(void 0, voi
         },
         {
             $addFields: {
-                milestone: '$milestoneDetails',
+                milestone: {
+                    $cond: {
+                        if: { $eq: [{ $size: '$milestoneDetails' }, 0] },
+                        then: [{}],
+                        else: '$milestoneDetails',
+                    },
+                },
             },
         },
         {

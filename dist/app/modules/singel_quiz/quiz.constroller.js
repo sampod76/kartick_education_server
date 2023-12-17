@@ -29,12 +29,12 @@ const pagination_1 = require("../../../constant/pagination");
 const catchAsync_1 = __importDefault(require("../../share/catchAsync"));
 const pick_1 = __importDefault(require("../../share/pick"));
 const sendResponse_1 = __importDefault(require("../../share/sendResponse"));
-const lesson_constant_1 = require("./lesson.constant");
-const lesson_service_1 = require("./lesson.service");
+const quiz_constant_1 = require("./quiz.constant");
+const quiz_service_1 = require("./quiz.service");
 // import { z } from 'zod'
 const createLesson = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const LessonData = __rest(req.body, []);
-    const result = yield lesson_service_1.LessonService.createLessonByDb(LessonData);
+    const result = yield quiz_service_1.LessonService.createLessonByDb(LessonData);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -46,10 +46,10 @@ const getAllLesson = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
     //****************search and filter start******* */
     // console.log(req.query);
     const queryObject = req.query;
-    const filters = (0, pick_1.default)(queryObject, lesson_constant_1.LESSON_FILTERABLE_FIELDS);
+    const filters = (0, pick_1.default)(queryObject, quiz_constant_1.LESSON_FILTERABLE_FIELDS);
     //****************pagination start************ */
     const paginationOptions = (0, pick_1.default)(queryObject, pagination_1.PAGINATION_FIELDS);
-    const result = yield lesson_service_1.LessonService.getAllLessonFromDb(filters, paginationOptions);
+    const result = yield quiz_service_1.LessonService.getAllLessonFromDb(filters, paginationOptions);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -61,7 +61,7 @@ const getAllLesson = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
 }));
 const getSingleLesson = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const result = yield lesson_service_1.LessonService.getSingleLessonFromDb(id);
+    const result = yield quiz_service_1.LessonService.getSingleLessonFromDb(id);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -72,7 +72,7 @@ const getSingleLesson = (0, catchAsync_1.default)((req, res) => __awaiter(void 0
 const updateLesson = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const updateData = req.body;
-    const result = yield lesson_service_1.LessonService.updateLessonFromDb(id, updateData);
+    const result = yield quiz_service_1.LessonService.updateLessonFromDb(id, updateData);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -82,7 +82,7 @@ const updateLesson = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
 }));
 const deleteLesson = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const result = yield lesson_service_1.LessonService.deleteLessonByIdFromDb(id, req.query);
+    const result = yield quiz_service_1.LessonService.deleteLessonByIdFromDb(id, req.query);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -93,7 +93,7 @@ const deleteLesson = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
 const LessonReviewsByUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // const { id } = req.params;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const result = yield lesson_service_1.LessonService.LessonReviewsByUserFromDb();
+    const result = yield quiz_service_1.LessonService.LessonReviewsByUserFromDb();
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,

@@ -8,6 +8,7 @@ const express_1 = __importDefault(require("express"));
 const auth_route_1 = require("../modules/auth/auth.route");
 const route_category_1 = require("../modules/category/route.category");
 const course_route_1 = require("../modules/course/course.route");
+const lesson_route_1 = require("../modules/lesson/lesson.route");
 const milestone_route_1 = require("../modules/milestone/milestone.route");
 const module_route_1 = require("../modules/module/module.route");
 const user_route_1 = require("../modules/user/user.route");
@@ -25,6 +26,10 @@ const moduleRoutes = [
     {
         path: '/module',
         route: module_route_1.ModuleRoute,
+    },
+    {
+        path: '/lesson',
+        route: lesson_route_1.LessonRoute,
     },
     {
         path: '/user',
