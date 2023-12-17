@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose';
 import { gender } from './student.constant';
 import { IStudent, StudentModel } from './student.interface';
+import { STATUS_ARRAY } from '../../../constant/globalConstant';
 
 export const StudentSchema = new Schema<IStudent, StudentModel>(
   {
@@ -23,6 +24,7 @@ export const StudentSchema = new Schema<IStudent, StudentModel>(
     dateOfBirth: {
       type: String,
     },
+
     email: {
       type: String,
       //unique: true,
@@ -31,6 +33,11 @@ export const StudentSchema = new Schema<IStudent, StudentModel>(
     phoneNumber: {
       type: String,
       required: true,
+    },
+    status: {
+      type: String,
+      enum: STATUS_ARRAY,
+      default: 'active',
     },
    address: {
       type: String,

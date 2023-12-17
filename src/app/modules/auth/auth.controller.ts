@@ -1,15 +1,15 @@
 import { Request, Response } from 'express';
 import config from '../../../config';
 
-import { ILoginUserResponse, IRefreshTokenResponse } from './auth.interface';
-import { AuthService } from './auth.service';
 import catchAsync from '../../share/catchAsync';
 import sendResponse from '../../share/sendResponse';
+import { ILoginUserResponse, IRefreshTokenResponse } from './auth.interface';
+import { AuthService } from './auth.service';
 
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const { ...loginData } = req.body;
-  const result = await AuthService.loginUser(loginData);
-  const { refreshToken } = result;
+  const {refreshToken,...result} = await AuthService.loginUser(loginData);
+  // const { refreshToken } = result;
   // set refresh token into cookie
   const cookieOptions = {
     secure: config.env === 'production',

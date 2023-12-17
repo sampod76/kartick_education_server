@@ -30,6 +30,7 @@
     "@types/jsonwebtoken": "^9.0.2",
     "@types/node-fetch": "^2.6.9",
     "@types/node-schedule": "^2.1.0",
+    "@types/nodemailer": "^6.4.14",
     "@types/paypal-rest-sdk": "^1.7.6",
     "@types/stripe-v3": "^3.1.29",
     "@types/uuid": "^9.0.2",

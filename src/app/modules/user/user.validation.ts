@@ -27,7 +27,6 @@ const SignUpZodSchema = z.object({
       phoneNumber: z.string({
         required_error: 'phoneNumber is required',
       }),
-
       address: z.string(),
       img: z.string({ required_error: 'img is required' }),
     }),

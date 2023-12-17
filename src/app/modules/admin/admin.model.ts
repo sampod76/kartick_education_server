@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { AdminModel, IAdmin } from './admin.interface';
-import { GENDER } from '../../../constant/globalConstant';
+import { GENDER_ARRAY } from '../../../constant/globalConstant';
 
 const AdminSchema = new Schema<IAdmin, AdminModel>(
   {
@@ -22,7 +22,7 @@ const AdminSchema = new Schema<IAdmin, AdminModel>(
     },
     gender: {
       type: String,
-      enum: GENDER,
+      enum: GENDER_ARRAY,
     },
     email: {
       type: String,

@@ -19,3 +19,6 @@ export type IGenericErrorResponse = {
   // errorMessages: Array<{ path: string; message: string }>
   errorMessages: Array<IGenericErrorMessage>;
 };
+
+
+

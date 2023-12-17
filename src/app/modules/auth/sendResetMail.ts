@@ -1,5 +1,4 @@
 import nodemailer from 'nodemailer';
-import config from '../../../config';
 
 export async function sendEmail(
     to: string,
@@ -10,13 +9,16 @@ export async function sendEmail(
         port: 587,
         secure: false,
         auth: {
-            user: config.email,
-            pass: config.appPass,
+            user: "sampod@gmail.com",
+            pass: "dfsdfsdfsd",
+            // user: config.email,
+            // pass: config.appPass,
         },
     });
 
     await transporter.sendMail({
-        from: config.email, // sender address
+        from:"sampod@gmail.com", // sender address
+        // from: config.email, // sender address
         to, // list of receivers
         subject: "Reset Password Link", // Subject line
         html, // html body

@@ -9,6 +9,9 @@ export type ICourseFilters = {
   level?: string;
   status?: string;
   price_type?: string;
+  category?: string;
+  select?: string;
+  // other query parameters
 };
 
 export type ICourseSearchableField = {
@@ -19,6 +22,7 @@ export type ICourseSearchableField = {
 export type ICourse = {
   title: string;
   img: string;
+  snid: string;
   details?: string;
   author: Types.ObjectId;
   category: Types.ObjectId;
@@ -28,10 +32,12 @@ export type ICourse = {
   vat?: number;
   duration?: string;
   level?: string;
-  price_type: 'free' | 'paid' | 'closed' | 'recurrig';
-  status: 'active' | 'deactive' | 'save';
-  //! incomplete
-  demo_video?:Record<string,string>
+  price_type: 'free' | 'paid' | 'closed' | 'recurring';
+  status: 'active' | 'deactivate' | 'save' | 'disable';
+  showing_number?: number;
+  favorite: 'yes' | 'no';
+  demo_video?: Record<string, string>;
+  tags?: string[];
 };
 
 export type CourseModel = Model<ICourse, Record<string, unknown>>;

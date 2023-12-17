@@ -4,6 +4,8 @@ import express from 'express';
 import { AuthRoutes } from '../modules/auth/auth.route';
 import { CategoryRoute } from '../modules/category/route.category';
 import { CourseRoute } from '../modules/course/course.route';
+import { MilestoneRoute } from '../modules/milestone/milestone.route';
+import { ModuleRoute } from '../modules/module/module.route';
 import { UserRoutes } from '../modules/user/user.route';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
@@ -15,6 +17,14 @@ const moduleRoutes = [
   {
     path: '/course',
     route: CourseRoute,
+  },
+  {
+    path: '/milestone',
+    route: MilestoneRoute,
+  },
+  {
+    path: '/module',
+    route: ModuleRoute,
   },
   {
     path: '/user',

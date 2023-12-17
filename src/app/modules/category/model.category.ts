@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { STATUS } from '../../../constant/globalConstant';
+import { STATUS_ARRAY } from '../../../constant/globalConstant';
 import { CategoryModel, ICategory } from './interface.category';
 
 const CategorySchema = new Schema<ICategory, CategoryModel>(
@@ -9,6 +9,7 @@ const CategorySchema = new Schema<ICategory, CategoryModel>(
       required: true,
       //unique: true,
       trim: true,
+      index: true,
     },
     img: {
       type: String,
@@ -16,7 +17,7 @@ const CategorySchema = new Schema<ICategory, CategoryModel>(
     },
     status: {
       type: String,
-      enum: STATUS,
+      enum: STATUS_ARRAY,
       default: 'active',
     },
   },
