@@ -1,28 +1,27 @@
 import { Model, Types } from 'mongoose';
+import { IMilestone } from '../milestone/milestone.interface';
 import { IUser } from '../user/user.interface';
 
-import { IModule } from '../module/module.interface';
 
-
-export type ILessonFilters = {
+export type IModuleFilters = {
   searchTerm?: string;
   status?: string;
+  milestone?: string;
   select?: string;
-  module?: string;
   // other query parameters
 };
 
-export type ILessonSearchableField = {
+export type IModuleSearchableField = {
   title?: string;
   details?: string;
 };
 
-export type ILesson = {
+export type IModule = {
   title: string;
   img?: string;
   details?: string;
   author?: Types.ObjectId | IUser;
-  module: Types.ObjectId | IModule | string;
+  milestone: Types.ObjectId | IMilestone | string;
   status: 'active' | 'deactivate' | 'save';
   module_number?: number;
   demo_video?: Record<string, string>;

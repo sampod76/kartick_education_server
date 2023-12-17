@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "D:\\programming hero\\INTERSHIP\\ronjit\\eductaion\\kartick_education_server\\logger\\winston\\errors\\.8e33de65eb6aca83d5321cc5021ce23625031802-audit.json",
+    "files": [
+        {
+            "date": 1702773639907,
+            "name": "D:\\programming hero\\INTERSHIP\\ronjit\\eductaion\\kartick_education_server\\logger\\winston\\errors\\PHU-2023-12-17-06-error.log",
+            "hash": "4f293df264c93667ea320ef8beb2bb189afa35c12197aca489cd561ab22623f9"
+        }
+    ],
+    "hashType": "sha256"
+}
