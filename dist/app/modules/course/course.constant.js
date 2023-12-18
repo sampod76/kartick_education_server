@@ -4,6 +4,7 @@ exports.COURSE_STATUS = exports.COURSE_TYPES = exports.COURSE_FILTERABLE_FIELDS 
 exports.COURSE_SEARCHABLE_FIELDS = [
     'title',
     'details',
+    'snid'
 ];
 exports.COURSE_FILTERABLE_FIELDS = [
     'searchTerm',

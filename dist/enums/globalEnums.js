@@ -6,6 +6,7 @@ var ENUM_STATUS;
     ENUM_STATUS["ACTIVE"] = "active";
     ENUM_STATUS["DEACTIVATE"] = "deactivate";
     ENUM_STATUS["SAVE"] = "save";
+    ENUM_STATUS["BLOCK"] = "block";
 })(ENUM_STATUS || (exports.ENUM_STATUS = ENUM_STATUS = {}));
 var ENUM_YN;
 (function (ENUM_YN) {

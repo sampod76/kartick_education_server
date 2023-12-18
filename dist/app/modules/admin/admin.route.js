@@ -5,11 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminRoutes = void 0;
 const express_1 = __importDefault(require("express"));
+const users_1 = require("../../../enums/users");
+const authMiddleware_1 = __importDefault(require("../../middlewares/authMiddleware"));
+const validateRequestZod_1 = __importDefault(require("../../middlewares/validateRequestZod"));
 const admin_controller_1 = require("./admin.controller");
 const admin_validation_1 = require("./admin.validation");
-const validateRequestZod_1 = __importDefault(require("../../middlewares/validateRequestZod"));
-const authMiddleware_1 = __importDefault(require("../../middlewares/authMiddleware"));
-const users_1 = require("../../../enums/users");
 const router = express_1.default.Router();
 router
     .route('/')

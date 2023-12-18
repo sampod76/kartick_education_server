@@ -103,6 +103,7 @@ const deleteStudent = async (
   filter: IStudentFilters
 ): Promise<IStudent | null> => {
   // check if the faculty is exist
+
   const isExist = await Student.findById({ _id: id });
 
   if (!isExist) {
@@ -125,7 +126,6 @@ const deleteStudent = async (
 
       return student;
     } else {
-
       session.startTransaction();
       //delete student first
       const student = await Student.findOneAndUpdate(
@@ -133,8 +133,8 @@ const deleteStudent = async (
         { status: ENUM_STATUS.DEACTIVATE },
         { session }
       );
-      console.log(student);
-      if (!student) {
+      
+      if (student) {
         throw new ApiError(404, 'Failed to delete student');
       }
       //delete user
@@ -145,7 +145,6 @@ const deleteStudent = async (
       );
       session.commitTransaction();
       session.endSession();
-
       return student;
     }
   } catch (error) {

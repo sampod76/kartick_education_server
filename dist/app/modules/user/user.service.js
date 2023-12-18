@@ -8,6 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -17,11 +28,148 @@ const http_status_1 = __importDefault(require("http-status"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const index_1 = __importDefault(require("../../../config/index"));
 const users_1 = require("../../../enums/users");
+const paginationHelper_1 = require("../../../helper/paginationHelper");
 const ApiError_1 = __importDefault(require("../../errors/ApiError"));
-const moderator_model_1 = require("../Moderator/moderator.model");
 const admin_model_1 = require("../admin/admin.model");
 const student_model_1 = require("../student/student.model");
+const user_constant_1 = require("./user.constant");
 const user_model_1 = require("./user.model");
+const moderator_model_1 = require("../moderator/moderator.model");
+const getAllUsers = (filters, paginationOptions) => __awaiter(void 0, void 0, void 0, function* () {
+    const { searchTerm } = filters, filtersData = __rest(filters, ["searchTerm"]);
+    const { page, limit, skip, sortBy, sortOrder } = paginationHelper_1.paginationHelper.calculatePagination(paginationOptions);
+    const andConditions = [];
+    if (searchTerm) {
+        andConditions.push({
+            $or: user_constant_1.userSearchableFields.map(field => ({
+                [field]: {
+                    $regex: searchTerm,
+                    $options: 'i',
+                },
+            })),
+        });
+    }
+    if (Object.keys(filtersData).length) {
+        andConditions.push({
+            $and: Object.entries(filtersData).map(([field, value]) => ({
+                [field]: value,
+            })),
+        });
+    }
+    const sortConditions = {};
+    if (sortBy && sortOrder) {
+        sortConditions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+    }
+    //****************pagination end ***************/
+    const whereConditions = andConditions.length > 0 ? { $and: andConditions } : {};
+    /*
+    const result = await Milestone.find(whereConditions)
+      .sort(sortConditions)
+      .skip(Number(skip))
+      .limit(Number(limit));
+    */
+    const pipeline = [
+        { $match: whereConditions },
+        { $sort: sortConditions },
+        { $skip: Number(skip) || 0 },
+        { $limit: Number(limit) || 15 },
+        {
+            $lookup: {
+                from: 'admins',
+                let: { id: '$admin' },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: { $eq: ['$_id', '$$id'] },
+                            // Additional filter conditions for collection2
+                        },
+                    },
+                    // Additional stages for collection2
+                    // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+                    {
+                        $project: {
+                            __v: 0,
+                        },
+                    },
+                ],
+                as: 'adminDetails',
+            },
+        },
+        {
+            $project: { admin: 0 },
+        },
+        //মনে রাখতে হবে যদি এটি দেওয়া না হয় তাহলে সে যখন কোন একটি ক্যাটাগরির থাম্বেল না পাবে সে তাকে দেবে না
+        {
+            $addFields: {
+                admin: {
+                    $cond: {
+                        if: { $eq: [{ $size: '$adminDetails' }, 0] },
+                        then: [{}],
+                        else: '$adminDetails',
+                    },
+                },
+            },
+        },
+        {
+            $project: { adminDetails: 0 },
+        },
+        {
+            $unwind: '$admin',
+        },
+        {
+            $lookup: {
+                from: 'students',
+                let: { id: '$student' },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: { $eq: ['$_id', '$$id'] },
+                            // Additional filter conditions for collection2
+                        },
+                    },
+                    // Additional stages for collection2
+                    // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+                    {
+                        $project: {
+                            __v: 0,
+                        },
+                    },
+                ],
+                as: 'studentDetails',
+            },
+        },
+        {
+            $project: { student: 0 },
+        },
+        {
+            $addFields: {
+                student: {
+                    $cond: {
+                        if: { $eq: [{ $size: '$studentDetails' }, 0] },
+                        then: [{}],
+                        else: '$studentDetails',
+                    },
+                },
+            },
+        },
+        {
+            $project: { studentDetails: 0 },
+        },
+        {
+            $unwind: '$student',
+        },
+    ];
+    const result = yield user_model_1.User.aggregate(pipeline);
+    const total = yield user_model_1.User.countDocuments(whereConditions);
+    return {
+        meta: {
+            page,
+            limit,
+            total,
+        },
+        data: result,
+    };
+});
 const createStudent = (student, user) => __awaiter(void 0, void 0, void 0, function* () {
     // default password
     if (!user.password) {
@@ -170,4 +318,5 @@ exports.UserService = {
     createStudent,
     createModerator,
     createAdmin,
+    getAllUsers,
 };

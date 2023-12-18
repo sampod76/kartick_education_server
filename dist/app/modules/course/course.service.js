@@ -163,7 +163,13 @@ const getAllCourseFromDb = (filters, paginationOptions) => __awaiter(void 0, voi
         },
         {
             $addFields: {
-                author: '$authorDetails',
+                author: {
+                    $cond: {
+                        if: { $eq: [{ $size: '$authorDetails' }, 0] },
+                        then: [{}],
+                        else: '$authorDetails',
+                    },
+                },
             },
         },
         {
@@ -201,7 +207,13 @@ const getAllCourseFromDb = (filters, paginationOptions) => __awaiter(void 0, voi
         },
         {
             $addFields: {
-                category: '$categoryDetails',
+                category: {
+                    $cond: {
+                        if: { $eq: [{ $size: '$categoryDetails' }, 0] },
+                        then: [{}],
+                        else: '$categoryDetails',
+                    },
+                },
             },
         },
         {

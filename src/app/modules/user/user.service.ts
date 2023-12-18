@@ -9,12 +9,13 @@ import { IPaginationOption } from '../../interface/pagination';
 import { IAdmin } from '../admin/admin.interface';
 import { Admin } from '../admin/admin.model';
 import { IModerator } from '../moderator/moderator.interface';
-import { Moderator } from '../moderator/moderator.model';
+
 import { IStudent, IStudentFilters } from '../student/student.interface';
 import { Student } from '../student/student.model';
 import { userSearchableFields } from './user.constant';
 import { IUser } from './user.interface';
 import { User } from './user.model';
+import { Moderator } from '../moderator/moderator.model';
 
 const getAllUsers = async (
   filters: IStudentFilters,

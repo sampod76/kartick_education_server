@@ -15,4 +15,5 @@ exports.studentFilterableFields = [
     'bloodGroup',
     'gender',
     'dateOfBirth',
+    'delete'
 ];

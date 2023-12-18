@@ -46,7 +46,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ModuleService = void 0;
+exports.LessonService = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const paginationHelper_1 = require("../../../helper/paginationHelper");
 const globalEnums_1 = require("../../../enums/globalEnums");
@@ -54,8 +54,8 @@ const ApiError_1 = __importDefault(require("../../errors/ApiError"));
 const lesson_constant_1 = require("./lesson.constant");
 const lesson_model_1 = require("./lesson.model");
 const { ObjectId } = mongoose_1.default.Types;
-const createModuleByDb = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = (yield lesson_model_1.Module.create(payload)).populate([
+const createLessonByDb = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = (yield lesson_model_1.Lesson.create(payload)).populate([
         {
             path: 'author',
             select: {
@@ -68,8 +68,8 @@ const createModuleByDb = (payload) => __awaiter(void 0, void 0, void 0, function
     ]);
     return result;
 });
-//getAllModuleFromDb
-const getAllModuleFromDb = (filters, paginationOptions) => __awaiter(void 0, void 0, void 0, function* () {
+//getAllLessonFromDb
+const getAllLessonFromDb = (filters, paginationOptions) => __awaiter(void 0, void 0, void 0, function* () {
     //****************search and filters start************/
     const { searchTerm, select } = filters, filtersData = __rest(filters, ["searchTerm", "select"]);
     // Split the string and extract field names
@@ -84,7 +84,7 @@ const getAllModuleFromDb = (filters, paginationOptions) => __awaiter(void 0, voi
     const andConditions = [];
     if (searchTerm) {
         andConditions.push({
-            $or: lesson_constant_1.MODULE_SEARCHABLE_FIELDS.map(field => 
+            $or: lesson_constant_1.LESSON_SEARCHABLE_FIELDS.map(field => 
             //search array value
             field === 'tags'
                 ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
@@ -95,7 +95,7 @@ const getAllModuleFromDb = (filters, paginationOptions) => __awaiter(void 0, voi
     }
     if (Object.keys(filtersData).length) {
         andConditions.push({
-            $and: Object.entries(filtersData).map(([field, value]) => field === 'milestone'
+            $and: Object.entries(filtersData).map(([field, value]) => field === 'module'
                 ? { [field]: new mongoose_1.Types.ObjectId(value) }
                 : { [field]: value }),
         });
@@ -122,8 +122,8 @@ const getAllModuleFromDb = (filters, paginationOptions) => __awaiter(void 0, voi
         { $limit: Number(limit) || 15 },
         {
             $lookup: {
-                from: 'milestones',
-                let: { id: '$milestone' },
+                from: 'modules',
+                let: { id: '$module' },
                 pipeline: [
                     {
                         $match: {
@@ -139,34 +139,40 @@ const getAllModuleFromDb = (filters, paginationOptions) => __awaiter(void 0, voi
                     //   },
                     // },
                 ],
-                as: 'milestoneDetails',
+                as: 'moduleDetails',
             },
         },
         {
-            $project: { milestone: 0 },
+            $project: { module: 0 },
         },
         {
             $addFields: {
-                milestone: '$milestoneDetails',
+                module: {
+                    $cond: {
+                        if: { $eq: [{ $size: '$moduleDetails' }, 0] },
+                        then: [{}],
+                        else: '$moduleDetails',
+                    },
+                },
             },
         },
         {
-            $project: { milestoneDetails: 0 },
+            $project: { moduleDetails: 0 },
         },
         {
-            $unwind: '$milestone',
+            $unwind: '$module',
         },
     ];
     let result = null;
     if (select) {
-        result = yield lesson_model_1.Module.find({})
+        result = yield lesson_model_1.Lesson.find({})
             .sort({ title: 1 })
             .select(Object.assign({}, projection));
     }
     else {
-        result = yield lesson_model_1.Module.aggregate(pipeline);
+        result = yield lesson_model_1.Lesson.aggregate(pipeline);
     }
-    const total = yield lesson_model_1.Module.countDocuments(whereConditions);
+    const total = yield lesson_model_1.Lesson.countDocuments(whereConditions);
     return {
         meta: {
             page,
@@ -177,14 +183,14 @@ const getAllModuleFromDb = (filters, paginationOptions) => __awaiter(void 0, voi
     };
 });
 // get single e form db
-const getSingleModuleFromDb = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield lesson_model_1.Module.aggregate([
+const getSingleLessonFromDb = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield lesson_model_1.Lesson.aggregate([
         { $match: { _id: new ObjectId(id) } },
     ]);
     return result[0];
 });
 // update e form db
-const updateModuleFromDb = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
+const updateLessonFromDb = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const { demo_video } = payload, otherData = __rest(payload, ["demo_video"]);
     const updateData = Object.assign({}, otherData);
     if (demo_video && Object.keys(demo_video).length > 0) {
@@ -194,35 +200,35 @@ const updateModuleFromDb = (id, payload) => __awaiter(void 0, void 0, void 0, fu
                 demo_video[key];
         });
     }
-    const result = yield lesson_model_1.Module.findOneAndUpdate({ _id: id }, updateData, {
+    const result = yield lesson_model_1.Lesson.findOneAndUpdate({ _id: id }, updateData, {
         new: true,
         runValidators: true,
     });
     if (!result) {
-        throw new ApiError_1.default(500, 'Module update fail!!😪😭😰');
+        throw new ApiError_1.default(500, 'Lesson update fail!!😪😭😰');
     }
     return result;
 });
 // delete e form db
-const deleteModuleByIdFromDb = (id, query) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteLessonByIdFromDb = (id, query) => __awaiter(void 0, void 0, void 0, function* () {
     let result;
     if (query === 'permanent') {
-        result = yield lesson_model_1.Module.findByIdAndDelete(id);
+        result = yield lesson_model_1.Lesson.findByIdAndDelete(id);
     }
     else {
-        result = yield lesson_model_1.Module.findOneAndUpdate({ status: globalEnums_1.ENUM_STATUS.DEACTIVATE });
+        result = yield lesson_model_1.Lesson.findOneAndUpdate({ status: globalEnums_1.ENUM_STATUS.DEACTIVATE });
     }
     return result;
 });
 // set user reviews e form db
-const ModuleReviewsByUserFromDb = () => __awaiter(void 0, void 0, void 0, function* () {
+const LessonReviewsByUserFromDb = () => __awaiter(void 0, void 0, void 0, function* () {
     return null;
 });
-exports.ModuleService = {
-    createModuleByDb,
-    getAllModuleFromDb,
-    getSingleModuleFromDb,
-    updateModuleFromDb,
-    deleteModuleByIdFromDb,
-    ModuleReviewsByUserFromDb,
+exports.LessonService = {
+    createLessonByDb,
+    getAllLessonFromDb,
+    getSingleLessonFromDb,
+    updateLessonFromDb,
+    deleteLessonByIdFromDb,
+    LessonReviewsByUserFromDb,
 };

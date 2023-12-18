@@ -13,14 +13,13 @@ const handleZodError_1 = __importDefault(require("../errors/handleZodError"));
 // import { errorLogger } from '../share/logger';
 const http_status_1 = __importDefault(require("http-status"));
 const handleCastError_1 = __importDefault(require("../errors/handleCastError"));
-const logger_1 = require("../share/logger");
 // import path from 'path';
 //
 const globalErrorHandler = (error, req, res, next) => {
-    config_1.default.env === 'development'
-        ? console.log(`globalErrorHandler:`, error)
-        : logger_1.errorLogger.error(`globalErrorHandler:`, error);
-    // console.log(`globalErrorHandler:`, error);
+    // config.env === 'development'
+    //   ? console.log(`globalErrorHandler:`, error)
+    //   : errorLogger.error(`globalErrorHandler:`, error);
+    console.log(`globalErrorHandler:`, error);
     let statusCode = 500;
     let message = 'Something went wrong';
     // let errorMessage:Array<IGenericErrorMessage>= []

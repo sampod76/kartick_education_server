@@ -46,16 +46,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MilestoneService = void 0;
+exports.LessonService = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const paginationHelper_1 = require("../../../helper/paginationHelper");
 const globalEnums_1 = require("../../../enums/globalEnums");
 const ApiError_1 = __importDefault(require("../../errors/ApiError"));
-const milestone_constant_1 = require("./milestone.constant");
-const milestone_model_1 = require("./milestone.model");
+const quiz_constant_1 = require("./quiz.constant");
+const quiz_model_1 = require("./quiz.model");
 const { ObjectId } = mongoose_1.default.Types;
-const createMilestoneByDb = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = (yield milestone_model_1.Milestone.create(payload)).populate([
+const createLessonByDb = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = (yield quiz_model_1.Lesson.create(payload)).populate([
         {
             path: 'author',
             select: {
@@ -68,8 +68,8 @@ const createMilestoneByDb = (payload) => __awaiter(void 0, void 0, void 0, funct
     ]);
     return result;
 });
-//getAllMilestoneFromDb
-const getAllMilestoneFromDb = (filters, paginationOptions) => __awaiter(void 0, void 0, void 0, function* () {
+//getAllLessonFromDb
+const getAllLessonFromDb = (filters, paginationOptions) => __awaiter(void 0, void 0, void 0, function* () {
     //****************search and filters start************/
     const { searchTerm, select } = filters, filtersData = __rest(filters, ["searchTerm", "select"]);
     // Split the string and extract field names
@@ -84,7 +84,7 @@ const getAllMilestoneFromDb = (filters, paginationOptions) => __awaiter(void 0, 
     const andConditions = [];
     if (searchTerm) {
         andConditions.push({
-            $or: milestone_constant_1.MILESTONE_SEARCHABLE_FIELDS.map(field => 
+            $or: quiz_constant_1.LESSON_SEARCHABLE_FIELDS.map(field => 
             //search array value
             field === 'tags'
                 ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
@@ -95,7 +95,7 @@ const getAllMilestoneFromDb = (filters, paginationOptions) => __awaiter(void 0, 
     }
     if (Object.keys(filtersData).length) {
         andConditions.push({
-            $and: Object.entries(filtersData).map(([field, value]) => field === 'course'
+            $and: Object.entries(filtersData).map(([field, value]) => field === 'module'
                 ? { [field]: new mongoose_1.Types.ObjectId(value) }
                 : { [field]: value }),
         });
@@ -122,8 +122,8 @@ const getAllMilestoneFromDb = (filters, paginationOptions) => __awaiter(void 0, 
         { $limit: Number(limit) || 15 },
         {
             $lookup: {
-                from: 'courses',
-                let: { id: '$course' },
+                from: 'modules',
+                let: { id: '$module' },
                 pipeline: [
                     {
                         $match: {
@@ -133,46 +133,40 @@ const getAllMilestoneFromDb = (filters, paginationOptions) => __awaiter(void 0, 
                     },
                     // Additional stages for collection2
                     // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
-                    {
-                        $project: {
-                            title: 1,
-                        },
-                    },
+                    // {
+                    //   $project: {
+                    //     __v: 0,
+                    //   },
+                    // },
                 ],
-                as: 'courseDetails',
+                as: 'moduleDetails',
             },
         },
         {
-            $project: { course: 0 },
+            $project: { module: 0 },
         },
         {
             $addFields: {
-                course: {
-                    $cond: {
-                        if: { $eq: [{ $size: '$courseDetails' }, 0] },
-                        then: [{}],
-                        else: '$courseDetails',
-                    },
-                },
+                module: '$moduleDetails',
             },
         },
         {
-            $project: { courseDetails: 0 },
+            $project: { moduleDetails: 0 },
         },
         {
-            $unwind: '$course',
+            $unwind: '$module',
         },
     ];
     let result = null;
     if (select) {
-        result = yield milestone_model_1.Milestone.find({})
+        result = yield quiz_model_1.Lesson.find({})
             .sort({ title: 1 })
             .select(Object.assign({}, projection));
     }
     else {
-        result = yield milestone_model_1.Milestone.aggregate(pipeline);
+        result = yield quiz_model_1.Lesson.aggregate(pipeline);
     }
-    const total = yield milestone_model_1.Milestone.countDocuments(whereConditions);
+    const total = yield quiz_model_1.Lesson.countDocuments(whereConditions);
     return {
         meta: {
             page,
@@ -183,51 +177,52 @@ const getAllMilestoneFromDb = (filters, paginationOptions) => __awaiter(void 0, 
     };
 });
 // get single e form db
-const getSingleMilestoneFromDb = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield milestone_model_1.Milestone.aggregate([
+const getSingleLessonFromDb = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield quiz_model_1.Lesson.aggregate([
         { $match: { _id: new ObjectId(id) } },
     ]);
     return result[0];
 });
 // update e form db
-const updateMilestoneFromDb = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
+const updateLessonFromDb = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const { demo_video } = payload, otherData = __rest(payload, ["demo_video"]);
     const updateData = Object.assign({}, otherData);
     if (demo_video && Object.keys(demo_video).length > 0) {
         Object.keys(demo_video).forEach(key => {
             const demo_videoKey = `demo_video.${key}`; // `demo_video.status`
-            updateData[demo_videoKey] = demo_video[key];
+            updateData[demo_videoKey] =
+                demo_video[key];
         });
     }
-    const result = yield milestone_model_1.Milestone.findOneAndUpdate({ _id: id }, updateData, {
+    const result = yield quiz_model_1.Lesson.findOneAndUpdate({ _id: id }, updateData, {
         new: true,
         runValidators: true,
     });
     if (!result) {
-        throw new ApiError_1.default(500, 'Milestone update fail!!😪😭😰');
+        throw new ApiError_1.default(500, 'Lesson update fail!!😪😭😰');
     }
     return result;
 });
 // delete e form db
-const deleteMilestoneByIdFromDb = (id, query) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteLessonByIdFromDb = (id, query) => __awaiter(void 0, void 0, void 0, function* () {
     let result;
     if (query === 'permanent') {
-        result = yield milestone_model_1.Milestone.findByIdAndDelete(id);
+        result = yield quiz_model_1.Lesson.findByIdAndDelete(id);
     }
     else {
-        result = yield milestone_model_1.Milestone.findOneAndUpdate({ status: globalEnums_1.ENUM_STATUS.DEACTIVATE });
+        result = yield quiz_model_1.Lesson.findOneAndUpdate({ status: globalEnums_1.ENUM_STATUS.DEACTIVATE });
     }
     return result;
 });
 // set user reviews e form db
-const MilestoneReviewsByUserFromDb = () => __awaiter(void 0, void 0, void 0, function* () {
+const LessonReviewsByUserFromDb = () => __awaiter(void 0, void 0, void 0, function* () {
     return null;
 });
-exports.MilestoneService = {
-    createMilestoneByDb,
-    getAllMilestoneFromDb,
-    getSingleMilestoneFromDb,
-    updateMilestoneFromDb,
-    deleteMilestoneByIdFromDb,
-    MilestoneReviewsByUserFromDb,
+exports.LessonService = {
+    createLessonByDb,
+    getAllLessonFromDb,
+    getSingleLessonFromDb,
+    updateLessonFromDb,
+    deleteLessonByIdFromDb,
+    LessonReviewsByUserFromDb,
 };
