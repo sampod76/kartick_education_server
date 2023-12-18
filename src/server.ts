@@ -4,13 +4,12 @@ import app from './app';
 import { Server } from 'http';
 // import { errorLogger, logger } from './app/share/logger';
 import "colors";
-import { errorLogger, logger } from './app/share/logger';
 import config from './config/index';
 mongoose.set('strictQuery', false);
 
 process.on('uncaughtException', error => {
-  // console.log('uncaugthException is detected ......', error);
-  errorLogger.error(error);
+  console.log('uncaugthException is detected ......', error);
+  // errorLogger.error(error);
   process.exit(1);
 });
 // database connection
@@ -36,8 +35,8 @@ async function connection() {
     //এখানে চেক করবে আগে আমার সার্ভারে কোন কাজ চলতেছে কিনা যদি কোন কাজ চলে তাহলে সে হঠাৎ করে বন্ধ করবে না
     if (server) {
       server.close(() => {
-        errorLogger.error(error);
-        // console.log(error);
+        // errorLogger.error(error);
+        console.log(error);
         process.exit(1);
       });
     } else {
@@ -48,8 +47,8 @@ async function connection() {
 connection();
 
 process.on('SIGTERM', () => {
-  logger.info('SIGTERM is received ....');
-  // console.log('SIGTERM is received ....');
+  // logger.info('SIGTERM is received ....');
+  console.log('SIGTERM is received ....');
   if (server) {
     server.close();
   }
