@@ -25,7 +25,7 @@ router.post(
   authMiddleware(
     ENUM_USER_ROLE.ADMIN,
     ENUM_USER_ROLE.MODERATOR,
-    ENUM_USER_ROLE.student
+    ENUM_USER_ROLE.STUDENT
   ),
   AuthController.changePassword
 );

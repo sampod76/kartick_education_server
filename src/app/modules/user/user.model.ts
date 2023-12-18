@@ -42,6 +42,22 @@ const userSchema = new Schema<IUser, UserModel>(
       type: Schema.Types.ObjectId,
       ref: 'Admin',
     },
+    superAdmin: {
+      type: Schema.Types.ObjectId,
+      ref: 'SuperAdmin',
+    },
+    trainer: {
+      type: Schema.Types.ObjectId,
+      ref: 'Trainer',
+    },
+    teacher: {
+      type: Schema.Types.ObjectId,
+      ref: 'Teacher',
+    },
+    seller: {
+      type: Schema.Types.ObjectId,
+      ref: 'Seller',
+    },
   },
   {
     timestamps: true,
@@ -78,11 +94,9 @@ userSchema.pre('save', async function (next) {
       );
     }
     next();
-  } catch (error:any) {
-    next(error)
+  } catch (error: any) {
+    next(error);
   }
 });
-
-
 
 export const User = model<IUser, UserModel>('User', userSchema);

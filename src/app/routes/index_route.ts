@@ -1,13 +1,13 @@
 import express from 'express';
 
 // import { CategoryRoute } from '../modules/category/route.category';
-import { ModeratorRoutes } from '../modules/Moderator/moderators.route';
 import { AdminRoutes } from '../modules/admin/admin.route';
 import { AuthRoutes } from '../modules/auth/auth.route';
 import { CategoryRoute } from '../modules/category/route.category';
 import { CourseRoute } from '../modules/course/course.route';
 import { LessonRoute } from '../modules/lesson/lesson.route';
 import { MilestoneRoute } from '../modules/milestone/milestone.route';
+import { ModeratorRoutes } from '../modules/moderator/moderators.route';
 import { ModuleRoute } from '../modules/module/module.route';
 import { StudentRoutes } from '../modules/student/student.route';
 import { UserRoutes } from '../modules/user/user.route';
