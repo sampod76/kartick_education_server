@@ -69,14 +69,20 @@ userSchema.statics.isPasswordMatchMethod = async function (
 };
 
 userSchema.pre('save', async function (next) {
-  const user = this;
-  if (user.isModified('password')) {
-    user.password = await bcrypt.hash(
-      user.password,
-      Number(config.bycrypt_salt_rounds)
-    );
+  try {
+    const user = this;
+    if (user.isModified('password')) {
+      user.password = await bcrypt.hash(
+        user.password,
+        Number(config.bycrypt_salt_rounds)
+      );
+    }
+    next();
+  } catch (error:any) {
+    next(error)
   }
-  next();
 });
+
+
 
 export const User = model<IUser, UserModel>('User', userSchema);

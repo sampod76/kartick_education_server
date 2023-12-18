@@ -4,14 +4,14 @@ import mongoose, { SortOrder } from 'mongoose';
 
 import httpStatus from 'http-status';
 
+import { paginationHelper } from '../../../helper/paginationHelper';
+import ApiError from '../../errors/ApiError';
+import { IGenericResponse } from '../../interface/common';
+import { IPaginationOption } from '../../interface/pagination';
 import { User } from '../user/user.model';
 import { studentSearchableFields } from './student.constant';
 import { IStudent, IStudentFilters } from './student.interface';
 import { Student } from './student.model';
-import { IPaginationOption } from '../../interface/pagination';
-import { IGenericResponse } from '../../interface/common';
-import { paginationHelper } from '../../../helper/paginationHelper';
-import ApiError from '../../errors/ApiError';
 
 const getAllStudents = async (
   filters: IStudentFilters,
@@ -111,12 +111,12 @@ const deleteStudent = async (id: string): Promise<IStudent | null> => {
   try {
     session.startTransaction();
     //delete student first
-    const student = await Student.findOneAndDelete({ id }, { session });
+    const student = await Student.findOneAndDelete({ _id:id }, { session });
     if (!student) {
       throw new ApiError(404, 'Failed to delete student');
     }
     //delete user
-    await User.deleteOne({ id });
+    await User.deleteOne({ _id:id });
     session.commitTransaction();
     session.endSession();
 

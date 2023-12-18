@@ -17,19 +17,19 @@ router.get(
 );
 
 router.post(
-  '/student',
+  '/create-student',
   validateRequestZod(UserValidation.SignUpZodSchema),
   UserController.createStudent
 );
 
 router.post(
-  '/moderator',
+  '/create-moderator',
   validateRequestZod(UserValidation.createModeratorZodSchema),
   UserController.createModerator
 );
 
 router.post(
-  '/admin',
+  '/create-admin',
   validateRequestZod(UserValidation.createAdminZodSchema),
   UserController.createAdmin
 );
