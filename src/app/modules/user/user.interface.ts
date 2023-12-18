@@ -19,7 +19,7 @@ export type IUser = {
 export type UserModel = {
   isUserExistMethod(
     email: string
-  ): Promise<Pick<IUser, 'email' | 'password' | 'role'>>;
+  ): Promise<Pick<IUser, 'email' | 'password' | 'role'|"status"|"blockingTimeout">>;
   isPasswordMatchMethod(
     oldPassword: string,
     newPassword: string

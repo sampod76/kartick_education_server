@@ -14,4 +14,5 @@ export const studentFilterableFields = [
   'bloodGroup',
   'gender',
   'dateOfBirth',
+  'delete'
 ];

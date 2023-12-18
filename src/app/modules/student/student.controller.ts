@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 
+import { PAGINATION_FIELDS } from '../../../constant/pagination';
+import catchAsync from '../../share/catchAsync';
+import pick from '../../share/pick';
+import sendResponse from '../../share/sendResponse';
 import { studentFilterableFields } from './student.constant';
 import { IStudent } from './student.interface';
 import { StudentService } from './student.service';
-import catchAsync from '../../share/catchAsync';
-import pick from '../../share/pick';
-import { PAGINATION_FIELDS } from '../../../constant/pagination';
-import sendResponse from '../../share/sendResponse';
 
 const getAllStudents = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, studentFilterableFields);
@@ -56,7 +56,7 @@ const updateStudent = catchAsync(async (req: Request, res: Response) => {
 const deleteStudent = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
 
-  const result = await StudentService.deleteStudent(id);
+  const result = await StudentService.deleteStudent(id,req.query);
 
   sendResponse<IStudent>(res, {
     statusCode: httpStatus.OK,

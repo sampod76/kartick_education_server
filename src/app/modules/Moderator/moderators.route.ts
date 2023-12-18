@@ -1,9 +1,9 @@
 import express from 'express';
-import { ModeratorController } from './moderator.controller';
-import validateRequestZod from '../../middlewares/validateRequestZod';
-import { ModeratorValidation } from './moderator.validations';
-import authMiddleware from '../../middlewares/authMiddleware';
 import { ENUM_USER_ROLE } from '../../../enums/users';
+import authMiddleware from '../../middlewares/authMiddleware';
+import validateRequestZod from '../../middlewares/validateRequestZod';
+import { ModeratorController } from './moderator.controller';
+import { ModeratorValidation } from './moderator.validations';
 
 
 const router = express.Router();
@@ -16,7 +16,7 @@ router
 router
   .route('/:id')
   .get( authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.MODERATOR),ModeratorController.getSingleModerator)
-  .put(
+  .patch(
     authMiddleware(ENUM_USER_ROLE.ADMIN),
     validateRequestZod(ModeratorValidation.updateModeratorZodSchema),
     ModeratorController.updateModerator

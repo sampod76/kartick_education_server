@@ -3,6 +3,7 @@ import httpStatus from 'http-status';
 import { JwtPayload, Secret } from 'jsonwebtoken';
 import config from '../../../config';
 
+import { ENUM_STATUS } from '../../../enums/globalEnums';
 import { ENUM_USER_ROLE } from '../../../enums/users';
 import { jwtHelpers } from '../../../helper/jwtHelpers';
 import ApiError from '../../errors/ApiError';
@@ -25,6 +26,26 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
 
   if (!isUserExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist');
+  }
+  // switch (isUserExist.status) {
+  //   case ENUM_STATUS.DEACTIVATE:
+  //     throw new ApiError(httpStatus.NOT_FOUND, 'Your account is deactivated');
+  //   case ENUM_STATUS.BLOCK:
+  //     throw new ApiError(
+  //       httpStatus.NOT_FOUND,
+  //       `Your account is blocked ${isUserExist?.blockingTimeout}`
+  //     );
+
+  //   default:
+  //     null
+  // }
+  if (isUserExist.status === ENUM_STATUS.DEACTIVATE) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Your account is deactivated');
+  } else if (isUserExist.status === ENUM_STATUS.BLOCK) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Your account is blocked ${isUserExist?.blockingTimeout}`
+    );
   }
 
   if (
@@ -80,6 +101,14 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
     throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist');
   }
   //generate new token
+  if (isUserExist.status === ENUM_STATUS.DEACTIVATE) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Your account is deactivated');
+  } else if (isUserExist.status === ENUM_STATUS.BLOCK) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Your account is blocked ${isUserExist?.blockingTimeout}`
+    );
+  }
 
   const newAccessToken = jwtHelpers.createToken(
     {
@@ -120,7 +149,14 @@ const changePassword = async (
   ) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Old Password is incorrect');
   }
-
+  if (isUserExist.status === ENUM_STATUS.DEACTIVATE) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Your account is deactivated');
+  } else if (isUserExist.status === ENUM_STATUS.BLOCK) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Your account is blocked ${isUserExist?.blockingTimeout}`
+    );
+  }
   // // hash password before saving
   // const newHashedPassword = await bcrypt.hash(
   //   newPassword,
@@ -152,11 +188,11 @@ const forgotPass = async (payload: { id: string }) => {
 
   let profile = null;
   if (user.role === ENUM_USER_ROLE.ADMIN) {
-    profile = await Admin.findById(user.id)
+    profile = await Admin.findById(user.id);
   } else if (user.role === ENUM_USER_ROLE.MODERATOR) {
-    profile = await Moderator.findById(user.id)
+    profile = await Moderator.findById(user.id);
   } else if (user.role === ENUM_USER_ROLE.student) {
-    profile = await Student.findById(user.id)
+    profile = await Student.findById(user.id);
   }
 
   if (!profile) {
@@ -197,7 +233,7 @@ const resetPassword = async (
   token: string
 ) => {
   const { id, newPassword } = payload;
-  const user = await User.findById({ _id:id }, { _id: 1 });
+  const user = await User.findById({ _id: id }, { _id: 1 });
 
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User not found!');

@@ -17,6 +17,6 @@ router
 router
     .route('/:id')
     .get((0, authMiddleware_1.default)(users_1.ENUM_USER_ROLE.ADMIN, users_1.ENUM_USER_ROLE.MODERATOR), moderator_controller_1.ModeratorController.getSingleModerator)
-    .put((0, authMiddleware_1.default)(users_1.ENUM_USER_ROLE.ADMIN), (0, validateRequestZod_1.default)(moderator_validations_1.ModeratorValidation.updateModeratorZodSchema), moderator_controller_1.ModeratorController.updateModerator)
+    .patch((0, authMiddleware_1.default)(users_1.ENUM_USER_ROLE.ADMIN), (0, validateRequestZod_1.default)(moderator_validations_1.ModeratorValidation.updateModeratorZodSchema), moderator_controller_1.ModeratorController.updateModerator)
     .delete((0, authMiddleware_1.default)(users_1.ENUM_USER_ROLE.ADMIN), moderator_controller_1.ModeratorController.deleteModerator);
 exports.ModeratorRoutes = router;

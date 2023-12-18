@@ -10,13 +10,13 @@ const router = express.Router();
 
 router
   .route('/')
-  .get( authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN), StudentController.getAllStudents)
+  .get(authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN), StudentController.getAllStudents)
 
 
 router
   .route('/:id')
   .get(authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN,ENUM_USER_ROLE.student),StudentController.getSingleStudent)
-  .put(
+  .patch(
     authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),
     validateRequestZod(StudentValidation.updateStudentZodSchema),
     StudentController.updateStudent
