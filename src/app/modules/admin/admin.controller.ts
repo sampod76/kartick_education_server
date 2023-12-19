@@ -52,7 +52,7 @@ const updateAdmin = catchAsync(async (req: Request, res: Response) => {
 const deleteAdmin = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
 
-  const result = await AdminService.deleteAdminDB(id);
+  const result = await AdminService.deleteAdminDB(id,req.query);
 
   sendResponse<IAdmin>(res, {
     statusCode: httpStatus.OK,

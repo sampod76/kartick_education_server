@@ -107,12 +107,12 @@ const deleteStudent = async (
   const isExist = await Student.findById({ _id: id });
 
   if (!isExist) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Faculty not found !');
+    throw new ApiError(httpStatus.NOT_FOUND, 'Student not found !');
   }
 
   const session = await mongoose.startSession();
   try {
-    if (filter.delete) {
+    if (filter.delete == 'true') {
       session.startTransaction();
       //delete student first
       const student = await Student.findOneAndDelete({ _id: id }, { session });
@@ -133,7 +133,7 @@ const deleteStudent = async (
         { status: ENUM_STATUS.DEACTIVATE },
         { session }
       );
-      
+
       if (student) {
         throw new ApiError(404, 'Failed to delete student');
       }

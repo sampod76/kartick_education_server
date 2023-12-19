@@ -2,14 +2,15 @@
 import httpStatus from 'http-status';
 import mongoose, { SortOrder } from 'mongoose';
 
+import { ENUM_STATUS } from '../../../enums/globalEnums';
+import { paginationHelper } from '../../../helper/paginationHelper';
+import ApiError from '../../errors/ApiError';
+import { IGenericResponse } from '../../interface/common';
+import { IPaginationOption } from '../../interface/pagination';
 import { User } from '../user/user.model';
 import { adminSearchableFields } from './admin.constant';
 import { IAdmin, IAdminFilters } from './admin.interface';
 import { Admin } from './admin.model';
-import { IPaginationOption } from '../../interface/pagination';
-import { IGenericResponse } from '../../interface/common';
-import { paginationHelper } from '../../../helper/paginationHelper';
-import ApiError from '../../errors/ApiError';
 
 const getAllAdminsDB = async (
   filters: IAdminFilters,
@@ -91,13 +92,16 @@ const updateAdminDB = async (
     });
   }
 
-  const result = await Admin.findOneAndUpdate({ _id:id }, updatedStudentData, {
+  const result = await Admin.findOneAndUpdate({ _id: id }, updatedStudentData, {
     new: true,
   });
   return result;
 };
 
-const deleteAdminDB = async (id: string): Promise<IAdmin | null> => {
+const deleteAdminDB = async (
+  id: string,
+  query: IAdminFilters
+): Promise<IAdmin | null> => {
   // check if the faculty is exist
   const isExist = await Admin.findById(id);
 
@@ -106,20 +110,45 @@ const deleteAdminDB = async (id: string): Promise<IAdmin | null> => {
   }
 
   const session = await mongoose.startSession();
-
   try {
-    session.startTransaction();
-    //delete student first
-    const student = await Admin.findOneAndDelete({ _id:id }, { session });
-    if (!student) {
-      throw new ApiError(404, 'Failed to delete student');
-    }
-    //delete user
-    await User.deleteOne({ _id:id });
-    session.commitTransaction();
-    session.endSession();
+    if (query.delete == 'true') {
+      session.startTransaction();
+      //delete student first
+      const adminResult = await Admin.findOneAndDelete(
+        { _id: id },
+        { session }
+      );
+      if (!adminResult) {
+        throw new ApiError(404, 'Failed to delete student');
+      }
+      //delete user
+      await User.findOneAndDelete({ _id: id }, { session });
+      session.commitTransaction();
+      session.endSession();
 
-    return student;
+      return adminResult;
+    } else {
+      session.startTransaction();
+      //delete student first
+      const adminResult = await Admin.findOneAndUpdate(
+        { _id: id },
+        { status: ENUM_STATUS.DEACTIVATE },
+        { session }
+      );
+
+      if (adminResult) {
+        throw new ApiError(404, 'Failed to delete student');
+      }
+      //delete user
+      await User.findOneAndUpdate(
+        { email: isExist.email },
+        { status: ENUM_STATUS.DEACTIVATE },
+        { session }
+      );
+      session.commitTransaction();
+      session.endSession();
+      return adminResult;
+    }
   } catch (error) {
     session.abortTransaction();
     session.endSession();

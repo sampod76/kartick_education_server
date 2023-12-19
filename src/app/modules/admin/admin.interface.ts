@@ -27,4 +27,5 @@ export type IAdminFilters = {
   bloodGroup?: string;
   email?: string;
   phoneNumber?: string;
+  delete?: string;
 };
