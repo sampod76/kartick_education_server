@@ -1,16 +1,15 @@
 import httpStatus from 'http-status';
 import mongoose, { PipelineStage } from 'mongoose';
 import config from '../../../config/index';
-import { ENUM_USER_ROLE } from '../../../enums/users';
 import { paginationHelper } from '../../../helper/paginationHelper';
 import ApiError from '../../errors/ApiError';
 import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 import { IAdmin } from '../admin/admin.interface';
 import { Admin } from '../admin/admin.model';
-import { IModerator } from '../moderator/moderator.interface';
 
-import { Moderator } from '../Moderator/moderator.model';
+
+
 import { IStudent, IStudentFilters } from '../student/student.interface';
 import { Student } from '../student/student.model';
 import { userSearchableFields } from './user.constant';
@@ -239,66 +238,66 @@ const createStudent = async (
   return newUserAllData;
 };
 
-const createModerator = async (
-  moderator: IModerator,
-  user: IUser
-): Promise<IUser | null> => {
-  // default password
-  if (!user.password) {
-    user.password = config.default_moderator_pass as string;
-  }
-  const exist = await User.isUserExistMethod(user.email)
-  if(exist){
-    throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
-  }
-  // set role
-  user.role = ENUM_USER_ROLE.MODERATOR;
+// const createModerator = async (
+//   moderator: IModerator,
+//   user: IUser
+// ): Promise<IUser | null> => {
+//   // default password
+//   if (!user.password) {
+//     user.password = config.default_moderator_pass as string;
+//   }
+//   const exist = await User.isUserExistMethod(user.email)
+//   if(exist){
+//     throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
+//   }
+//   // set role
+//   user.role = ENUM_USER_ROLE.MODERATOR;
 
   
-  let newUserAllData = null;
-  const session = await mongoose.startSession();
-  try {
-    session.startTransaction();
+//   let newUserAllData = null;
+//   const session = await mongoose.startSession();
+//   try {
+//     session.startTransaction();
 
-    const newModerator = await Moderator.create([moderator], { session });
+//     const newModerator = await Moderator.create([moderator], { session });
 
-    if (!newModerator.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create moderator ');
-    }
+//     if (!newModerator.length) {
+//       throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create moderator ');
+//     }
 
-    user.moderator = newModerator[0]._id;
+//     user.moderator = newModerator[0]._id;
 
-    const newUser = await User.create([user], { session });
+//     const newUser = await User.create([user], { session });
 
-    if (!newUser.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create moderator');
-    }
-    newUserAllData = newUser[0];
+//     if (!newUser.length) {
+//       throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create moderator');
+//     }
+//     newUserAllData = newUser[0];
 
-    await session.commitTransaction();
-    await session.endSession();
-  } catch (error) {
-    await session.abortTransaction();
-    await session.endSession();
-    throw error;
-  }
+//     await session.commitTransaction();
+//     await session.endSession();
+//   } catch (error) {
+//     await session.abortTransaction();
+//     await session.endSession();
+//     throw error;
+//   }
 
-  if (newUserAllData) {
-    newUserAllData = await User.findOne({ id: newUserAllData.id }).populate({
-      path: 'moderator',
-      // populate: [
-      //   {
-      //     path: 'academicDepartment',
-      //   },
-      //   {
-      //     path: 'academicFaculty',
-      //   },
-      // ],
-    });
-  }
+//   if (newUserAllData) {
+//     newUserAllData = await User.findOne({ id: newUserAllData.id }).populate({
+//       path: 'moderator',
+//       // populate: [
+//       //   {
+//       //     path: 'academicDepartment',
+//       //   },
+//       //   {
+//       //     path: 'academicFaculty',
+//       //   },
+//       // ],
+//     });
+//   }
 
-  return newUserAllData;
-};
+//   return newUserAllData;
+// };
 const createAdmin = async (
   admin: IAdmin,
   user: IUser
@@ -359,7 +358,7 @@ const createAdmin = async (
 
 export const UserService = {
   createStudent,
-  createModerator,
+
   createAdmin,
   getAllUsers,
 };

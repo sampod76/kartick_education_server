@@ -5,7 +5,7 @@ import { paginationHelper } from '../../../helper/paginationHelper';
 import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 
-import { ENUM_STATUS } from '../../../enums/globalEnums';
+import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import ApiError from '../../errors/ApiError';
 import { MODULE_SEARCHABLE_FIELDS } from './module.constant';
 import { IModule, IModuleFilters } from './module.interface';
@@ -204,10 +204,10 @@ const updateModuleFromDb = async (
 // delete e form db
 const deleteModuleByIdFromDb = async (
   id: string,
-  query: any
+  query: IModuleFilters
 ): Promise<IModule | null> => {
   let result;
-  if (query === 'permanent') {
+  if (query.delete === ENUM_YN.YES) {
     result = await Module.findByIdAndDelete(id);
   } else {
     result = await Module.findOneAndUpdate({ status: ENUM_STATUS.DEACTIVATE });

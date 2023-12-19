@@ -1,7 +1,7 @@
 import { Model, Types } from 'mongoose';
 
 import { IAdmin } from '../admin/admin.interface';
-import { IModerator } from '../moderator/moderator.interface';
+// import { IModerator } from '../moderator/moderator.interface';
 import { IStudent } from '../student/student.interface';
 
 export type IUser = {
@@ -11,7 +11,7 @@ export type IUser = {
   status: 'active' | 'deactivate' | 'disabled' | 'block';
   blockingTimeout?: number;
   student?: Types.ObjectId | IStudent;
-  moderator?: Types.ObjectId | IModerator;
+  moderator?: Types.ObjectId | IAdmin;
   superAdmin?: Types.ObjectId | IAdmin;
   admin?: Types.ObjectId | IAdmin;
   trainer?: Types.ObjectId | IAdmin;

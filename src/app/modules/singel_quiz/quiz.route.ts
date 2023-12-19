@@ -2,28 +2,28 @@ import express from 'express';
 import { ENUM_USER_ROLE } from '../../../enums/users';
 import authMiddleware from '../../middlewares/authMiddleware';
 import validateRequestZod from '../../middlewares/validateRequestZod';
-import { LessonController } from './quiz.constroller';
-import { LessonValidation } from './quiz.validation';
+import { QuizController } from './quiz.constroller';
+import { QuizValidation } from './quiz.validation';
 
 const router = express.Router();
 
 router
   .route('/')
-  .get(LessonController.getAllLesson)
+  .get(QuizController.getAllQuiz)
   .post(
     authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),
-    validateRequestZod(LessonValidation.createLessonZodSchema),
-    LessonController.createLesson
+    validateRequestZod(QuizValidation.createQuizZodSchema),
+    QuizController.createQuiz
   );
 
 router
   .route('/:id')
-  .get(LessonController.getSingleLesson)
+  .get(QuizController.getSingleQuiz)
   .patch(
     authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),
-    validateRequestZod(LessonValidation.updateLessonZodSchema),
-    LessonController.updateLesson
+    validateRequestZod(QuizValidation.updateQuizZodSchema),
+    QuizController.updateQuiz
   )
-  .delete(authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN), LessonController.deleteLesson);
+  .delete(authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN), QuizController.deleteQuiz);
 
-export const LessonRoute = router;
+export const QuizRoute = router;

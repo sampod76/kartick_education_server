@@ -10,6 +10,7 @@ export const COURSE_FILTERABLE_FIELDS = [
   'level',
   'status',
   'price_type',
+  'delete'
 ];
 
 export const COURSE_TYPES = ['free', 'paid', 'open', 'closed', 'recurrig'];

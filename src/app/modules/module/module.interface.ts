@@ -8,6 +8,7 @@ export type IModuleFilters = {
   status?: string;
   milestone?: string;
   select?: string;
+  delete?: "yes" | "no" ;
   // other query parameters
 };
 

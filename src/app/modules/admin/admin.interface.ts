@@ -1,10 +1,8 @@
 import { Model, Types } from 'mongoose';
 
-
 export type UserName = {
   firstName: string;
   lastName: string;
-
 };
 
 export type IAdmin = {
@@ -15,7 +13,7 @@ export type IAdmin = {
   phoneNumber: string;
   bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
   address: string;
-  courseId: Types.ObjectId 
+  courseId: Types.ObjectId;
   img: string;
 };
 
@@ -27,5 +25,5 @@ export type IAdminFilters = {
   bloodGroup?: string;
   email?: string;
   phoneNumber?: string;
-  delete?: string;
+  delete?: 'yes' | 'no';
 };

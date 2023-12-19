@@ -5,7 +5,7 @@ import { paginationHelper } from '../../../helper/paginationHelper';
 import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 
-import { ENUM_STATUS } from '../../../enums/globalEnums';
+import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import ApiError from '../../errors/ApiError';
 import { LESSON_SEARCHABLE_FIELDS } from './lesson.constant';
 import { ILesson, ILessonFilters } from './lesson.interface';
@@ -204,10 +204,10 @@ const updateLessonFromDb = async (
 // delete e form db
 const deleteLessonByIdFromDb = async (
   id: string,
-  query: any
+  query: ILessonFilters
 ): Promise<ILesson | null> => {
   let result;
-  if (query === 'permanent') {
+  if (query.delete === ENUM_YN.YES) {
     result = await Lesson.findByIdAndDelete(id);
   } else {
     result = await Lesson.findOneAndUpdate({ status: ENUM_STATUS.DEACTIVATE });

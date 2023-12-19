@@ -7,21 +7,23 @@ import { IPaginationOption } from '../../interface/pagination';
 
 import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import ApiError from '../../errors/ApiError';
-import { QUIZ_SEARCHABLE_FIELDS } from './quiz.constant';
-import { IQuiz, IQuizFilters } from './quiz.interface';
-import { Quiz } from './quiz.model';
+import { SINGLE_QUIZ_SEARCHABLE_FIELDS } from './single_quiz.constant';
+import { ISingleQuiz, ISingleQuizFilters } from './single_quiz.interface';
+import { SingleQuiz } from './single_quiz.model';
 
 const { ObjectId } = mongoose.Types;
-const createQuizByDb = async (payload: IQuiz): Promise<IQuiz> => {
-  const result = (await Quiz.create(payload))
+const createSingleQuizByDb = async (
+  payload: ISingleQuiz
+): Promise<ISingleQuiz> => {
+  const result = await SingleQuiz.create(payload);
   return result;
 };
 
-//getAllQuizFromDb
-const getAllQuizFromDb = async (
-  filters: IQuizFilters,
+//getAllSingleQuizFromDb
+const getAllSingleQuizFromDb = async (
+  filters: ISingleQuizFilters,
   paginationOptions: IPaginationOption
-): Promise<IGenericResponse<IQuiz[]>> => {
+): Promise<IGenericResponse<ISingleQuiz[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
 
@@ -38,7 +40,7 @@ const getAllQuizFromDb = async (
   const andConditions = [];
   if (searchTerm) {
     andConditions.push({
-      $or: QUIZ_SEARCHABLE_FIELDS.map(field =>
+      $or: SINGLE_QUIZ_SEARCHABLE_FIELDS.map(field =>
         //search array value
         field === 'tags'
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
@@ -52,7 +54,7 @@ const getAllQuizFromDb = async (
   if (Object.keys(filtersData).length) {
     andConditions.push({
       $and: Object.entries(filtersData).map(([field, value]) =>
-         field === 'module'
+        field === 'module'
           ? { [field]: new Types.ObjectId(value) }
           : { [field]: value }
       ),
@@ -110,7 +112,7 @@ const getAllQuizFromDb = async (
         as: 'moduleDetails',
       },
     },
-    
+
     {
       $project: { module: 0 },
     },
@@ -131,19 +133,55 @@ const getAllQuizFromDb = async (
     {
       $unwind: '$module',
     },
-   
+    //------------ quiz pipelines --------------------------------
+    {
+      $lookup: {
+        from: 'quizzes',
+        let: { id: '$quiz' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$_id', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+        ],
+        as: 'quizDetails',
+      },
+    },
+
+    {
+      $project: { quiz: 0 },
+    },
+    {
+      $addFields: {
+        quiz: {
+          $cond: {
+            if: { $eq: [{ $size: '$quizDetails' }, 0] },
+            then: [{}],
+            else: '$quizDetails',
+          },
+        },
+      },
+    },
+    {
+      $project: { quizDetails: 0 },
+    },
+    {
+      $unwind: '$quiz',
+    },
   ];
 
   let result = null;
   if (select) {
-    result = await Quiz.find({})
+    result = await SingleQuiz.find({})
       .sort({ title: 1 })
       .select({ ...projection });
   } else {
-    result = await Quiz.aggregate(pipeline);
+    result = await SingleQuiz.aggregate(pipeline);
   }
 
-  const total = await Quiz.countDocuments(whereConditions);
+  const total = await SingleQuiz.countDocuments(whereConditions);
   return {
     meta: {
       page,
@@ -155,21 +193,95 @@ const getAllQuizFromDb = async (
 };
 
 // get single e form db
-const getSingleQuizFromDb = async (
+const getSingleSingleQuizFromDb = async (
   id: string
-): Promise<IQuiz | null> => {
-  const result = await Quiz.aggregate([
+): Promise<ISingleQuiz | null> => {
+  const result = await SingleQuiz.aggregate([
     { $match: { _id: new ObjectId(id) } },
+    {
+      $lookup: {
+        from: 'modules',
+        let: { id: '$module' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$_id', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+        ],
+        as: 'moduleDetails',
+      },
+    },
+
+    {
+      $project: { module: 0 },
+    },
+    {
+      $addFields: {
+        module: {
+          $cond: {
+            if: { $eq: [{ $size: '$moduleDetails' }, 0] },
+            then: [{}],
+            else: '$moduleDetails',
+          },
+        },
+      },
+    },
+    {
+      $project: { moduleDetails: 0 },
+    },
+    {
+      $unwind: '$module',
+    },
+
+    //------------ quiz pipelines --------------------------------
+    {
+      $lookup: {
+        from: 'quizzes',
+        let: { id: '$quiz' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$_id', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+        ],
+        as: 'quizDetails',
+      },
+    },
+
+    {
+      $project: { quiz: 0 },
+    },
+    {
+      $addFields: {
+        quiz: {
+          $cond: {
+            if: { $eq: [{ $size: '$quizDetails' }, 0] },
+            then: [{}],
+            else: '$quizDetails',
+          },
+        },
+      },
+    },
+    {
+      $project: { quizDetails: 0 },
+    },
+    {
+      $unwind: '$quiz',
+    },
   ]);
 
   return result[0];
 };
 
 // update e form db
-const updateQuizFromDb = async (
+const updateSingleQuizFromDb = async (
   id: string,
-  payload: Partial<IQuiz>
-): Promise<IQuiz | null> => {
+  payload: Partial<ISingleQuiz>
+): Promise<ISingleQuiz | null> => {
   const { demo_video, ...otherData } = payload;
   const updateData = { ...otherData };
   if (demo_video && Object.keys(demo_video).length > 0) {
@@ -180,40 +292,42 @@ const updateQuizFromDb = async (
     });
   }
 
-  const result = await Quiz.findOneAndUpdate({ _id: id }, updateData, {
+  const result = await SingleQuiz.findOneAndUpdate({ _id: id }, updateData, {
     new: true,
     runValidators: true,
   });
   if (!result) {
-    throw new ApiError(500, 'Quiz update fail!!😪😭😰');
+    throw new ApiError(500, 'SingleQuiz update fail!!😪😭😰');
   }
   return result;
 };
 
 // delete e form db
-const deleteQuizByIdFromDb = async (
+const deleteSingleQuizByIdFromDb = async (
   id: string,
-  query: IQuizFilters
-): Promise<IQuiz | null> => {
+  query: ISingleQuizFilters
+): Promise<ISingleQuiz | null> => {
   let result;
   if (query.delete === ENUM_YN.YES) {
-    result = await Quiz.findByIdAndDelete(id);
+    result = await SingleQuiz.findByIdAndDelete(id);
   } else {
-    result = await Quiz.findOneAndUpdate({ status: ENUM_STATUS.DEACTIVATE });
+    result = await SingleQuiz.findOneAndUpdate({
+      status: ENUM_STATUS.DEACTIVATE,
+    });
   }
   return result;
 };
 
 // set user reviews e form db
-const QuizReviewsByUserFromDb = async (): Promise<IQuiz | null> => {
+const SingleQuizReviewsByUserFromDb = async (): Promise<ISingleQuiz | null> => {
   return null;
 };
 
-export const QuizService = {
-  createQuizByDb,
-  getAllQuizFromDb,
-  getSingleQuizFromDb,
-  updateQuizFromDb,
-  deleteQuizByIdFromDb,
-  QuizReviewsByUserFromDb,
+export const SingleQuizService = {
+  createSingleQuizByDb,
+  getAllSingleQuizFromDb,
+  getSingleSingleQuizFromDb,
+  updateSingleQuizFromDb,
+  deleteSingleQuizByIdFromDb,
+  SingleQuizReviewsByUserFromDb,
 };

@@ -5,7 +5,7 @@ import { paginationHelper } from '../../../helper/paginationHelper';
 import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 
-import { ENUM_STATUS } from '../../../enums/globalEnums';
+import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import ApiError from '../../errors/ApiError';
 import { MILESTONE_SEARCHABLE_FIELDS } from './milestone.constant';
 import { IMilestone, IMilestoneFilters } from './milestone.interface';
@@ -202,10 +202,10 @@ const updateMilestoneFromDb = async (
 // delete e form db
 const deleteMilestoneByIdFromDb = async (
   id: string,
-  query: any
+  query: IMilestoneFilters
 ): Promise<IMilestone | null> => {
   let result;
-  if (query === 'permanent') {
+  if (query.delete === ENUM_YN.YES) {
     result = await Milestone.findByIdAndDelete(id);
   } else {
     result = await Milestone.findOneAndUpdate({ status: ENUM_STATUS.DEACTIVATE });

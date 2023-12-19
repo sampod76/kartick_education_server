@@ -8,6 +8,7 @@ export type ILessonFilters = {
   status?: string;
   select?: string;
   module?: string;
+  delete?: "yes" | "no" ;
   // other query parameters
 };
 
