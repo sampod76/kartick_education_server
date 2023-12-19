@@ -16,6 +16,9 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const app_1 = __importDefault(require("./app"));
 // import { errorLogger, logger } from './app/share/logger';
 require("colors");
+
+const logger_1 = require("./app/share/logger");
+
 const index_1 = __importDefault(require("./config/index"));
 mongoose_1.default.set('strictQuery', false);
 process.on('uncaughtException', error => {

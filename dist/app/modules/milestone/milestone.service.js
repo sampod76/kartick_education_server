@@ -139,7 +139,7 @@ const getAllMilestoneFromDb = (filters, paginationOptions) => __awaiter(void 0, 
                         },
                     },
                 ],
-                as: 'courseDetails',
+                as: '',
             },
         },
         {
