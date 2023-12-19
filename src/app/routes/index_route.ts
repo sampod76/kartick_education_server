@@ -11,7 +11,7 @@ import { MilestoneRoute } from '../modules/milestone/milestone.route';
 import { ModuleRoute } from '../modules/module/module.route';
 import { StudentRoutes } from '../modules/student/student.route';
 import { UserRoutes } from '../modules/user/user.route';
-import { ModeratorRoutes } from '../modules/moderator/moderators.route';
+
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -46,10 +46,7 @@ const moduleRoutes = [
     path: '/admin',
     route: AdminRoutes,
   },
-  {
-    path: '/moderator',
-    route: ModeratorRoutes,
-  },
+
   {
     path: '/auth',
     route: AuthRoutes,
