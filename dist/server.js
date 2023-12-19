@@ -16,12 +16,14 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const app_1 = __importDefault(require("./app"));
 // import { errorLogger, logger } from './app/share/logger';
 require("colors");
+
 const logger_1 = require("./app/share/logger");
+
 const index_1 = __importDefault(require("./config/index"));
 mongoose_1.default.set('strictQuery', false);
 process.on('uncaughtException', error => {
-    // console.log('uncaugthException is detected ......', error);
-    logger_1.errorLogger.error(error);
+    console.log('uncaugthException is detected ......', error);
+    // errorLogger.error(error);
     process.exit(1);
 });
 // database connection
@@ -46,8 +48,8 @@ function connection() {
             //এখানে চেক করবে আগে আমার সার্ভারে কোন কাজ চলতেছে কিনা যদি কোন কাজ চলে তাহলে সে হঠাৎ করে বন্ধ করবে না
             if (server) {
                 server.close(() => {
-                    logger_1.errorLogger.error(error);
-                    // console.log(error);
+                    // errorLogger.error(error);
+                    console.log(error);
                     process.exit(1);
                 });
             }
@@ -59,8 +61,8 @@ function connection() {
 }
 connection();
 process.on('SIGTERM', () => {
-    logger_1.logger.info('SIGTERM is received ....');
-    // console.log('SIGTERM is received ....');
+    // logger.info('SIGTERM is received ....');
+    console.log('SIGTERM is received ....');
     if (server) {
         server.close();
     }

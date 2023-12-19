@@ -118,7 +118,7 @@ const getAllMilestoneFromDb = async (
             },
           },
         ],
-        as: '',
+        as: 'courseDetails',
       },
     },
     

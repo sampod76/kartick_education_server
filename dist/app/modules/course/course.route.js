@@ -18,6 +18,6 @@ router
 router
     .route('/:id')
     .get(course_constroller_1.CourseController.getSingleCourse)
-    .put((0, authMiddleware_1.default)(users_1.ENUM_USER_ROLE.ADMIN), (0, validateRequestZod_1.default)(course_validation_1.CourseValidation.updateCourseZodSchema), course_constroller_1.CourseController.updateCourse)
+    .patch((0, authMiddleware_1.default)(users_1.ENUM_USER_ROLE.ADMIN), (0, validateRequestZod_1.default)(course_validation_1.CourseValidation.updateCourseZodSchema), course_constroller_1.CourseController.updateCourse)
     .delete((0, authMiddleware_1.default)(users_1.ENUM_USER_ROLE.ADMIN), course_constroller_1.CourseController.deleteCourse);
 exports.CourseRoute = router;

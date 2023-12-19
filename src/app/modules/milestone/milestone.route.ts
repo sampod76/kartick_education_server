@@ -19,7 +19,7 @@ router
 router
   .route('/:id')
   .get(MilestoneController.getSingleMilestone)
-  .put(
+  .patch(
     authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),
     validateRequestZod(MilestoneValidation.updateMilestoneZodSchema),
     MilestoneController.updateMilestone

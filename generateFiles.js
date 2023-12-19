@@ -303,7 +303,7 @@ router
 router
   .route('/:id')
   .get(${capitalize(folderName)}Controller.getSingle${capitalize(folderName)})
-  .put(
+  .patch(
     authMiddleware(ENUM_USER_ROLE.ADMIN),
     validateRequestZod(${capitalize(folderName)}Validation.update${capitalize(
         folderName

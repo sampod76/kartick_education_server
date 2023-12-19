@@ -27,4 +27,5 @@ export type IStudentFilters = {
   id?: string;
   gender?: string;
   dateOfBirth?: string;
+  delete?: string;
 };

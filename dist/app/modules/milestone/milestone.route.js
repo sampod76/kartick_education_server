@@ -18,6 +18,6 @@ router
 router
     .route('/:id')
     .get(milestone_constroller_1.MilestoneController.getSingleMilestone)
-    .put((0, authMiddleware_1.default)(users_1.ENUM_USER_ROLE.ADMIN, users_1.ENUM_USER_ROLE.SUPER_ADMIN), (0, validateRequestZod_1.default)(milestone_validation_1.MilestoneValidation.updateMilestoneZodSchema), milestone_constroller_1.MilestoneController.updateMilestone)
+    .patch((0, authMiddleware_1.default)(users_1.ENUM_USER_ROLE.ADMIN, users_1.ENUM_USER_ROLE.SUPER_ADMIN), (0, validateRequestZod_1.default)(milestone_validation_1.MilestoneValidation.updateMilestoneZodSchema), milestone_constroller_1.MilestoneController.updateMilestone)
     .delete((0, authMiddleware_1.default)(users_1.ENUM_USER_ROLE.ADMIN, users_1.ENUM_USER_ROLE.SUPER_ADMIN), milestone_constroller_1.MilestoneController.deleteMilestone);
 exports.MilestoneRoute = router;

@@ -18,6 +18,6 @@ router
 router
     .route('/:id')
     .get(module_constroller_1.ModuleController.getSingleModule)
-    .put((0, authMiddleware_1.default)(users_1.ENUM_USER_ROLE.ADMIN, users_1.ENUM_USER_ROLE.SUPER_ADMIN), (0, validateRequestZod_1.default)(module_validation_1.moduleValidation.updateModuleZodSchema), module_constroller_1.ModuleController.updateModule)
+    .patch((0, authMiddleware_1.default)(users_1.ENUM_USER_ROLE.ADMIN, users_1.ENUM_USER_ROLE.SUPER_ADMIN), (0, validateRequestZod_1.default)(module_validation_1.moduleValidation.updateModuleZodSchema), module_constroller_1.ModuleController.updateModule)
     .delete((0, authMiddleware_1.default)(users_1.ENUM_USER_ROLE.ADMIN, users_1.ENUM_USER_ROLE.SUPER_ADMIN), module_constroller_1.ModuleController.deleteModule);
 exports.ModuleRoute = router;

@@ -16,12 +16,9 @@ exports.AuthService = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const http_status_1 = __importDefault(require("http-status"));
 const config_1 = __importDefault(require("../../../config"));
-const users_1 = require("../../../enums/users");
+const globalEnums_1 = require("../../../enums/globalEnums");
 const jwtHelpers_1 = require("../../../helper/jwtHelpers");
 const ApiError_1 = __importDefault(require("../../errors/ApiError"));
-const moderator_model_1 = require("../Moderator/moderator.model");
-const admin_model_1 = require("../admin/admin.model");
-const student_model_1 = require("../student/student.model");
 const user_model_1 = require("../user/user.model");
 const sendResetMail_1 = require("./sendResetMail");
 const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
@@ -29,6 +26,23 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const isUserExist = yield user_model_1.User.isUserExistMethod(email);
     if (!isUserExist) {
         throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'User does not exist');
+    }
+    // switch (isUserExist.status) {
+    //   case ENUM_STATUS.DEACTIVATE:
+    //     throw new ApiError(httpStatus.NOT_FOUND, 'Your account is deactivated');
+    //   case ENUM_STATUS.BLOCK:
+    //     throw new ApiError(
+    //       httpStatus.NOT_FOUND,
+    //       `Your account is blocked ${isUserExist?.blockingTimeout}`
+    //     );
+    //   default:
+    //     null
+    // }
+    if (isUserExist.status === globalEnums_1.ENUM_STATUS.DEACTIVATE) {
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'Your account is deactivated');
+    }
+    else if (isUserExist.status === globalEnums_1.ENUM_STATUS.BLOCK) {
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, `Your account is blocked ${isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist.blockingTimeout}`);
     }
     if (isUserExist.password &&
         !(yield user_model_1.User.isPasswordMatchMethod(password, isUserExist.password))) {
@@ -62,6 +76,12 @@ const refreshToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
         throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'User does not exist');
     }
     //generate new token
+    if (isUserExist.status === globalEnums_1.ENUM_STATUS.DEACTIVATE) {
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'Your account is deactivated');
+    }
+    else if (isUserExist.status === globalEnums_1.ENUM_STATUS.BLOCK) {
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, `Your account is blocked ${isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist.blockingTimeout}`);
+    }
     const newAccessToken = jwtHelpers_1.jwtHelpers.createToken({
         email: isUserExist.email,
         role: isUserExist.role,
@@ -84,6 +104,12 @@ const changePassword = (user, payload) => __awaiter(void 0, void 0, void 0, func
         !(yield user_model_1.User.isPasswordMatchMethod(oldPassword, isUserExist.password))) {
         throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, 'Old Password is incorrect');
     }
+    if (isUserExist.status === globalEnums_1.ENUM_STATUS.DEACTIVATE) {
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'Your account is deactivated');
+    }
+    else if (isUserExist.status === globalEnums_1.ENUM_STATUS.BLOCK) {
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, `Your account is blocked ${isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist.blockingTimeout}`);
+    }
     // // hash password before saving
     // const newHashedPassword = await bcrypt.hash(
     //   newPassword,
@@ -103,32 +129,30 @@ const changePassword = (user, payload) => __awaiter(void 0, void 0, void 0, func
     isUserExist.save();
 });
 const forgotPass = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield user_model_1.User.findById(payload.id, { role: 1 });
-    if (!user) {
+    const profile = yield user_model_1.User.findById(payload.id).populate('admin', "");
+    if (!profile) {
         throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'User does not exist!');
     }
-    let profile = null;
-    if (user.role === users_1.ENUM_USER_ROLE.ADMIN) {
-        profile = yield admin_model_1.Admin.findById(user.id);
-    }
-    else if (user.role === users_1.ENUM_USER_ROLE.MODERATOR) {
-        profile = yield moderator_model_1.Moderator.findById(user.id);
-    }
-    else if (user.role === users_1.ENUM_USER_ROLE.student) {
-        profile = yield student_model_1.Student.findById(user.id);
-    }
-    if (!profile) {
-        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'Pofile not found!');
-    }
+    // let profile = null;
+    // if (user.role === ENUM_USER_ROLE.ADMIN) {
+    //   profile = await Admin.findById(user.id);
+    // } else if (user.role === ENUM_USER_ROLE.MODERATOR) {
+    //   profile = await Moderator.findById(user.id);
+    // } else if (user.role === ENUM_USER_ROLE.student) {
+    //   profile = await Student.findById(user.id);
+    // }
+    // if (!profile) {
+    //   throw new ApiError(httpStatus.BAD_REQUEST, 'Pofile not found!');
+    // }
     if (!profile.email) {
         throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, 'Email not found!');
     }
-    const passResetToken = yield jwtHelpers_1.jwtHelpers.createResetToken({ email: user.email }, config_1.default.jwt.secret, '50m');
+    const passResetToken = yield jwtHelpers_1.jwtHelpers.createResetToken({ email: profile.email }, config_1.default.jwt.secret, '50m');
     const resetLink = config_1.default.resetlink + `token=${passResetToken}`;
     console.log('profile: ', profile);
     yield (0, sendResetMail_1.sendEmail)(profile.email, `
       <div>
-        <p>Hi, ${profile.name.firstName}</p>
+        <p>Hi</p>
         <p>Your password reset link: <a href=${resetLink}>Click Here</a></p>
         <p>Thank you</p>
       </div>

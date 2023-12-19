@@ -54,6 +54,22 @@ const userSchema = new mongoose_1.Schema({
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'Admin',
     },
+    superAdmin: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'SuperAdmin',
+    },
+    trainer: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'Trainer',
+    },
+    teacher: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'Teacher',
+    },
+    seller: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'Seller',
+    },
 }, {
     timestamps: true,
     toJSON: {
@@ -73,11 +89,16 @@ userSchema.statics.isPasswordMatchMethod = function (givenPassword, savedPasswor
 };
 userSchema.pre('save', function (next) {
     return __awaiter(this, void 0, void 0, function* () {
-        const user = this;
-        if (user.isModified('password')) {
-            user.password = yield bcrypt_1.default.hash(user.password, Number(config_1.default.bycrypt_salt_rounds));
+        try {
+            const user = this;
+            if (user.isModified('password')) {
+                user.password = yield bcrypt_1.default.hash(user.password, Number(config_1.default.bycrypt_salt_rounds));
+            }
+            next();
         }
-        next();
+        catch (error) {
+            next(error);
+        }
     });
 });
 exports.User = (0, mongoose_1.model)('User', userSchema);

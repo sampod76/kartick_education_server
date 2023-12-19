@@ -6,15 +6,16 @@ import { paginationHelper } from '../../../helper/paginationHelper';
 import ApiError from '../../errors/ApiError';
 import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
-import { IModerator } from '../Moderator/moderator.interface';
-import { Moderator } from '../Moderator/moderator.model';
 import { IAdmin } from '../admin/admin.interface';
 import { Admin } from '../admin/admin.model';
+import { IModerator } from '../moderator/moderator.interface';
+
 import { IStudent, IStudentFilters } from '../student/student.interface';
 import { Student } from '../student/student.model';
 import { userSearchableFields } from './user.constant';
 import { IUser } from './user.interface';
 import { User } from './user.model';
+import { Moderator } from '../moderator/moderator.model';
 
 const getAllUsers = async (
   filters: IStudentFilters,

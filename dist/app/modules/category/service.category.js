@@ -102,7 +102,7 @@ const updateCategoryFromDb = (id, payload) => __awaiter(void 0, void 0, void 0, 
 });
 // delete Categorye form db
 const deleteCategoryByIdFromDb = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield model_category_1.Category.findByIdAndDelete(id);
+    const result = yield model_category_1.Category.findOneAndDelete({ _id: id });
     return result;
 });
 exports.CategoryService = {

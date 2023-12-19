@@ -1,10 +1,10 @@
 import express from 'express';
 
+import { ENUM_USER_ROLE } from '../../../enums/users';
+import authMiddleware from '../../middlewares/authMiddleware';
+import validateRequestZod from '../../middlewares/validateRequestZod';
 import { AdminController } from './admin.controller';
 import { AdminValidation } from './admin.validation';
-import validateRequestZod from '../../middlewares/validateRequestZod';
-import authMiddleware from '../../middlewares/authMiddleware';
-import { ENUM_USER_ROLE } from '../../../enums/users';
 const router = express.Router();
 
 router
@@ -15,7 +15,7 @@ router
 router
   .route('/:id')
   .get( authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),AdminController.getSingleAdmin)
-  .put(
+  .patch(
     authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),
     validateRequestZod(AdminValidation.updateAdmin),
     AdminController.updateAdmin

@@ -27,11 +27,12 @@ exports.StudentService = void 0;
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const mongoose_1 = __importDefault(require("mongoose"));
 const http_status_1 = __importDefault(require("http-status"));
+const globalEnums_1 = require("../../../enums/globalEnums");
+const paginationHelper_1 = require("../../../helper/paginationHelper");
+const ApiError_1 = __importDefault(require("../../errors/ApiError"));
 const user_model_1 = require("../user/user.model");
 const student_constant_1 = require("./student.constant");
 const student_model_1 = require("./student.model");
-const paginationHelper_1 = require("../../../helper/paginationHelper");
-const ApiError_1 = __importDefault(require("../../errors/ApiError"));
 const getAllStudents = (filters, paginationOptions) => __awaiter(void 0, void 0, void 0, function* () {
     const { searchTerm } = filters, filtersData = __rest(filters, ["searchTerm"]);
     const { page, limit, skip, sortBy, sortOrder } = paginationHelper_1.paginationHelper.calculatePagination(paginationOptions);
@@ -94,7 +95,7 @@ const updateStudent = (id, payload) => __awaiter(void 0, void 0, void 0, functio
     });
     return result;
 });
-const deleteStudent = (id) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteStudent = (id, filter) => __awaiter(void 0, void 0, void 0, function* () {
     // check if the faculty is exist
     const isExist = yield student_model_1.Student.findById({ _id: id });
     if (!isExist) {
@@ -102,17 +103,32 @@ const deleteStudent = (id) => __awaiter(void 0, void 0, void 0, function* () {
     }
     const session = yield mongoose_1.default.startSession();
     try {
-        session.startTransaction();
-        //delete student first
-        const student = yield student_model_1.Student.findOneAndDelete({ id }, { session });
-        if (!student) {
-            throw new ApiError_1.default(404, 'Failed to delete student');
+        if (filter.delete) {
+            session.startTransaction();
+            //delete student first
+            const student = yield student_model_1.Student.findOneAndDelete({ _id: id }, { session });
+            if (!student) {
+                throw new ApiError_1.default(404, 'Failed to delete student');
+            }
+            //delete user
+            yield user_model_1.User.findOneAndDelete({ _id: id }, { session });
+            session.commitTransaction();
+            session.endSession();
+            return student;
         }
-        //delete user
-        yield user_model_1.User.deleteOne({ id });
-        session.commitTransaction();
-        session.endSession();
-        return student;
+        else {
+            session.startTransaction();
+            //delete student first
+            const student = yield student_model_1.Student.findOneAndUpdate({ _id: id }, { status: globalEnums_1.ENUM_STATUS.DEACTIVATE }, { session });
+            if (student) {
+                throw new ApiError_1.default(404, 'Failed to delete student');
+            }
+            //delete user
+            yield user_model_1.User.findOneAndUpdate({ email: isExist.email }, { status: globalEnums_1.ENUM_STATUS.DEACTIVATE }, { session });
+            session.commitTransaction();
+            session.endSession();
+            return student;
+        }
     }
     catch (error) {
         session.abortTransaction();

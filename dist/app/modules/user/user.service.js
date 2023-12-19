@@ -30,11 +30,13 @@ const index_1 = __importDefault(require("../../../config/index"));
 const users_1 = require("../../../enums/users");
 const paginationHelper_1 = require("../../../helper/paginationHelper");
 const ApiError_1 = __importDefault(require("../../errors/ApiError"));
-const moderator_model_1 = require("../Moderator/moderator.model");
 const admin_model_1 = require("../admin/admin.model");
 const student_model_1 = require("../student/student.model");
 const user_constant_1 = require("./user.constant");
 const user_model_1 = require("./user.model");
+
+const moderator_model_1 = require("../moderator/moderator.model");
+
 const getAllUsers = (filters, paginationOptions) => __awaiter(void 0, void 0, void 0, function* () {
     const { searchTerm } = filters, filtersData = __rest(filters, ["searchTerm"]);
     const { page, limit, skip, sortBy, sortOrder } = paginationHelper_1.paginationHelper.calculatePagination(paginationOptions);

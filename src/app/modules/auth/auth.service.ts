@@ -3,12 +3,9 @@ import httpStatus from 'http-status';
 import { JwtPayload, Secret } from 'jsonwebtoken';
 import config from '../../../config';
 
-import { ENUM_USER_ROLE } from '../../../enums/users';
+import { ENUM_STATUS } from '../../../enums/globalEnums';
 import { jwtHelpers } from '../../../helper/jwtHelpers';
 import ApiError from '../../errors/ApiError';
-import { Moderator } from '../Moderator/moderator.model';
-import { Admin } from '../admin/admin.model';
-import { Student } from '../student/student.model';
 import { User } from '../user/user.model';
 import {
   IChangePassword,
@@ -25,6 +22,26 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
 
   if (!isUserExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist');
+  }
+  // switch (isUserExist.status) {
+  //   case ENUM_STATUS.DEACTIVATE:
+  //     throw new ApiError(httpStatus.NOT_FOUND, 'Your account is deactivated');
+  //   case ENUM_STATUS.BLOCK:
+  //     throw new ApiError(
+  //       httpStatus.NOT_FOUND,
+  //       `Your account is blocked ${isUserExist?.blockingTimeout}`
+  //     );
+
+  //   default:
+  //     null
+  // }
+  if (isUserExist.status === ENUM_STATUS.DEACTIVATE) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Your account is deactivated');
+  } else if (isUserExist.status === ENUM_STATUS.BLOCK) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Your account is blocked ${isUserExist?.blockingTimeout}`
+    );
   }
 
   if (
@@ -80,6 +97,14 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
     throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist');
   }
   //generate new token
+  if (isUserExist.status === ENUM_STATUS.DEACTIVATE) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Your account is deactivated');
+  } else if (isUserExist.status === ENUM_STATUS.BLOCK) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Your account is blocked ${isUserExist?.blockingTimeout}`
+    );
+  }
 
   const newAccessToken = jwtHelpers.createToken(
     {
@@ -120,7 +145,14 @@ const changePassword = async (
   ) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Old Password is incorrect');
   }
-
+  if (isUserExist.status === ENUM_STATUS.DEACTIVATE) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Your account is deactivated');
+  } else if (isUserExist.status === ENUM_STATUS.BLOCK) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Your account is blocked ${isUserExist?.blockingTimeout}`
+    );
+  }
   // // hash password before saving
   // const newHashedPassword = await bcrypt.hash(
   //   newPassword,
@@ -144,31 +176,31 @@ const changePassword = async (
 };
 
 const forgotPass = async (payload: { id: string }) => {
-  const user = await User.findById(payload.id, { role: 1 });
+  const profile = await User.findById(payload.id).populate('admin',"");
 
-  if (!user) {
+  if (!profile) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User does not exist!');
   }
 
-  let profile = null;
-  if (user.role === ENUM_USER_ROLE.ADMIN) {
-    profile = await Admin.findById(user.id)
-  } else if (user.role === ENUM_USER_ROLE.MODERATOR) {
-    profile = await Moderator.findById(user.id)
-  } else if (user.role === ENUM_USER_ROLE.student) {
-    profile = await Student.findById(user.id)
-  }
+  // let profile = null;
+  // if (user.role === ENUM_USER_ROLE.ADMIN) {
+  //   profile = await Admin.findById(user.id);
+  // } else if (user.role === ENUM_USER_ROLE.MODERATOR) {
+  //   profile = await Moderator.findById(user.id);
+  // } else if (user.role === ENUM_USER_ROLE.student) {
+  //   profile = await Student.findById(user.id);
+  // }
 
-  if (!profile) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Pofile not found!');
-  }
+  // if (!profile) {
+  //   throw new ApiError(httpStatus.BAD_REQUEST, 'Pofile not found!');
+  // }
 
   if (!profile.email) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email not found!');
   }
 
   const passResetToken = await jwtHelpers.createResetToken(
-    { email: user.email },
+    { email: profile.email },
     config.jwt.secret as string,
     '50m'
   );
@@ -180,7 +212,7 @@ const forgotPass = async (payload: { id: string }) => {
     profile.email,
     `
       <div>
-        <p>Hi, ${profile.name.firstName}</p>
+        <p>Hi</p>
         <p>Your password reset link: <a href=${resetLink}>Click Here</a></p>
         <p>Thank you</p>
       </div>
@@ -197,7 +229,7 @@ const resetPassword = async (
   token: string
 ) => {
   const { id, newPassword } = payload;
-  const user = await User.findById({ _id:id }, { _id: 1 });
+  const user = await User.findById({ _id: id }, { _id: 1 });
 
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User not found!');

@@ -110,7 +110,7 @@ const updateCategoryFromDb = async (
 const deleteCategoryByIdFromDb = async (
   id: string
 ): Promise<ICategory | null> => {
-  const result = await Category.findByIdAndDelete(id)
+  const result = await Category.findOneAndDelete({_id:id})
   return result;
 };
 

@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose, { SortOrder } from 'mongoose';
 
-
 import httpStatus from 'http-status';
 
+import { ENUM_STATUS } from '../../../enums/globalEnums';
+import { paginationHelper } from '../../../helper/paginationHelper';
+import ApiError from '../../errors/ApiError';
+import { IGenericResponse } from '../../interface/common';
+import { IPaginationOption } from '../../interface/pagination';
 import { User } from '../user/user.model';
 import { studentSearchableFields } from './student.constant';
 import { IStudent, IStudentFilters } from './student.interface';
 import { Student } from './student.model';
-import { IPaginationOption } from '../../interface/pagination';
-import { IGenericResponse } from '../../interface/common';
-import { paginationHelper } from '../../../helper/paginationHelper';
-import ApiError from '../../errors/ApiError';
 
 const getAllStudents = async (
   filters: IStudentFilters,
@@ -68,7 +68,7 @@ const getAllStudents = async (
 };
 
 const getSingleStudent = async (id: string): Promise<IStudent | null> => {
-  const result = await Student.findById({ _id:id })
+  const result = await Student.findById({ _id: id });
   return result;
 };
 
@@ -76,7 +76,7 @@ const updateStudent = async (
   id: string,
   payload: Partial<IStudent>
 ): Promise<IStudent | null> => {
-  const isExist = await Student.findById({ _id:id });
+  const isExist = await Student.findById({ _id: id });
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Student not found !');
   }
@@ -98,29 +98,55 @@ const updateStudent = async (
   return result;
 };
 
-const deleteStudent = async (id: string): Promise<IStudent | null> => {
+const deleteStudent = async (
+  id: string,
+  filter: IStudentFilters
+): Promise<IStudent | null> => {
   // check if the faculty is exist
-  const isExist = await Student.findById({ _id:id });
+
+  const isExist = await Student.findById({ _id: id });
 
   if (!isExist) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Faculty not found !');
+    throw new ApiError(httpStatus.NOT_FOUND, 'Student not found !');
   }
 
   const session = await mongoose.startSession();
-
   try {
-    session.startTransaction();
-    //delete student first
-    const student = await Student.findOneAndDelete({ id }, { session });
-    if (!student) {
-      throw new ApiError(404, 'Failed to delete student');
-    }
-    //delete user
-    await User.deleteOne({ id });
-    session.commitTransaction();
-    session.endSession();
+    if (filter.delete == 'true') {
+      session.startTransaction();
+      //delete student first
+      const student = await Student.findOneAndDelete({ _id: id }, { session });
+      if (!student) {
+        throw new ApiError(404, 'Failed to delete student');
+      }
+      //delete user
+      await User.findOneAndDelete({ _id: id }, { session });
+      session.commitTransaction();
+      session.endSession();
 
-    return student;
+      return student;
+    } else {
+      session.startTransaction();
+      //delete student first
+      const student = await Student.findOneAndUpdate(
+        { _id: id },
+        { status: ENUM_STATUS.DEACTIVATE },
+        { session }
+      );
+
+      if (student) {
+        throw new ApiError(404, 'Failed to delete student');
+      }
+      //delete user
+      await User.findOneAndUpdate(
+        { email: isExist.email },
+        { status: ENUM_STATUS.DEACTIVATE },
+        { session }
+      );
+      session.commitTransaction();
+      session.endSession();
+      return student;
+    }
   } catch (error) {
     session.abortTransaction();
     session.endSession();

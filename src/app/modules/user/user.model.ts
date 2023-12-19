@@ -42,6 +42,22 @@ const userSchema = new Schema<IUser, UserModel>(
       type: Schema.Types.ObjectId,
       ref: 'Admin',
     },
+    superAdmin: {
+      type: Schema.Types.ObjectId,
+      ref: 'SuperAdmin',
+    },
+    trainer: {
+      type: Schema.Types.ObjectId,
+      ref: 'Trainer',
+    },
+    teacher: {
+      type: Schema.Types.ObjectId,
+      ref: 'Teacher',
+    },
+    seller: {
+      type: Schema.Types.ObjectId,
+      ref: 'Seller',
+    },
   },
   {
     timestamps: true,
@@ -69,14 +85,18 @@ userSchema.statics.isPasswordMatchMethod = async function (
 };
 
 userSchema.pre('save', async function (next) {
-  const user = this;
-  if (user.isModified('password')) {
-    user.password = await bcrypt.hash(
-      user.password,
-      Number(config.bycrypt_salt_rounds)
-    );
+  try {
+    const user = this;
+    if (user.isModified('password')) {
+      user.password = await bcrypt.hash(
+        user.password,
+        Number(config.bycrypt_salt_rounds)
+      );
+    }
+    next();
+  } catch (error: any) {
+    next(error);
   }
-  next();
 });
 
 export const User = model<IUser, UserModel>('User', userSchema);
