@@ -18,8 +18,6 @@ router
 router
     .route('/:id')
     .get(quiz_constroller_1.LessonController.getSingleLesson)
-
     .patch((0, authMiddleware_1.default)(users_1.ENUM_USER_ROLE.ADMIN, users_1.ENUM_USER_ROLE.SUPER_ADMIN), (0, validateRequestZod_1.default)(quiz_validation_1.LessonValidation.updateLessonZodSchema), quiz_constroller_1.LessonController.updateLesson)
-
     .delete((0, authMiddleware_1.default)(users_1.ENUM_USER_ROLE.ADMIN, users_1.ENUM_USER_ROLE.SUPER_ADMIN), quiz_constroller_1.LessonController.deleteLesson);
 exports.LessonRoute = router;

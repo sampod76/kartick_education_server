@@ -14,4 +14,5 @@ exports.adminSearchableFields = [
     'phoneNumber',
     'name.firstName',
     'name.lastName',
+    'delete'
 ];

@@ -11,10 +11,10 @@ const route_category_1 = require("../modules/category/route.category");
 const course_route_1 = require("../modules/course/course.route");
 const lesson_route_1 = require("../modules/lesson/lesson.route");
 const milestone_route_1 = require("../modules/milestone/milestone.route");
-const moderators_route_1 = require("../modules/moderator/moderators.route");
 const module_route_1 = require("../modules/module/module.route");
 const student_route_1 = require("../modules/student/student.route");
 const user_route_1 = require("../modules/user/user.route");
+const moderators_route_1 = require("../modules/moderator/moderators.route");
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 const router = express_1.default.Router();
 const moduleRoutes = [

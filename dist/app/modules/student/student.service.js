@@ -99,11 +99,11 @@ const deleteStudent = (id, filter) => __awaiter(void 0, void 0, void 0, function
     // check if the faculty is exist
     const isExist = yield student_model_1.Student.findById({ _id: id });
     if (!isExist) {
-        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'Faculty not found !');
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'Student not found !');
     }
     const session = yield mongoose_1.default.startSession();
     try {
-        if (filter.delete) {
+        if (filter.delete == 'true') {
             session.startTransaction();
             //delete student first
             const student = yield student_model_1.Student.findOneAndDelete({ _id: id }, { session });

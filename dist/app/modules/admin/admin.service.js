@@ -27,11 +27,12 @@ exports.AdminService = void 0;
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const http_status_1 = __importDefault(require("http-status"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const globalEnums_1 = require("../../../enums/globalEnums");
+const paginationHelper_1 = require("../../../helper/paginationHelper");
+const ApiError_1 = __importDefault(require("../../errors/ApiError"));
 const user_model_1 = require("../user/user.model");
 const admin_constant_1 = require("./admin.constant");
 const admin_model_1 = require("./admin.model");
-const paginationHelper_1 = require("../../../helper/paginationHelper");
-const ApiError_1 = __importDefault(require("../../errors/ApiError"));
 const getAllAdminsDB = (filters, paginationOptions) => __awaiter(void 0, void 0, void 0, function* () {
     const { searchTerm } = filters, filtersData = __rest(filters, ["searchTerm"]);
     const { page, limit, skip, sortBy, sortOrder } = paginationHelper_1.paginationHelper.calculatePagination(paginationOptions);
@@ -94,7 +95,7 @@ const updateAdminDB = (id, payload) => __awaiter(void 0, void 0, void 0, functio
     });
     return result;
 });
-const deleteAdminDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteAdminDB = (id, query) => __awaiter(void 0, void 0, void 0, function* () {
     // check if the faculty is exist
     const isExist = yield admin_model_1.Admin.findById(id);
     if (!isExist) {
@@ -102,17 +103,32 @@ const deleteAdminDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
     }
     const session = yield mongoose_1.default.startSession();
     try {
-        session.startTransaction();
-        //delete student first
-        const student = yield admin_model_1.Admin.findOneAndDelete({ _id: id }, { session });
-        if (!student) {
-            throw new ApiError_1.default(404, 'Failed to delete student');
+        if (query.delete == 'true') {
+            session.startTransaction();
+            //delete student first
+            const adminResult = yield admin_model_1.Admin.findOneAndDelete({ _id: id }, { session });
+            if (!adminResult) {
+                throw new ApiError_1.default(404, 'Failed to delete student');
+            }
+            //delete user
+            yield user_model_1.User.findOneAndDelete({ _id: id }, { session });
+            session.commitTransaction();
+            session.endSession();
+            return adminResult;
         }
-        //delete user
-        yield user_model_1.User.deleteOne({ _id: id });
-        session.commitTransaction();
-        session.endSession();
-        return student;
+        else {
+            session.startTransaction();
+            //delete student first
+            const adminResult = yield admin_model_1.Admin.findOneAndUpdate({ _id: id }, { status: globalEnums_1.ENUM_STATUS.DEACTIVATE }, { session });
+            if (adminResult) {
+                throw new ApiError_1.default(404, 'Failed to delete student');
+            }
+            //delete user
+            yield user_model_1.User.findOneAndUpdate({ email: isExist.email }, { status: globalEnums_1.ENUM_STATUS.DEACTIVATE }, { session });
+            session.commitTransaction();
+            session.endSession();
+            return adminResult;
+        }
     }
     catch (error) {
         session.abortTransaction();
