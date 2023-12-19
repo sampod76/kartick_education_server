@@ -9,8 +9,10 @@ import { LessonRoute } from '../modules/lesson/lesson.route';
 import { MilestoneRoute } from '../modules/milestone/milestone.route';
 
 import { ModuleRoute } from '../modules/module/module.route';
+import { QuizRoute } from '../modules/singel_quiz/quiz.route';
 import { StudentRoutes } from '../modules/student/student.route';
 import { UserRoutes } from '../modules/user/user.route';
+import { SingleQuizRoute } from '../modules/single_quiz/single_quiz.route';
 
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
@@ -33,6 +35,14 @@ const moduleRoutes = [
   {
     path: '/lesson',
     route: LessonRoute,
+  },
+  {
+    path: '/quiz',
+    route: QuizRoute,
+  },
+  {
+    path: '/single-quiz',
+    route: SingleQuizRoute,
   },
   {
     path: '/user',

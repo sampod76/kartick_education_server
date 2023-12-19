@@ -11,6 +11,7 @@ export type ICourseFilters = {
   price_type?: string;
   category?: string;
   select?: string;
+  delete?: "yes" | "no" ;
   // other query parameters
 };
 

@@ -2,32 +2,36 @@ import { Model, Types } from 'mongoose';
 import { IUser } from '../user/user.interface';
 
 import { IModule } from '../module/module.interface';
+import { ILesson } from '../lesson/lesson.interface';
 
-export type ILessonFilters = {
+export type IQuizFilters = {
   searchTerm?: string;
   status?: string;
   select?: string;
   module?: string;
+  lesson?: string;
+  delete?: "yes" | "no" ;
   // other query parameters
 };
 
-export type ILessonSearchableField = {
+export type IQuizSearchableField = {
   title?: string;
   details?: string;
 };
 
-export type ILesson = {
+export type IQuiz = {
   title: string;
   img?: string;
   details?: string;
-  lecture: number;
-  lesson_number: number;
+  passingGrade?: number;
+  minus_skip?: boolean;
+  //
+  lesson?: Types.ObjectId | ILesson;
   author?: Types.ObjectId | IUser;
-  module: Types.ObjectId | IModule | string;
+  module: Types.ObjectId | IModule ;
   status: 'active' | 'deactivate' | 'save';
   demo_video?: Record<string, string>;
-  video?: string;
   tags?: string[];
 };
 
-export type LessonModel = Model<ILesson, Record<string, unknown>>;
+export type QuizModel = Model<IQuiz, Record<string, unknown>>;

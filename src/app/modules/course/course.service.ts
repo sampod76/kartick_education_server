@@ -5,7 +5,7 @@ import { paginationHelper } from '../../../helper/paginationHelper';
 import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 
-import { ENUM_STATUS } from '../../../enums/globalEnums';
+import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import ApiError from '../../errors/ApiError';
 import { COURSE_SEARCHABLE_FIELDS } from './course.constant';
 import { ICourse, ICourseFilters } from './course.interface';
@@ -14,27 +14,7 @@ import { generateCourseId } from './course.utils';
 const { ObjectId } = mongoose.Types;
 const createCourseByDb = async (payload: ICourse): Promise<ICourse> => {
   payload.snid = await generateCourseId();
-  const result = (await Course.create(payload)).populate([
-    {
-      path: 'author',
-      select: {
-        needsPasswordChange: 0,
-        createdAt: 0,
-        updatedAt: 0,
-        __v: 0,
-      },
-      // populate: [
-      //   {
-      //     path: 'moderator',
-      //     select: { createdAt: 0, updatedAt: 0, __v: 0 },
-      //   },
-      //   {
-      //     path: 'admin',
-      //     select: { createdAt: 0, updatedAt: 0, __v: 0 },
-      //   },
-      // ],
-    },
-  ]);
+  const result = (await Course.create(payload))
   return result;
 };
 
@@ -261,10 +241,10 @@ const updateCourseFromDb = async (
 // delete e form db
 const deleteCourseByIdFromDb = async (
   id: string,
-  query: any
+  query: ICourseFilters
 ): Promise<ICourse | null> => {
   let result;
-  if (query === 'permanent') {
+  if (query.delete === ENUM_YN.YES) {
     result = await Course.findByIdAndDelete(id);
   } else {
     result = await Course.findOneAndUpdate({ status: ENUM_STATUS.DEACTIVATE });

@@ -5,6 +5,7 @@ export type ICategoryFilters = {
   searchTerm?: string;
   title?: string;
   status?: string;
+  delete?: "yes" | "no" ;
 };
 
 export type ICategory = {

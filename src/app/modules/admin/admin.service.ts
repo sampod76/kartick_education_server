@@ -2,7 +2,7 @@
 import httpStatus from 'http-status';
 import mongoose, { SortOrder } from 'mongoose';
 
-import { ENUM_STATUS } from '../../../enums/globalEnums';
+import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import { paginationHelper } from '../../../helper/paginationHelper';
 import ApiError from '../../errors/ApiError';
 import { IGenericResponse } from '../../interface/common';
@@ -111,7 +111,7 @@ const deleteAdminDB = async (
 
   const session = await mongoose.startSession();
   try {
-    if (query.delete == 'true') {
+    if (query.delete == ENUM_YN.YES) {
       session.startTransaction();
       //delete student first
       const adminResult = await Admin.findOneAndDelete(

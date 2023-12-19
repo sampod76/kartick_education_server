@@ -1,8 +1,8 @@
 import { Schema, model } from 'mongoose';
 import { STATUS_ARRAY } from '../../../constant/globalConstant';
-import { ILesson, LessonModel } from './quiz.interface';
+import { IQuiz, QuizModel } from './quiz.interface';
 
-const lessonSchema = new Schema<ILesson,LessonModel>(
+const quizSchema = new Schema<IQuiz, QuizModel>(
   {
     title: {
       type: String,
@@ -13,10 +13,17 @@ const lessonSchema = new Schema<ILesson,LessonModel>(
     img: {
       type: String,
     },
-    
     details: {
       type: String,
       trim: true,
+    },
+    passingGrade: {
+      type: Number,
+      min: 0,
+    },
+    minus_skip: {
+      type: Boolean,
+      default: false,
     },
     author: {
       type: Schema.Types.ObjectId,
@@ -31,16 +38,9 @@ const lessonSchema = new Schema<ILesson,LessonModel>(
       enum: STATUS_ARRAY,
       default: 'active',
     },
-    lesson_number: {
-      type: Number,
-    },
-   
     demo_video: {
       type: Object,
       default: {},
-    },
-    video: {
-      type: String,
     },
     tags: [String],
   },
@@ -53,4 +53,5 @@ const lessonSchema = new Schema<ILesson,LessonModel>(
   }
 );
 
-export const Lesson = model<ILesson,LessonModel>('Lesson', lessonSchema);
+export const Quiz = model<IQuiz, QuizModel>('Quiz', quizSchema);
+
