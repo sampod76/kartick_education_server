@@ -26,4 +26,5 @@ export type IAdminFilters = {
   email?: string;
   phoneNumber?: string;
   delete?: 'yes' | 'no';
+  status: 'active' | 'deactivate' | 'save' | 'disable';
 };

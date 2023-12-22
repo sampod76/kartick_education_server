@@ -8,8 +8,6 @@ import { IPaginationOption } from '../../interface/pagination';
 import { IAdmin } from '../admin/admin.interface';
 import { Admin } from '../admin/admin.model';
 
-
-
 import { IStudent, IStudentFilters } from '../student/student.interface';
 import { Student } from '../student/student.model';
 import { userSearchableFields } from './user.constant';
@@ -133,7 +131,7 @@ const getAllUsers = async (
         as: 'studentDetails',
       },
     },
-     
+
     {
       $project: { student: 0 },
     },
@@ -154,12 +152,9 @@ const getAllUsers = async (
     {
       $unwind: '$student',
     },
-    
-   
-   
   ];
 
-  const result = await User.aggregate(pipeline)
+  const result = await User.aggregate(pipeline);
 
   const total = await User.countDocuments(whereConditions);
 
@@ -181,8 +176,8 @@ const createStudent = async (
   if (!user.password) {
     user.password = config.default_student_pass as string;
   }
-  const exist = await User.isUserExistMethod(user.email)
-  if(exist){
+  const exist = await User.isUserExistMethod(user.email);
+  if (exist) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
   }
   // set role
@@ -192,7 +187,6 @@ const createStudent = async (
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
-
 
     //array
     const newStudent = await Student.create([student], { session });
@@ -209,7 +203,7 @@ const createStudent = async (
       throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create user');
     }
     newUserAllData = newUser[0];
-  
+
     await session.commitTransaction();
     await session.endSession();
   } catch (error) {
@@ -253,7 +247,6 @@ const createStudent = async (
 //   // set role
 //   user.role = ENUM_USER_ROLE.MODERATOR;
 
-  
 //   let newUserAllData = null;
 //   const session = await mongoose.startSession();
 //   try {
@@ -306,13 +299,12 @@ const createAdmin = async (
   if (!user.password) {
     user.password = config.default_admin_pass as string;
   }
-  const exist = await User.isUserExistMethod(user.email)
-  if(exist){
+  const exist = await User.isUserExistMethod(user.email);
+  if (exist) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
   }
   // set role
   user.role = 'admin';
-
 
   let newUserAllData = null;
   const session = await mongoose.startSession();
@@ -349,7 +341,6 @@ const createAdmin = async (
   if (newUserAllData) {
     newUserAllData = await User.findOne({ id: newUserAllData.id }).populate({
       path: 'admin',
-      
     });
   }
 
