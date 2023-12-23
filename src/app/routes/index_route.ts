@@ -13,7 +13,8 @@ import { QuizRoute } from '../modules/singel_quiz/quiz.route';
 import { StudentRoutes } from '../modules/student/student.route';
 import { UserRoutes } from '../modules/user/user.route';
 import { SingleQuizRoute } from '../modules/single_quiz/single_quiz.route';
-
+import { SellerRoutes } from '../modules/seller/seller.route';
+import { TrainerRoutes } from '../modules/trainer/trainer.route';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -55,6 +56,14 @@ const moduleRoutes = [
   {
     path: '/admin',
     route: AdminRoutes,
+  },
+  {
+    path: '/seller',
+    route: SellerRoutes,
+  },
+  {
+    path: '/trainer',
+    route: TrainerRoutes,
   },
 
   {

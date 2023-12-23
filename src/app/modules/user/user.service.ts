@@ -8,8 +8,11 @@ import { IPaginationOption } from '../../interface/pagination';
 import { IAdmin } from '../admin/admin.interface';
 import { Admin } from '../admin/admin.model';
 
+import { ENUM_USER_ROLE } from '../../../enums/users';
+import { ISeller } from '../seller/seller.interface';
 import { IStudent, IStudentFilters } from '../student/student.interface';
 import { Student } from '../student/student.model';
+import { ITrainer } from '../trainer/trainer.interface';
 import { userSearchableFields } from './user.constant';
 import { IUser } from './user.interface';
 import { User } from './user.model';
@@ -64,6 +67,7 @@ const getAllUsers = async (
     { $sort: sortConditions },
     { $skip: Number(skip) || 0 },
     { $limit: Number(limit) || 15 },
+    //admin
     {
       $lookup: {
         from: 'admins',
@@ -80,6 +84,7 @@ const getAllUsers = async (
 
           {
             $project: {
+              password:0,
               __v: 0,
             },
           },
@@ -108,6 +113,8 @@ const getAllUsers = async (
     {
       $unwind: '$admin',
     },
+
+    // student
     {
       $lookup: {
         from: 'students',
@@ -124,6 +131,7 @@ const getAllUsers = async (
 
           {
             $project: {
+              password:0,
               __v: 0,
             },
           },
@@ -152,6 +160,52 @@ const getAllUsers = async (
     {
       $unwind: '$student',
     },
+    // trainer
+    {
+      $lookup: {
+        from: 'trainers',
+        let: { id: '$trainer' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$_id', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+          {
+            $project: {
+              password:0,
+              __v: 0,
+            },
+          },
+        ],
+        as: 'trainerDetails',
+      },
+    },
+
+    {
+      $project: { trainer: 0 },
+    },
+    {
+      $addFields: {
+        trainer: {
+          $cond: {
+            if: { $eq: [{ $size: '$trainerDetails' }, 0] },
+            then: [{}],
+            else: '$trainerDetails',
+          },
+        },
+      },
+    },
+    {
+      $project: { trainerDetails: 0 },
+    },
+    {
+      $unwind: '$trainer',
+    },
   ];
 
   const result = await User.aggregate(pipeline);
@@ -168,7 +222,7 @@ const getAllUsers = async (
   };
 };
 
-const createStudent = async (
+const createStudentService = async (
   student: IStudent,
   user: IUser
 ): Promise<IUser | null> => {
@@ -181,7 +235,7 @@ const createStudent = async (
     throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
   }
   // set role
-  user.role = 'student';
+  user.role = ENUM_USER_ROLE.STUDENT;
 
   let newUserAllData = null;
   const session = await mongoose.startSession();
@@ -213,20 +267,107 @@ const createStudent = async (
   }
 
   if (newUserAllData) {
-    newUserAllData = await User.findOne({ id: newUserAllData.id }).populate({
-      path: 'student',
-      // populate: [
-      //   {
-      //     path: 'academicSemester',
-      //   },
-      //   {
-      //     path: 'academicDepartment',
-      //   },
-      //   {
-      //     path: 'academicFaculty',
-      //   },
-      // ],
-    });
+    newUserAllData = await User.findOne({ id: newUserAllData.id })
+  }
+
+  return newUserAllData;
+};
+const createTrainerService = async (
+  trainer: ITrainer,
+  user: IUser
+): Promise<IUser | null> => {
+  // default password
+  if (!user.password) {
+    user.password = config.default_student_pass as string;
+  }
+  const exist = await User.isUserExistMethod(user.email);
+  if (exist) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
+  }
+  // set role
+  user.role = ENUM_USER_ROLE.TRAINER;
+
+  let newUserAllData = null;
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+
+    //array
+    const newStudent = await Student.create([trainer], { session });
+
+    if (!newStudent.length) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create student');
+    }
+    //set student -->  _id into user.student
+    user.student = newStudent[0]._id;
+
+    const newUser = await User.create([user], { session });
+
+    if (!newUser.length) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create user');
+    }
+    newUserAllData = newUser[0];
+
+    await session.commitTransaction();
+    await session.endSession();
+  } catch (error) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw error;
+  }
+
+  if (newUserAllData) {
+    newUserAllData = await User.findOne({ id: newUserAllData.id })
+  }
+
+  return newUserAllData;
+};
+const createSellerService = async (
+  seller: ISeller,
+  user: IUser
+): Promise<IUser | null> => {
+  // default password
+  if (!user.password) {
+    user.password = config.default_student_pass as string;
+  }
+  const exist = await User.isUserExistMethod(user.email);
+  if (exist) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
+  }
+  // set role
+  user.role = 'student';
+
+  let newUserAllData = null;
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+
+    //array
+    const newStudent = await Student.create([seller], { session });
+
+    if (!newStudent.length) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create student');
+    }
+    //set student -->  _id into user.student
+    user.student = newStudent[0]._id;
+
+    const newUser = await User.create([user], { session });
+
+    if (!newUser.length) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create user');
+    }
+    newUserAllData = newUser[0];
+
+    await session.commitTransaction();
+    await session.endSession();
+  } catch (error) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw error;
+  }
+
+  if (newUserAllData) {
+    newUserAllData = await User.findOne({ id: newUserAllData.id })
   }
 
   return newUserAllData;
@@ -291,7 +432,7 @@ const createStudent = async (
 
 //   return newUserAllData;
 // };
-const createAdmin = async (
+const createAdminService = async (
   admin: IAdmin,
   user: IUser
 ): Promise<IUser | null> => {
@@ -304,7 +445,7 @@ const createAdmin = async (
     throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
   }
   // set role
-  user.role = 'admin';
+  user.role = ENUM_USER_ROLE.ADMIN;
 
   let newUserAllData = null;
   const session = await mongoose.startSession();
@@ -339,17 +480,16 @@ const createAdmin = async (
   }
 
   if (newUserAllData) {
-    newUserAllData = await User.findOne({ id: newUserAllData.id }).populate({
-      path: 'admin',
-    });
+    newUserAllData = await User.findOne({ id: newUserAllData.id })
   }
 
   return newUserAllData;
 };
 
 export const UserService = {
-  createStudent,
-
-  createAdmin,
+  createStudentService,
+  createAdminService,
+  createTrainerService,
+  createSellerService,
   getAllUsers,
 };

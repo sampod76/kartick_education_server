@@ -28,7 +28,7 @@ const createStudent: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const { student, ...userData } = req.body;
     userData.email=student?.email
-    const result = await UserService.createStudent(student, userData);
+    const result = await UserService.createStudentService(student, userData);
 
     sendResponse<IUser>(res, {
       statusCode: httpStatus.OK,
@@ -43,7 +43,7 @@ const createModerator: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const { moderator, ...userData } = req.body;
     userData.email=moderator?.email
-    const result = await UserService.createModerator(moderator, userData);
+    const result =null
 
     sendResponse<IUser>(res, {
       statusCode: httpStatus.OK,
@@ -58,11 +58,37 @@ const createAdmin: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const { admin, ...userData } = req.body;
     userData.email=admin?.email
-    const result = await UserService.createAdmin(admin, userData);
+    const result = await UserService.createAdminService(admin, userData);
     sendResponse<IUser>(res, {
       statusCode: httpStatus.OK,
       success: true,
       message: 'Admin created successfully!',
+      data: result,
+    });
+  }
+);
+const createSeller: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const { seller, ...userData } = req.body;
+    userData.email=seller?.email
+    const result = await UserService.createSellerService(seller, userData);
+    sendResponse<IUser>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'seller created successfully!',
+      data: result,
+    });
+  }
+);
+const createTrainer: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const { trainer, ...userData } = req.body;
+    userData.email=trainer?.email
+    const result = await UserService.createTrainerService(trainer, userData);
+    sendResponse<IUser>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'seller created successfully!',
       data: result,
     });
   }
@@ -72,5 +98,7 @@ export const UserController = {
   createStudent,
   createModerator,
   createAdmin,
+  createSeller,
+  createTrainer,
   getUsers
 };

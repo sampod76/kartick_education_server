@@ -33,5 +33,15 @@ router.post(
   validateRequestZod(UserValidation.createAdminZodSchema),
   UserController.createAdmin
 );
+router.post(
+  '/create-seller',
+  validateRequestZod(UserValidation.createSellerZodSchema),
+  UserController.createSeller
+);
+router.post(
+  '/create-trainer',
+  validateRequestZod(UserValidation.createTrainerZodSchema),
+  UserController.createTrainer
+);
 
 export const UserRoutes = router;

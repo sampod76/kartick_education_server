@@ -56,8 +56,47 @@ const createModeratorZodSchema = z.object({
 const createAdminZodSchema = z.object({
   body: z.object({
     password: z.string().optional(),
-
     admin: z.object({
+      name: z
+        .object({
+          firstName: z.string(),
+          lastName: z.string(),
+        })
+        .optional(),
+      gender: z.enum([...gender] as [string, ...string[]]).optional(),
+      dateOfBirth: z.string().optional(),
+      email: z.string().email().optional(),
+      phoneNumber: z.string().optional(),
+      address: z.string().optional(),
+      img: z.string().optional(),
+    }),
+  }),
+});
+const createSellerZodSchema = z.object({
+  body: z.object({
+    password: z.string().optional(),
+
+    seller: z.object({
+      name: z
+        .object({
+          firstName: z.string(),
+          lastName: z.string(),
+        })
+        .optional(),
+      gender: z.enum([...gender] as [string, ...string[]]).optional(),
+      dateOfBirth: z.string().optional(),
+      email: z.string().email().optional(),
+      phoneNumber: z.string().optional(),
+      address: z.string().optional(),
+      img: z.string().optional(),
+    }),
+  }),
+});
+const createTrainerZodSchema = z.object({
+  body: z.object({
+    password: z.string().optional(),
+
+    trainer: z.object({
       name: z
         .object({
           firstName: z.string(),
@@ -78,4 +117,6 @@ export const UserValidation = {
   SignUpZodSchema,
   createModeratorZodSchema,
   createAdminZodSchema,
+  createSellerZodSchema,
+  createTrainerZodSchema,
 };
