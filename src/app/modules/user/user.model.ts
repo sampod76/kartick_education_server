@@ -10,6 +10,7 @@ const userSchema = new Schema<IUser, UserModel>(
     email: {
       type: String,
       required: true,
+      index: true,
       //unique: true,
     },
     role: {

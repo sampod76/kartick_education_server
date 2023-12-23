@@ -10,9 +10,11 @@ import { Admin } from '../admin/admin.model';
 
 import { ENUM_USER_ROLE } from '../../../enums/users';
 import { ISeller } from '../seller/seller.interface';
+import { Seller } from '../seller/seller.model';
 import { IStudent, IStudentFilters } from '../student/student.interface';
 import { Student } from '../student/student.model';
 import { ITrainer } from '../trainer/trainer.interface';
+import { Trainer } from '../trainer/trainer.model';
 import { userSearchableFields } from './user.constant';
 import { IUser } from './user.interface';
 import { User } from './user.model';
@@ -62,151 +64,196 @@ const getAllUsers = async (
     .skip(Number(skip))
     .limit(Number(limit)); 
   */
-  const pipeline: PipelineStage[] = [
-    { $match: whereConditions },
-    { $sort: sortConditions },
-    { $skip: Number(skip) || 0 },
-    { $limit: Number(limit) || 15 },
-    //admin
-    {
-      $lookup: {
-        from: 'admins',
-        let: { id: '$admin' },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
-              // Additional filter conditions for collection2
+    const pipeline: PipelineStage[] = [
+      { $match: whereConditions },
+      { $sort: sortConditions },
+      { $skip: Number(skip) || 0 },
+      { $limit: Number(limit) || 15 },
+      //admin
+      {
+        $lookup: {
+          from: 'admins',
+          let: { id: '$admin' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$_id', '$$id'] },
+                // Additional filter conditions for collection2
+              },
             },
-          },
-          // Additional stages for collection2
-          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
-
-          {
-            $project: {
-              password:0,
-              __v: 0,
+            // Additional stages for collection2
+            // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+  
+            {
+              $project: {
+                password: 0,
+                __v: 0,
+              },
             },
-          },
-        ],
-        as: 'adminDetails',
+          ],
+          as: 'adminDetails',
+        },
       },
-    },
-    {
-      $project: { admin: 0 },
-    },
-    //মনে রাখতে হবে যদি এটি দেওয়া না হয় তাহলে সে যখন কোন একটি ক্যাটাগরির থাম্বেল না পাবে সে তাকে দেবে না
-    {
-      $addFields: {
-        admin: {
-          $cond: {
-            if: { $eq: [{ $size: '$adminDetails' }, 0] },
-            then: [{}],
-            else: '$adminDetails',
+      {
+        $project: { admin: 0 },
+      },
+      //মনে রাখতে হবে যদি এটি দেওয়া না হয় তাহলে সে যখন কোন একটি ক্যাটাগরির থাম্বেল না পাবে সে তাকে দেবে না
+      {
+        $addFields: {
+          admin: {
+            $cond: {
+              if: { $eq: [{ $size: '$adminDetails' }, 0] },
+              then: [{}],
+              else: '$adminDetails',
+            },
           },
         },
       },
-    },
-    {
-      $project: { adminDetails: 0 },
-    },
-    {
-      $unwind: '$admin',
-    },
-
-    // student
-    {
-      $lookup: {
-        from: 'students',
-        let: { id: '$student' },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
-              // Additional filter conditions for collection2
-            },
-          },
-          // Additional stages for collection2
-          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
-
-          {
-            $project: {
-              password:0,
-              __v: 0,
-            },
-          },
-        ],
-        as: 'studentDetails',
+      {
+        $project: { adminDetails: 0 },
       },
-    },
-
-    {
-      $project: { student: 0 },
-    },
-    {
-      $addFields: {
-        student: {
-          $cond: {
-            if: { $eq: [{ $size: '$studentDetails' }, 0] },
-            then: [{}],
-            else: '$studentDetails',
+      {
+        $unwind: '$admin',
+      },
+  
+      // student
+      {
+        $lookup: {
+          from: 'students',
+          let: { id: '$student' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$_id', '$$id'] },
+                // Additional filter conditions for collection2
+              },
+            },
+            // Additional stages for collection2
+            // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+  
+            {
+              $project: {
+                password: 0,
+                __v: 0,
+              },
+            },
+          ],
+          as: 'studentDetails',
+        },
+      },
+  
+      {
+        $project: { student: 0 },
+      },
+      {
+        $addFields: {
+          student: {
+            $cond: {
+              if: { $eq: [{ $size: '$studentDetails' }, 0] },
+              then: [{}],
+              else: '$studentDetails',
+            },
           },
         },
       },
-    },
-    {
-      $project: { studentDetails: 0 },
-    },
-    {
-      $unwind: '$student',
-    },
-    // trainer
-    {
-      $lookup: {
-        from: 'trainers',
-        let: { id: '$trainer' },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
-              // Additional filter conditions for collection2
-            },
-          },
-          // Additional stages for collection2
-          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
-
-          {
-            $project: {
-              password:0,
-              __v: 0,
-            },
-          },
-        ],
-        as: 'trainerDetails',
+      {
+        $project: { studentDetails: 0 },
       },
-    },
-
-    {
-      $project: { trainer: 0 },
-    },
-    {
-      $addFields: {
-        trainer: {
-          $cond: {
-            if: { $eq: [{ $size: '$trainerDetails' }, 0] },
-            then: [{}],
-            else: '$trainerDetails',
+      {
+        $unwind: '$student',
+      },
+      // trainer
+      {
+        $lookup: {
+          from: 'trainers',
+          let: { id: '$trainer' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$_id', '$$id'] },
+                // Additional filter conditions for collection2
+              },
+            },
+            // Additional stages for collection2
+            // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+  
+            {
+              $project: {
+                password: 0,
+                __v: 0,
+              },
+            },
+          ],
+          as: 'trainerDetails',
+        },
+      },
+      {
+        $project: { trainer: 0 },
+      },
+      {
+        $addFields: {
+          trainer: {
+            $cond: {
+              if: { $eq: [{ $size: '$trainerDetails' }, 0] },
+              then: [{}],
+              else: '$trainerDetails',
+            },
           },
         },
       },
-    },
-    {
-      $project: { trainerDetails: 0 },
-    },
-    {
-      $unwind: '$trainer',
-    },
-  ];
+      {
+        $project: { trainerDetails: 0 },
+      },
+      {
+        $unwind: '$trainer',
+      },
+  
+      // seller
+      {
+        $lookup: {
+          from: 'sellers',
+          let: { id: '$seller' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$_id', '$$id'] },
+                // Additional filter conditions for collection2
+              },
+            },
+            // Additional stages for collection2
+            // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+  
+            {
+              $project: {
+                password: 0,
+                __v: 0,
+              },
+            },
+          ],
+          as: 'sellerDetails',
+        },
+      },
+      {
+        $project: { seller: 0 },
+      },
+      {
+        $addFields: {
+          seller: {
+            $cond: {
+              if: { $eq: [{ $size: '$sellerDetails' }, 0] },
+              then: [{}],
+              else: '$sellerDetails',
+            },
+          },
+        },
+      },
+      {
+        $project: { sellerDetails: 0 },
+      },
+      {
+        $unwind: '$seller',
+      },
+    ];
 
   const result = await User.aggregate(pipeline);
 
@@ -221,7 +268,59 @@ const getAllUsers = async (
     data: result,
   };
 };
+const createAdminService = async (
+  admin: IAdmin,
+  user: IUser
+): Promise<IUser | null> => {
+  // default password
+  if (!user.password) {
+    user.password = config.default_admin_pass as string;
+  }
+  const exist = await User.isUserExistMethod(user.email);
+  if (exist) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
+  }
+  // set role
+  user.role = ENUM_USER_ROLE.ADMIN;
 
+  let newUserAllData = null;
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+
+    // const id = await generateAdminId();
+    // user.id = id;
+    // admin.id = id;
+
+    const newAdmin = await Admin.create([admin], { session });
+
+    if (!newAdmin.length) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create admin ');
+    }
+
+    user.admin = newAdmin[0]._id;
+
+    const newUser = await User.create([user], { session });
+
+    if (!newUser.length) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create admin');
+    }
+    newUserAllData = newUser[0];
+
+    await session.commitTransaction();
+    await session.endSession();
+  } catch (error) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw error;
+  }
+
+  if (newUserAllData) {
+    newUserAllData = await User.findOne({ id: newUserAllData.id });
+  }
+
+  return newUserAllData;
+};
 const createStudentService = async (
   student: IStudent,
   user: IUser
@@ -267,7 +366,7 @@ const createStudentService = async (
   }
 
   if (newUserAllData) {
-    newUserAllData = await User.findOne({ id: newUserAllData.id })
+    newUserAllData = await User.findOne({ id: newUserAllData.id });
   }
 
   return newUserAllData;
@@ -286,28 +385,22 @@ const createTrainerService = async (
   }
   // set role
   user.role = ENUM_USER_ROLE.TRAINER;
-
   let newUserAllData = null;
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
-
     //array
-    const newStudent = await Student.create([trainer], { session });
-
-    if (!newStudent.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create student');
+    const newTrainer = await Trainer.create([trainer], { session });
+    if (!newTrainer.length) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create Trainer');
     }
-    //set student -->  _id into user.student
-    user.student = newStudent[0]._id;
-
+    //set Trainer -->  _id into user.student
+    user.trainer = newTrainer[0]._id;
     const newUser = await User.create([user], { session });
-
     if (!newUser.length) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create user');
     }
     newUserAllData = newUser[0];
-
     await session.commitTransaction();
     await session.endSession();
   } catch (error) {
@@ -317,7 +410,7 @@ const createTrainerService = async (
   }
 
   if (newUserAllData) {
-    newUserAllData = await User.findOne({ id: newUserAllData.id })
+    newUserAllData = await User.findOne({ id: newUserAllData.id });
   }
 
   return newUserAllData;
@@ -335,7 +428,7 @@ const createSellerService = async (
     throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
   }
   // set role
-  user.role = 'student';
+  user.role = ENUM_USER_ROLE.SELLER;
 
   let newUserAllData = null;
   const session = await mongoose.startSession();
@@ -343,13 +436,13 @@ const createSellerService = async (
     session.startTransaction();
 
     //array
-    const newStudent = await Student.create([seller], { session });
+    const newSeller = await Seller.create([seller], { session });
 
-    if (!newStudent.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create student');
+    if (!newSeller.length) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create Seller');
     }
-    //set student -->  _id into user.student
-    user.student = newStudent[0]._id;
+    //set Seller -->  _id into user.Seller
+    user.seller = newSeller[0]._id;
 
     const newUser = await User.create([user], { session });
 
@@ -367,7 +460,7 @@ const createSellerService = async (
   }
 
   if (newUserAllData) {
-    newUserAllData = await User.findOne({ id: newUserAllData.id })
+    newUserAllData = await User.findOne({ id: newUserAllData.id });
   }
 
   return newUserAllData;
@@ -432,59 +525,6 @@ const createSellerService = async (
 
 //   return newUserAllData;
 // };
-const createAdminService = async (
-  admin: IAdmin,
-  user: IUser
-): Promise<IUser | null> => {
-  // default password
-  if (!user.password) {
-    user.password = config.default_admin_pass as string;
-  }
-  const exist = await User.isUserExistMethod(user.email);
-  if (exist) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
-  }
-  // set role
-  user.role = ENUM_USER_ROLE.ADMIN;
-
-  let newUserAllData = null;
-  const session = await mongoose.startSession();
-  try {
-    session.startTransaction();
-
-    // const id = await generateAdminId();
-    // user.id = id;
-    // admin.id = id;
-
-    const newAdmin = await Admin.create([admin], { session });
-
-    if (!newAdmin.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create admin ');
-    }
-
-    user.admin = newAdmin[0]._id;
-
-    const newUser = await User.create([user], { session });
-
-    if (!newUser.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create admin');
-    }
-    newUserAllData = newUser[0];
-
-    await session.commitTransaction();
-    await session.endSession();
-  } catch (error) {
-    await session.abortTransaction();
-    await session.endSession();
-    throw error;
-  }
-
-  if (newUserAllData) {
-    newUserAllData = await User.findOne({ id: newUserAllData.id })
-  }
-
-  return newUserAllData;
-};
 
 export const UserService = {
   createStudentService,
