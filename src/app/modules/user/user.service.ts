@@ -269,12 +269,7 @@ const getAllUsers = async (
   };
 };
 const getSingleUsers = async (id: string): Promise<IUser | null> => {
-  const data = await User.findById(id).populate(
-    'admin',
-    'student',
-    ENUM_USER_ROLE.TRAINER,
-    ENUM_USER_ROLE.SELLER
-  );
+  const data = await User.findById(id).populate('student admin seller trainer superAdmin');
   return data;
 };
 const createAdminService = async (
@@ -541,5 +536,5 @@ export const UserService = {
   createTrainerService,
   createSellerService,
   getAllUsers,
-  getSingleUsers
+  getSingleUsers,
 };
