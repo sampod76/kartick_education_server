@@ -5,14 +5,20 @@ import { IAdmin } from '../admin/admin.interface';
 import { ISeller } from '../seller/seller.interface';
 import { IStudent } from '../student/student.interface';
 import { ITrainer } from '../trainer/trainer.interface';
-export type IRole = 'superAdmin' | 'admin' | 'moderator' | 'student' | 'seller' |'trainer' |'teacher';
+export type IRole =
+  | 'superAdmin'
+  | 'admin'
+  | 'moderator'
+  | 'student'
+  | 'seller'
+  | 'trainer'
+  | 'teacher';
 
-export type IStudentFilters = {
+export type IUserFilters = {
   searchTerm?: string;
   delete?: 'yes' | 'no';
   role?: IRole;
 };
-
 
 export type IUser = {
   role: string;

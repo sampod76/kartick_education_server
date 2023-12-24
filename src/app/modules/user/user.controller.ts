@@ -36,6 +36,19 @@ const getSingleUser: RequestHandler = catchAsync(
     });
   }
 );
+const deleteSingleUser: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const filters = pick(req.query, userFilterableFields);
+    const result = await UserService.deleteSingleUsersFormDb(req.params.id, filters);
+
+    sendResponse<IUser>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Delete successfully!',
+      data: result,
+    });
+  }
+);
 const createStudent: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const { student, ...userData } = req.body;
@@ -113,5 +126,6 @@ export const UserController = {
   createSeller,
   createTrainer,
   getUsers,
-  getSingleUser
+  getSingleUser,
+  deleteSingleUser
 };

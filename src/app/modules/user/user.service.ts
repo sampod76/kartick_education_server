@@ -8,19 +8,20 @@ import { IPaginationOption } from '../../interface/pagination';
 import { IAdmin } from '../admin/admin.interface';
 import { Admin } from '../admin/admin.model';
 
+import { ENUM_STATUS } from '../../../enums/globalEnums';
 import { ENUM_USER_ROLE } from '../../../enums/users';
 import { ISeller } from '../seller/seller.interface';
 import { Seller } from '../seller/seller.model';
-import { IStudent, IStudentFilters } from '../student/student.interface';
+import { IStudent } from '../student/student.interface';
 import { Student } from '../student/student.model';
 import { ITrainer } from '../trainer/trainer.interface';
 import { Trainer } from '../trainer/trainer.model';
 import { userSearchableFields } from './user.constant';
-import { IUser } from './user.interface';
+import { IUser, IUserFilters } from './user.interface';
 import { User } from './user.model';
 
 const getAllUsers = async (
-  filters: IStudentFilters,
+  filters: IUserFilters,
   paginationOptions: IPaginationOption
 ): Promise<IGenericResponse<IUser[]>> => {
   const { searchTerm, ...filtersData } = filters;
@@ -269,9 +270,46 @@ const getAllUsers = async (
   };
 };
 const getSingleUsers = async (id: string): Promise<IUser | null> => {
-  const data = await User.findById(id).populate('student admin seller trainer superAdmin');
+  const data = await User.findById(id).populate(
+    'student admin seller trainer superAdmin'
+  );
   return data;
 };
+const deleteSingleUsersFormDb = async (
+  id: string,
+  query: IUserFilters
+): Promise<IUser | null> => {
+  const isExist = await User.findById(id);
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+  let data;
+  if (query.delete == 'yes') {
+    data = await User.findOneAndDelete({ _id: id });
+    if (isExist.role === ENUM_USER_ROLE.ADMIN) {
+      await Admin.findOneAndDelete({ _id: id });
+    } else if (isExist.role === ENUM_USER_ROLE.SELLER) {
+      await Seller.findOneAndDelete({ _id: id });
+    } else if (isExist.role === ENUM_USER_ROLE.TRAINER) {
+      await Trainer.findOneAndDelete({ _id: id });
+    } else if (isExist.role === ENUM_USER_ROLE.STUDENT) {
+      await Student.findOneAndDelete({ _id: id });
+    }
+  } else {
+    data = await User.findByIdAndUpdate(id, { status: ENUM_STATUS.DEACTIVATE });
+    if (isExist.role === ENUM_USER_ROLE.ADMIN) {
+      await Admin.findByIdAndUpdate(id, { status: ENUM_STATUS.DEACTIVATE });
+    } else if (isExist.role === ENUM_USER_ROLE.SELLER) {
+      await Seller.findByIdAndUpdate(id, { status: ENUM_STATUS.DEACTIVATE });
+    } else if (isExist.role === ENUM_USER_ROLE.TRAINER) {
+      await Trainer.findByIdAndUpdate(id, { status: ENUM_STATUS.DEACTIVATE });
+    } else if (isExist.role === ENUM_USER_ROLE.STUDENT) {
+      await Student.findByIdAndUpdate(id, { status: ENUM_STATUS.DEACTIVATE });
+    }
+  }
+  return data;
+};
+
 const createAdminService = async (
   admin: IAdmin,
   user: IUser
@@ -470,66 +508,6 @@ const createSellerService = async (
   return newUserAllData;
 };
 
-// const createModerator = async (
-//   moderator: IModerator,
-//   user: IUser
-// ): Promise<IUser | null> => {
-//   // default password
-//   if (!user.password) {
-//     user.password = config.default_moderator_pass as string;
-//   }
-//   const exist = await User.isUserExistMethod(user.email)
-//   if(exist){
-//     throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
-//   }
-//   // set role
-//   user.role = ENUM_USER_ROLE.MODERATOR;
-
-//   let newUserAllData = null;
-//   const session = await mongoose.startSession();
-//   try {
-//     session.startTransaction();
-
-//     const newModerator = await Moderator.create([moderator], { session });
-
-//     if (!newModerator.length) {
-//       throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create moderator ');
-//     }
-
-//     user.moderator = newModerator[0]._id;
-
-//     const newUser = await User.create([user], { session });
-
-//     if (!newUser.length) {
-//       throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create moderator');
-//     }
-//     newUserAllData = newUser[0];
-
-//     await session.commitTransaction();
-//     await session.endSession();
-//   } catch (error) {
-//     await session.abortTransaction();
-//     await session.endSession();
-//     throw error;
-//   }
-
-//   if (newUserAllData) {
-//     newUserAllData = await User.findOne({ id: newUserAllData.id }).populate({
-//       path: 'moderator',
-//       // populate: [
-//       //   {
-//       //     path: 'academicDepartment',
-//       //   },
-//       //   {
-//       //     path: 'academicFaculty',
-//       //   },
-//       // ],
-//     });
-//   }
-
-//   return newUserAllData;
-// };
-
 export const UserService = {
   createStudentService,
   createAdminService,
@@ -537,4 +515,5 @@ export const UserService = {
   createSellerService,
   getAllUsers,
   getSingleUsers,
+  deleteSingleUsersFormDb,
 };
