@@ -12,7 +12,7 @@ import { UserService } from './user.service';
 
 const getUsers: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
-    const filters=pick(req.query,userFilterableFields)
+    const filters = pick(req.query, userFilterableFields);
     const paginationOptions = pick(req.query, PAGINATION_FIELDS);
     const result = await UserService.getAllUsers(filters, paginationOptions);
 
@@ -24,10 +24,22 @@ const getUsers: RequestHandler = catchAsync(
     });
   }
 );
+const getSingleUser: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await UserService.getSingleUsers(req.params.id);
+
+    sendResponse<IUser>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Get all users!',
+      data: result,
+    });
+  }
+);
 const createStudent: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const { student, ...userData } = req.body;
-    userData.email=student?.email
+    userData.email = student?.email;
     const result = await UserService.createStudentService(student, userData);
 
     sendResponse<IUser>(res, {
@@ -42,8 +54,8 @@ const createStudent: RequestHandler = catchAsync(
 const createModerator: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const { moderator, ...userData } = req.body;
-    userData.email=moderator?.email
-    const result =null
+    userData.email = moderator?.email;
+    const result = null;
 
     sendResponse<IUser>(res, {
       statusCode: httpStatus.OK,
@@ -57,7 +69,7 @@ const createModerator: RequestHandler = catchAsync(
 const createAdmin: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const { admin, ...userData } = req.body;
-    userData.email=admin?.email
+    userData.email = admin?.email;
     const result = await UserService.createAdminService(admin, userData);
     sendResponse<IUser>(res, {
       statusCode: httpStatus.OK,
@@ -70,7 +82,7 @@ const createAdmin: RequestHandler = catchAsync(
 const createSeller: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const { seller, ...userData } = req.body;
-    userData.email=seller?.email
+    userData.email = seller?.email;
     const result = await UserService.createSellerService(seller, userData);
     sendResponse<IUser>(res, {
       statusCode: httpStatus.OK,
@@ -83,7 +95,7 @@ const createSeller: RequestHandler = catchAsync(
 const createTrainer: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const { trainer, ...userData } = req.body;
-    userData.email=trainer?.email
+    userData.email = trainer?.email;
     const result = await UserService.createTrainerService(trainer, userData);
     sendResponse<IUser>(res, {
       statusCode: httpStatus.OK,
@@ -100,5 +112,6 @@ export const UserController = {
   createAdmin,
   createSeller,
   createTrainer,
-  getUsers
+  getUsers,
+  getSingleUser
 };

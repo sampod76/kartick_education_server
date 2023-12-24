@@ -15,6 +15,15 @@ router.get(
   ),
   UserController.getUsers
 );
+router.get(
+  '/:id',
+  authMiddleware(
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.MODERATOR
+  ),
+  UserController.getSingleUser
+);
 
 router.post(
   '/create-student',

@@ -112,7 +112,7 @@ const deleteStudent = async (
 
   const session = await mongoose.startSession();
   try {
-    if (filter.delete == 'true') {
+    if (filter.delete == 'yes') {
       session.startTransaction();
       //delete student first
       const student = await Student.findOneAndDelete({ _id: id }, { session });
