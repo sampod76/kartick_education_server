@@ -14,7 +14,7 @@ import { generateCourseId } from './course.utils';
 const { ObjectId } = mongoose.Types;
 const createCourseByDb = async (payload: ICourse): Promise<ICourse> => {
   payload.snid = await generateCourseId();
-  const result = (await Course.create(payload))
+  const result = await Course.create(payload);
   return result;
 };
 
@@ -115,7 +115,7 @@ const getAllCourseFromDb = async (
         as: 'authorDetails',
       },
     },
-    
+
     {
       $project: { author: 0 },
     },
@@ -130,7 +130,7 @@ const getAllCourseFromDb = async (
         },
       },
     },
-  
+
     {
       $project: { authorDetails: 0 },
     },
@@ -180,8 +180,8 @@ const getAllCourseFromDb = async (
       $project: { categoryDetails: 0 },
     },
     {
-      $unwind:"$category"
-    }
+      $unwind: '$category',
+    },
     ///***************** */ images field ******end*********
   ];
 
@@ -209,6 +209,182 @@ const getAllCourseFromDb = async (
 const getSingleCourseFromDb = async (id: string): Promise<ICourse | null> => {
   const result = await Course.aggregate([
     { $match: { _id: new ObjectId(id) } },
+    {
+      $lookup: {
+        from: 'users',
+        let: { id: '$author' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$_id', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          
+          //! 2nd admin lookup
+          {
+            $lookup: {
+              from: 'admins',
+              let: { id: '$admin' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ['$_id', '$$id'] },
+                    // Additional filter conditions for collection2
+                  },
+                },
+                // Additional stages for collection2 lookup
+
+                {
+                  $project: {
+                    password: 0,
+                    __v: 0,
+                  },
+                },
+              ],
+              as: 'adminDetails',
+            },
+          },
+          {
+            $project: { admin: 0 },
+          },
+          {
+            $addFields: {
+              admin: {
+                $cond: {
+                  if: { $eq: [{ $size: '$adminDetails' }, 0] },
+                  then: [{}],
+                  else: '$adminDetails',
+                },
+              },
+            },
+          },
+          {
+            $project: { adminDetails: 0 },
+          },
+          {
+            $unwind: '$admin',
+          },
+          //! 2nd trainer lookup
+          {
+            $lookup: {
+              from: 'trainers',
+              let: { id: '$trainer' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ['$_id', '$$id'] },
+                    // Additional filter conditions for collection2
+                  },
+                },
+                // Additional stages for collection2 lookup
+
+                {
+                  $project: {
+                    password: 0,
+                    __v: 0,
+                  },
+                },
+              ],
+              as: 'trainerDetails',
+            },
+          },
+          {
+            $project: { trainer: 0 },
+          },
+          {
+            $addFields: {
+              trainer: {
+                $cond: {
+                  if: { $eq: [{ $size: '$trainerDetails' }, 0] },
+                  then: [{}],
+                  else: '$trainerDetails',
+                },
+              },
+            },
+          },
+          {
+            $project: { trainerDetails: 0 },
+          },
+          {
+            $unwind: '$trainer',
+          },
+
+          {
+            $project: {
+              password: 0,
+            },
+          },
+        ],
+        as: 'authorDetails',
+      },
+    },
+    {
+      $project: { author: 0 },
+    },
+    {
+      $addFields: {
+        author: {
+          $cond: {
+            if: { $eq: [{ $size: '$authorDetails' }, 0] },
+            then: [{}],
+            else: '$authorDetails',
+          },
+        },
+      },
+    },
+    {
+      $project: { authorDetails: 0 },
+    },
+    {
+      $unwind: '$author',
+    },
+    ///***************** */ category field ******start
+    {
+      $lookup: {
+        from: 'categories',
+        let: { conditionField: '$category' }, // The field to match from the current collection
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ['$_id', '$$conditionField'], // The condition to match the fields
+              },
+            },
+          },
+
+          // Additional pipeline stages for the second collection (optional)
+          {
+            $project: {
+              createdAt: 0,
+              updatedAt: 0,
+            },
+          },
+        ],
+        as: 'categoryDetails', // The field to store the matched results from the second collection
+      },
+    },
+    {
+      $project: { category: 0 },
+    },
+    {
+      $addFields: {
+        category: {
+          $cond: {
+            if: { $eq: [{ $size: '$categoryDetails' }, 0] },
+            then: [{}],
+            else: '$categoryDetails',
+          },
+        },
+      },
+    },
+    {
+      $project: { categoryDetails: 0 },
+    },
+    {
+      $unwind: '$category',
+    },
   ]);
 
   return result[0];
@@ -221,11 +397,12 @@ const updateCourseFromDb = async (
 ): Promise<ICourse | null> => {
   const { demo_video, ...otherData } = payload;
   const updateData = { ...otherData };
- 
+
   if (demo_video && Object.keys(demo_video).length > 0) {
     Object.keys(demo_video).forEach(key => {
       const demo_videoKey = `demo_video.${key}`; // `demo_video.status`
-      (updateData as any)[demo_videoKey] = demo_video[key as keyof typeof demo_video];
+      (updateData as any)[demo_videoKey] =
+        demo_video[key as keyof typeof demo_video];
     });
   }
   const result = await Course.findOneAndUpdate({ _id: id }, updateData, {
