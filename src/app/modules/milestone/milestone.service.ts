@@ -12,7 +12,9 @@ import { IMilestone, IMilestoneFilters } from './milestone.interface';
 import { Milestone } from './milestone.model';
 
 const { ObjectId } = mongoose.Types;
-const createMilestoneByDb = async (payload: IMilestone): Promise<IMilestone> => {
+const createMilestoneByDb = async (
+  payload: IMilestone
+): Promise<IMilestone> => {
   const result = (await Milestone.create(payload)).populate([
     {
       path: 'author',
@@ -22,7 +24,6 @@ const createMilestoneByDb = async (payload: IMilestone): Promise<IMilestone> => 
         updatedAt: 0,
         __v: 0,
       },
-     
     },
   ]);
   return result;
@@ -34,7 +35,8 @@ const getAllMilestoneFromDb = async (
   paginationOptions: IPaginationOption
 ): Promise<IGenericResponse<IMilestone[]>> => {
   //****************search and filters start************/
-  const { searchTerm, select, ...filtersData } = filters;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { searchTerm, select, module, ...filtersData } = filters;
 
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
@@ -63,7 +65,7 @@ const getAllMilestoneFromDb = async (
   if (Object.keys(filtersData).length) {
     andConditions.push({
       $and: Object.entries(filtersData).map(([field, value]) =>
-         field === 'course'
+        field === 'course'
           ? { [field]: new Types.ObjectId(value) }
           : { [field]: value }
       ),
@@ -121,7 +123,7 @@ const getAllMilestoneFromDb = async (
         as: 'courseDetails',
       },
     },
-    
+
     {
       $project: { course: 0 },
     },
@@ -136,14 +138,60 @@ const getAllMilestoneFromDb = async (
         },
       },
     },
-   
+
     {
       $project: { courseDetails: 0 },
     },
     {
       $unwind: '$course',
     },
-   
+
+    // module
+    {
+      $lookup: {
+        from: 'modules',
+        let: { id: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$milestone', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+          {
+            $project: {
+              title: 1,
+            },
+          },
+        ],
+        as: 'modules',
+      },
+    },
+
+    // {
+    //   $project: { module: 0 },
+    // },
+    // {
+    //   $addFields: {
+    //     module: {
+    //       $cond: {
+    //         if: { $eq: [{ $size: '$moduleDetails' }, 0] },
+    //         then: [{}],
+    //         else: '$moduleDetails',
+    //       },
+    //     },
+    //   },
+    // },
+
+    // {
+    //   $project: { moduleDetails: 0 },
+    // },
+    // {
+    //   $unwind: '$module',
+    // },
   ];
 
   let result = null;
@@ -167,7 +215,9 @@ const getAllMilestoneFromDb = async (
 };
 
 // get single e form db
-const getSingleMilestoneFromDb = async (id: string): Promise<IMilestone | null> => {
+const getSingleMilestoneFromDb = async (
+  id: string
+): Promise<IMilestone | null> => {
   const result = await Milestone.aggregate([
     { $match: { _id: new ObjectId(id) } },
   ]);
@@ -186,7 +236,8 @@ const updateMilestoneFromDb = async (
   if (demo_video && Object.keys(demo_video).length > 0) {
     Object.keys(demo_video).forEach(key => {
       const demo_videoKey = `demo_video.${key}`; // `demo_video.status`
-      (updateData as any)[demo_videoKey] = demo_video[key as keyof typeof demo_video];
+      (updateData as any)[demo_videoKey] =
+        demo_video[key as keyof typeof demo_video];
     });
   }
   const result = await Milestone.findOneAndUpdate({ _id: id }, updateData, {
@@ -208,7 +259,9 @@ const deleteMilestoneByIdFromDb = async (
   if (query.delete === ENUM_YN.YES) {
     result = await Milestone.findByIdAndDelete(id);
   } else {
-    result = await Milestone.findOneAndUpdate({ status: ENUM_STATUS.DEACTIVATE });
+    result = await Milestone.findOneAndUpdate({
+      status: ENUM_STATUS.DEACTIVATE,
+    });
   }
   return result;
 };

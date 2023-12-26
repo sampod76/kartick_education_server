@@ -83,7 +83,6 @@ const getAllUsers = async (
             },
           },
           // Additional stages for collection2
-          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
 
           {
             $project: {
@@ -130,7 +129,6 @@ const getAllUsers = async (
             },
           },
           // Additional stages for collection2
-          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
 
           {
             $project: {
@@ -176,7 +174,6 @@ const getAllUsers = async (
             },
           },
           // Additional stages for collection2
-          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
 
           {
             $project: {
