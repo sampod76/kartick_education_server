@@ -15,14 +15,10 @@ const authMiddleware =
       //get authorization token
       let verifiedUser = null;
       const token = req.headers.authorization;
-     
-  
-   
 
       if (!token) {
         throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized access');
       }
-
 
       // verify token only general user
 
@@ -34,8 +30,6 @@ const authMiddleware =
         req.user = verifiedUser;
       }
     
-
-
       // role diye guard korar jnno
       if (requiredRoles.length && !requiredRoles.includes(verifiedUser?.role)) {
         throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden access');

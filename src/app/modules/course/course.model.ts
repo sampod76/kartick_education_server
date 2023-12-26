@@ -1,59 +1,72 @@
 import { Schema, model } from 'mongoose';
+import { STATUS_ARRAY, YN_ARRAY } from '../../../constant/globalConstant';
+import { COURSE_TYPES } from './course.constant';
 import { CourseModel, ICourse } from './course.interface';
 
 const courseSchema = new Schema<ICourse, CourseModel>(
   {
     title: {
       type: String,
-      required: true,
+      trim: true,
+      index: true,
+    },
+    snid: {
+      type: String,
     },
     img: {
       type: String,
-      required: false,
     },
     details: {
       type: String,
-      required: true,
+      trim: true,
     },
-    author_id: {
+    author: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
     },
-    main_course_category_id: {
+    category: {
       type: Schema.Types.ObjectId,
       ref: 'Category',
-      required: true,
     },
-    sub1_course_category_id: {
-      type: Schema.Types.ObjectId,
-      ref: 'Category',
-      required: true,
-    },
+    // sub1_course_category_id: {
+    //   type: Schema.Types.ObjectId,
+    //   ref: 'Category',
+    // },
     price: {
       type: Number,
-      required: true,
+      min: 0,
     },
     duration: {
       type: String,
-      required: true,
     },
     level: {
       type: String,
-      required: true,
     },
     price_type: {
       type: String,
-      required: true,
+      enum: COURSE_TYPES,
+      default: 'paid',
     },
     status: {
       type: String,
-      required: true,
+      enum: STATUS_ARRAY,
+      default: 'active',
     },
-    demo_video_id: {
-      type: Schema.Types.ObjectId,
-      required: true,
+    demo_video: {
+      type: Object,
+      default: {},
     },
+
+    showing_number: {
+      type: Number,
+      default: 9999,
+    },
+    favorite: {
+      type: String,
+      enum: YN_ARRAY,
+      default: 'no',
+    },
+    tags: [String],
   },
   {
     timestamps: true,

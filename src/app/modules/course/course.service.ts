@@ -5,35 +5,16 @@ import { paginationHelper } from '../../../helper/paginationHelper';
 import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 
+import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import ApiError from '../../errors/ApiError';
-const { ObjectId } = mongoose.Types;
 import { COURSE_SEARCHABLE_FIELDS } from './course.constant';
 import { ICourse, ICourseFilters } from './course.interface';
 import { Course } from './course.model';
 import { generateCourseId } from './course.utils';
+const { ObjectId } = mongoose.Types;
 const createCourseByDb = async (payload: ICourse): Promise<ICourse> => {
-  payload.courseId = await generateCourseId();
-  const result = (await Course.create(payload)).populate([
-    {
-      path: 'publisher',
-      select: {
-        needsPasswordChange: 0,
-        createdAt: 0,
-        updatedAt: 0,
-        __v: 0,
-      },
-      // populate: [
-      //   {
-      //     path: 'moderator',
-      //     select: { createdAt: 0, updatedAt: 0, __v: 0 },
-      //   },
-      //   {
-      //     path: 'admin',
-      //     select: { createdAt: 0, updatedAt: 0, __v: 0 },
-      //   },
-      // ],
-    },
-  ]);
+  payload.snid = await generateCourseId();
+  const result = await Course.create(payload);
   return result;
 };
 
@@ -60,7 +41,7 @@ const getAllCourseFromDb = async (
     andConditions.push({
       $or: COURSE_SEARCHABLE_FIELDS.map(field =>
         //search array value
-        field === 'tag'
+        field === 'tags'
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
           : {
               [field]: new RegExp(searchTerm, 'i'),
@@ -74,9 +55,9 @@ const getAllCourseFromDb = async (
       $and: Object.entries(filtersData).map(([field, value]) =>
         field === 'price'
           ? { [field]: { $gte: parseInt(value as string) } }
-          : field === 'publisher'
+          : field === 'author'
           ? { [field]: new Types.ObjectId(value) }
-          : field === 'categoryDetails.category'
+          : field === 'category'
           ? { [field]: new Types.ObjectId(value) }
           : { [field]: value }
       ),
@@ -113,8 +94,8 @@ const getAllCourseFromDb = async (
     { $limit: Number(limit) || 15 },
     {
       $lookup: {
-        from: 'moderators',
-        let: { id: '$publisher' },
+        from: 'users',
+        let: { id: '$author' },
         pipeline: [
           {
             $match: {
@@ -124,22 +105,43 @@ const getAllCourseFromDb = async (
           },
           // Additional stages for collection2
           // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
           {
             $project: {
-              _id: 1,
-              name: 1,
-              profileImage: 1,
+              password: 0,
             },
           },
         ],
-        as: 'publisherDetails',
+        as: 'authorDetails',
       },
     },
-    ///***************** */ images field ******start
+
+    {
+      $project: { author: 0 },
+    },
+    {
+      $addFields: {
+        author: {
+          $cond: {
+            if: { $eq: [{ $size: '$authorDetails' }, 0] },
+            then: [{}],
+            else: '$authorDetails',
+          },
+        },
+      },
+    },
+
+    {
+      $project: { authorDetails: 0 },
+    },
+    {
+      $unwind: '$author',
+    },
+    ///***************** */ category field ******start
     {
       $lookup: {
-        from: 'fileuploades',
-        let: { conditionField: '$thumbnail' }, // The field to match from the current collection
+        from: 'categories',
+        let: { conditionField: '$category' }, // The field to match from the current collection
         pipeline: [
           {
             $match: {
@@ -154,49 +156,31 @@ const getAllCourseFromDb = async (
             $project: {
               createdAt: 0,
               updatedAt: 0,
-              userId: 0,
-            },
-          },
-          {
-            $addFields: {
-              link: {
-                $concat: [
-                  process.env.REAL_HOST_SERVER_SIDE,
-                  '/',
-                  'images',
-                  '/',
-                  '$filename',
-                ],
-              },
             },
           },
         ],
-        as: 'thumbnailInfo', // The field to store the matched results from the second collection
+        as: 'categoryDetails', // The field to store the matched results from the second collection
       },
     },
-
     {
-      $project: { thumbnail: 0 },
+      $project: { category: 0 },
     },
-    //মনে রাখতে হবে যদি এটি দেওয়া না হয় তাহলে সে যখন কোন একটি ক্যাটাগরির থাম্বেল না পাবে সে তাকে দেবে না
     {
       $addFields: {
-        thumbnail: {
+        category: {
           $cond: {
-            if: { $eq: [{ $size: '$thumbnailInfo' }, 0] },
+            if: { $eq: [{ $size: '$categoryDetails' }, 0] },
             then: [{}],
-            else: '$thumbnailInfo',
+            else: '$categoryDetails',
           },
         },
       },
     },
     {
-      $project: {
-        thumbnailInfo: 0,
-      },
+      $project: { categoryDetails: 0 },
     },
     {
-      $unwind: '$thumbnail',
+      $unwind: '$category',
     },
     ///***************** */ images field ******end*********
   ];
@@ -227,45 +211,140 @@ const getSingleCourseFromDb = async (id: string): Promise<ICourse | null> => {
     { $match: { _id: new ObjectId(id) } },
     {
       $lookup: {
-        from: 'lessions',
-        let: { id: '$_id' }, // The field to match from the current collection
+        from: 'users',
+        let: { id: '$author' },
         pipeline: [
           {
             $match: {
-              $expr: {
-                $eq: ['$course', '$$id'], // The condition to match the fields
+              $expr: { $eq: ['$_id', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          
+          //! 2nd admin lookup
+          {
+            $lookup: {
+              from: 'admins',
+              let: { id: '$admin' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ['$_id', '$$id'] },
+                    // Additional filter conditions for collection2
+                  },
+                },
+                // Additional stages for collection2 lookup
+
+                {
+                  $project: {
+                    password: 0,
+                    __v: 0,
+                  },
+                },
+              ],
+              as: 'adminDetails',
+            },
+          },
+          {
+            $project: { admin: 0 },
+          },
+          {
+            $addFields: {
+              admin: {
+                $cond: {
+                  if: { $eq: [{ $size: '$adminDetails' }, 0] },
+                  then: [{}],
+                  else: '$adminDetails',
+                },
               },
             },
           },
-          { $sort: { serial_no: 1 } },
-          // Additional pipeline stages for the second collection (optional)
+          {
+            $project: { adminDetails: 0 },
+          },
+          {
+            $unwind: '$admin',
+          },
+          //! 2nd trainer lookup
+          {
+            $lookup: {
+              from: 'trainers',
+              let: { id: '$trainer' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ['$_id', '$$id'] },
+                    // Additional filter conditions for collection2
+                  },
+                },
+                // Additional stages for collection2 lookup
+
+                {
+                  $project: {
+                    password: 0,
+                    __v: 0,
+                  },
+                },
+              ],
+              as: 'trainerDetails',
+            },
+          },
+          {
+            $project: { trainer: 0 },
+          },
+          {
+            $addFields: {
+              trainer: {
+                $cond: {
+                  if: { $eq: [{ $size: '$trainerDetails' }, 0] },
+                  then: [{}],
+                  else: '$trainerDetails',
+                },
+              },
+            },
+          },
+          {
+            $project: { trainerDetails: 0 },
+          },
+          {
+            $unwind: '$trainer',
+          },
+
           {
             $project: {
-              vedio: 0,
-              createdAt: 0,
-              updatedAt: 0,
-              tag: 0,
-              description: 0,
+              password: 0,
             },
           },
         ],
-        as: 'All_lessions', // The field to store the matched results from the second collection
+        as: 'authorDetails',
       },
     },
     {
-      $lookup: {
-        from: 'quizzes',
-        localField: 'courseId',
-        foreignField: 'courseId',
-        as: 'quizzes',
+      $project: { author: 0 },
+    },
+    {
+      $addFields: {
+        author: {
+          $cond: {
+            if: { $eq: [{ $size: '$authorDetails' }, 0] },
+            then: [{}],
+            else: '$authorDetails',
+          },
+        },
       },
     },
-
-    ///***************** */ images field ******start
+    {
+      $project: { authorDetails: 0 },
+    },
+    {
+      $unwind: '$author',
+    },
+    ///***************** */ category field ******start
     {
       $lookup: {
-        from: 'fileuploades',
-        let: { conditionField: '$thumbnail' }, // The field to match from the current collection
+        from: 'categories',
+        let: { conditionField: '$category' }, // The field to match from the current collection
         pipeline: [
           {
             $match: {
@@ -280,51 +359,32 @@ const getSingleCourseFromDb = async (id: string): Promise<ICourse | null> => {
             $project: {
               createdAt: 0,
               updatedAt: 0,
-              userId: 0,
-            },
-          },
-          {
-            $addFields: {
-              link: {
-                $concat: [
-                  process.env.REAL_HOST_SERVER_SIDE,
-                  '/',
-                  'images',
-                  '/',
-                  '$filename',
-                ],
-              },
             },
           },
         ],
-        as: 'thumbnailInfo', // The field to store the matched results from the second collection
+        as: 'categoryDetails', // The field to store the matched results from the second collection
       },
     },
-
     {
-      $project: { thumbnail: 0 },
+      $project: { category: 0 },
     },
-    //মনে রাখতে হবে যদি এটি দেওয়া না হয় তাহলে সে যখন কোন একটি ক্যাটাগরির থাম্বেল না পাবে সে তাকে দেবে না
     {
       $addFields: {
-        thumbnail: {
+        category: {
           $cond: {
-            if: { $eq: [{ $size: '$thumbnailInfo' }, 0] },
+            if: { $eq: [{ $size: '$categoryDetails' }, 0] },
             then: [{}],
-            else: '$thumbnailInfo',
+            else: '$categoryDetails',
           },
         },
       },
     },
     {
-      $project: {
-        thumbnailInfo: 0,
-      },
+      $project: { categoryDetails: 0 },
     },
     {
-      $unwind: '$thumbnail',
+      $unwind: '$category',
     },
-    ///***************** */ images field ******end*********
   ]);
 
   return result[0];
@@ -335,13 +395,14 @@ const updateCourseFromDb = async (
   id: string,
   payload: Partial<ICourse>
 ): Promise<ICourse | null> => {
-  const { publish, ...otherData } = payload;
+  const { demo_video, ...otherData } = payload;
   const updateData = { ...otherData };
-  console.log(updateData);
-  if (publish && Object.keys(publish).length > 0) {
-    Object.keys(publish).forEach(key => {
-      const publishKey = `publish.${key}`; // `publish.status`
-      (updateData as any)[publishKey] = publish[key as keyof typeof publish];
+
+  if (demo_video && Object.keys(demo_video).length > 0) {
+    Object.keys(demo_video).forEach(key => {
+      const demo_videoKey = `demo_video.${key}`; // `demo_video.status`
+      (updateData as any)[demo_videoKey] =
+        demo_video[key as keyof typeof demo_video];
     });
   }
   const result = await Course.findOneAndUpdate({ _id: id }, updateData, {
@@ -355,36 +416,22 @@ const updateCourseFromDb = async (
 };
 
 // delete e form db
-const deleteCourseByIdFromDb = async (id: string): Promise<ICourse | null> => {
-  const result = await Course.findByIdAndDelete(id);
+const deleteCourseByIdFromDb = async (
+  id: string,
+  query: ICourseFilters
+): Promise<ICourse | null> => {
+  let result;
+  if (query.delete === ENUM_YN.YES) {
+    result = await Course.findByIdAndDelete(id);
+  } else {
+    result = await Course.findOneAndUpdate({ status: ENUM_STATUS.DEACTIVATE });
+  }
   return result;
 };
 
 // set user reviews e form db
-const courseReviewsByUserFromDb = async (
-  id: string,
-  payload: Partial<ICourse>,
-  req: any
-): Promise<ICourse | null> => {
-  const { reviews } = payload;
-
-  const result = await Course.findOneAndUpdate(
-    { _id: id, 'reviews.userId': { $ne: new Types.ObjectId(req?.user?._id) } },
-    {
-      $push: {
-        reviews: { ...reviews, userId: req?.user?._id },
-      },
-    },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
-
-  if (!result) {
-    throw new ApiError(404, 'You cannot send review');
-  }
-  return result;
+const courseReviewsByUserFromDb = async (): Promise<ICourse | null> => {
+  return null;
 };
 
 export const CourseService = {

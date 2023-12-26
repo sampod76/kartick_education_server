@@ -42,7 +42,7 @@ const files = [
       import { Schema, model } from 'mongoose';
       import { ${capitalize(folderName)}Model, I${capitalize(
         folderName
-      )} } from './${capitalize(folderName)}.interface';
+      )} } from './${folderName}.interface';
       
       const ${capitalize(folderName)}Schema = new Schema<I${capitalize(
         folderName
@@ -303,7 +303,7 @@ router
 router
   .route('/:id')
   .get(${capitalize(folderName)}Controller.getSingle${capitalize(folderName)})
-  .put(
+  .patch(
     authMiddleware(ENUM_USER_ROLE.ADMIN),
     validateRequestZod(${capitalize(folderName)}Validation.update${capitalize(
         folderName

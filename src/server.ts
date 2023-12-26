@@ -3,13 +3,13 @@ import app from './app';
 
 import { Server } from 'http';
 // import { errorLogger, logger } from './app/share/logger';
-import { errorLogger, logger } from './app/share/logger';
+import "colors";
 import config from './config/index';
 mongoose.set('strictQuery', false);
 
 process.on('uncaughtException', error => {
-  // console.log('uncaugthException is detected ......', error);
-  errorLogger.error(error);
+  console.log('uncaugthException is detected ......', error);
+  // errorLogger.error(error);
   process.exit(1);
 });
 // database connection
@@ -19,15 +19,15 @@ let server: Server; // এটা তারা বুঝায় সার্ভ
 async function connection() {
   try {
     await mongoose.connect(config.database_url as string);
-    logger.info(`Database connection successfull`);
-    // console.log(`Database connection successfull`);
+    // logger.info(`Database connection successfull`.green.underline.bold);
+    console.log(`Database connection successfull`.green.underline.bold);
     app.listen(config.port, (): void => {
-      logger.info(`Server is listening on port ${config.port}`);
-      // console.log(`Server is listening on port ${config.port}`);
+      // logger.info(`Server is listening on port ${config.port}`.red.underline.bold);
+      console.log(`Server is listening on port ${config.port}`.red.underline.bold);
     });
   } catch (error) {
-    errorLogger.error(`Failed to connect database: ${error}`);
-    // console.log(`Failed to connect database: ${error}`);
+    // errorLogger.error(`Failed to connect database: ${error}`.red.bold);
+    console.log(`Failed to connect database: ${error}`.red.bold);
   }
 
   //যদি এমন কোন error হয় যেটা আমি জানি না ওটার জন্য এটি
@@ -35,8 +35,8 @@ async function connection() {
     //এখানে চেক করবে আগে আমার সার্ভারে কোন কাজ চলতেছে কিনা যদি কোন কাজ চলে তাহলে সে হঠাৎ করে বন্ধ করবে না
     if (server) {
       server.close(() => {
-        errorLogger.error(error);
-        // console.log(error);
+        // errorLogger.error(error);
+        console.log(error);
         process.exit(1);
       });
     } else {
@@ -47,8 +47,8 @@ async function connection() {
 connection();
 
 process.on('SIGTERM', () => {
-  logger.info('SIGTERM is received ....');
-  // console.log('SIGTERM is received ....');
+  // logger.info('SIGTERM is received ....');
+  console.log('SIGTERM is received ....');
   if (server) {
     server.close();
   }

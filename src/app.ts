@@ -25,22 +25,22 @@ const app: Application = express();
 // app.use(cors());
 
 app.use(helmetOriginal());
-app.use(
-  cors({
-    origin: ['https://salontrainingpro.app', 'http://localhost:3000'],
-    credentials: true,
-  })
-);
-
-
-
 // app.use(
 //   cors({
-//     origin: '*',
+//     origin: ['https://salontrainingpro.app', 'http://localhost:3000'],
 //     credentials: true,
-//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
 //   })
 // );
+
+
+
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  })
+);
 
 //  app.use(function (req, res, next) {
 //   res.header("Access-Control-Allow-Origin", 'https://salontrainingpro.app')
@@ -113,13 +113,7 @@ app.get('/', async (req: Request, res: Response, next: NextFunction) => {
   // res.send('server is running');
 });
 
-/*
- const revenuecat = new Revenuecat({
-  secretKey: "sk_AwzheKPxGcMLbnqWdOeFWhRfcwKIA",
-  iosKey: "993dd49ebcba4546aa3c4657330ac6e0",
-  androidKey: process.env.androidKey as string,
-}) 
-*/
+
 const test = async () => {
 /*  
  const url = 'https://api.revenuecat.com/v1/apps/appcadee85965/subscribers/882b1b28b5664a0ea3ecc7a6efb56b9b';

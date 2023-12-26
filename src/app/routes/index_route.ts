@@ -1,51 +1,79 @@
 import express from 'express';
 
 // import { CategoryRoute } from '../modules/category/route.category';
+import { AdminRoutes } from '../modules/admin/admin.route';
+import { AuthRoutes } from '../modules/auth/auth.route';
+import { CategoryRoute } from '../modules/category/route.category';
 import { CourseRoute } from '../modules/course/course.route';
-import { DeshbordRoute } from '../modules/deshbord/deshbord.router';
+import { LessonRoute } from '../modules/lesson/lesson.route';
+import { MilestoneRoute } from '../modules/milestone/milestone.route';
+
+import { ModuleRoute } from '../modules/module/module.route';
+import { QuizRoute } from '../modules/singel_quiz/quiz.route';
+import { StudentRoutes } from '../modules/student/student.route';
+import { UserRoutes } from '../modules/user/user.route';
+import { SingleQuizRoute } from '../modules/single_quiz/single_quiz.route';
+import { SellerRoutes } from '../modules/seller/seller.route';
+import { TrainerRoutes } from '../modules/trainer/trainer.route';
+
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
-
-
-//https://docs.google.com/document/d/1gTsTpFvhfZB-2y0_BbZQVzmbG3YwsZwPrwAbsYqpOzM/edit
 const router = express.Router();
 
 const moduleRoutes = [
-  // {
-  //   path: '/users',
-  //   route: UserRoute,
-  // },
-
-  {
-    path: '/deshbord',
-    route: DeshbordRoute,
-  },
-
- 
-  // {
-  //   // only user login and refresh-token
-  //   path: '/auth',
-  //   route: AuthRouter,
-  // },
   {
     path: '/course',
     route: CourseRoute,
   },
+  {
+    path: '/milestone',
+    route: MilestoneRoute,
+  },
+  {
+    path: '/module',
+    route: ModuleRoute,
+  },
+  {
+    path: '/lesson',
+    route: LessonRoute,
+  },
+  {
+    path: '/quiz',
+    route: QuizRoute,
+  },
+  {
+    path: '/single-quiz',
+    route: SingleQuizRoute,
+  },
+  {
+    path: '/user',
+    route: UserRoutes,
+  },
+  {
+    path: '/student',
+    route: StudentRoutes,
+  },
+  {
+    path: '/admin',
+    route: AdminRoutes,
+  },
+  {
+    path: '/seller',
+    route: SellerRoutes,
+  },
+  {
+    path: '/trainer',
+    route: TrainerRoutes,
+  },
 
-  // {
-  //   path: '/category',
-  //   route: CategoryRoute,
-  // },
-  // {
-  //   path: '/payment',
-  //   route: PaymentRoute,
-  // },
- 
-  // {
-  //   path: '/upload',
-  //   route: FileUploadeRoute,
-  // },
- 
+  {
+    path: '/auth',
+    route: AuthRoutes,
+  },
+  {
+    path: '/category',
+    route: CategoryRoute,
+  },
 ];
 
 moduleRoutes.forEach(route => router.use(route.path, route.route));
