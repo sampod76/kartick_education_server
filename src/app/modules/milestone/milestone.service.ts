@@ -116,8 +116,10 @@ const getAllMilestoneFromDb = async (
 
   let result = null;
   if (select) {
-    result = await Milestone.find({})
-      .sort({ title: 1 })
+    result = await Milestone.find(whereConditions)
+      .sort({ ...sortConditions })
+      .skip(Number(skip))
+      .limit(Number(limit))
       .select({ ...projection });
   } else {
     result = await Milestone.aggregate(pipeline);

@@ -147,9 +147,11 @@ const getAllLessonFromDb = async (
 
   let result = null;
   if (select) {
-    result = await Lesson.find({})
-      .sort({ title: 1 })
-      .select({ ...projection });
+    result = await Lesson.find(whereConditions)
+    .sort({ ...sortConditions })
+    .skip(Number(skip))
+    .limit(Number(limit))
+    .select({ ...projection });
   } else {
     result = await Lesson.aggregate(pipeline);
   }

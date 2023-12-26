@@ -187,9 +187,11 @@ const getAllCourseFromDb = async (
 
   let result = null;
   if (select) {
-    result = await Course.find({})
-      .sort({ title: 1 })
-      .select({ ...projection });
+    result = await Course.find(whereConditions)
+    .sort({ ...sortConditions })
+    .skip(Number(skip))
+    .limit(Number(limit))
+    .select({ ...projection });
   } else {
     result = await Course.aggregate(pipeline);
   }
