@@ -9,6 +9,7 @@ export type IMilestoneFilters = {
   course?: string;
   select?: string;
   delete?: "yes" | "no" ;
+  module?: 'yes' | 'no';
   // other query parameters
 };
 
