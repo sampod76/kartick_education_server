@@ -34,7 +34,8 @@ const getAllMilestoneFromDb = async (
   paginationOptions: IPaginationOption
 ): Promise<IGenericResponse<IMilestone[]>> => {
   //****************search and filters start************/
-  const { searchTerm, select, ...filtersData } = filters;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { searchTerm, select,module, ...filtersData } = filters;
 
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
