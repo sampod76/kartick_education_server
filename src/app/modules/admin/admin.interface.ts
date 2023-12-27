@@ -1,4 +1,5 @@
 import { Model, Types } from 'mongoose';
+import { IGender, IStatus } from '../../interface/globalTypes';
 
 export type UserName = {
   firstName: string;
@@ -7,7 +8,7 @@ export type UserName = {
 
 export type IAdmin = {
   name: UserName; //embedded object
-  gender: 'male' | 'female';
+  gender: IGender;
   dateOfBirth: string;
   email: string;
   phoneNumber: string;
@@ -26,6 +27,6 @@ export type IAdminFilters = {
   email?: string;
   phoneNumber?: string;
   delete?: 'yes' | 'no';
-  status?: 'active' | 'deactivate' | 'save' | 'disable';
+  status?: IStatus;
   select?: string;
 };

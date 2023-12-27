@@ -17,9 +17,9 @@ import httpStatus from 'http-status';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 // import { uploadSingleImage } from './app/middlewares/uploader.multer';
 
-
+import { User } from './app/modules/user/user.model';
 import routers from './app/routes/index_route';
-import { Course } from './app/modules/course/course.model';
+import { ENUM_USER_ROLE } from './enums/users';
 
 const app: Application = express();
 // app.use(cors());
@@ -31,8 +31,6 @@ app.use(helmetOriginal());
 //     credentials: true,
 //   })
 // );
-
-
 
 app.use(
   cors({
@@ -103,7 +101,6 @@ app.use(
 app.set('view engine', 'ejs');
 app.set('views', path.resolve('./views/success.ejs'));
 
-
 app.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     res.send({ message: 'server is running....' });
@@ -113,41 +110,30 @@ app.get('/', async (req: Request, res: Response, next: NextFunction) => {
   // res.send('server is running');
 });
 
-
 const test = async () => {
-/*  
- const url = 'https://api.revenuecat.com/v1/apps/appcadee85965/subscribers/882b1b28b5664a0ea3ecc7a6efb56b9b';
+  const restul = await User.find({
+    $or: [{ role: ENUM_USER_ROLE.ADMIN }, { role: ENUM_USER_ROLE.STUDENT }],
+  });
 
-  try {
-const data =await revenuecat
-.getSubscriptions({ userId:"$RCAnonymousID:882b1b28b5664a0ea3ecc7a6efb56b9b" })
-// .then(res => console.log(res.subscriber, 'getSubscriptions'))
-console.log(data);
-  } catch (error) {
-    console.error('Error fetching data:', error);
-   
-  } 
-  */
- 
-//  const result= await firebaseAdmin.auth().setCustomUserClaims("St9VaFVV3JX8QFEGwFQd3A3psR23",{_id:"650fd9626e7c6052b7e19242",role:"general-user"});
-// console.log(result);
+  console.log(restul);
+  //  const result= await firebaseAdmin.auth().setCustomUserClaims("St9VaFVV3JX8QFEGwFQd3A3psR23",{_id:"650fd9626e7c6052b7e19242",role:"general-user"});
+  // console.log(result);
 
-// const updateArray = await Course.find({});
+  // const updateArray = await Course.find({});
 
-// const promess: any = [];
+  // const promess: any = [];
 
-// updateArray.forEach((data, index) => {
-//   console.log(index);
-//   promess.push(
-//     Course.findByIdAndUpdate(data._id, {
-//       courseId: `00${index + 1}`,
-//     })
-//   );
-// });
-// Promise.all(promess).then(values => {
-//   console.log(values);
-// });
-
+  // updateArray.forEach((data, index) => {
+  //   console.log(index);
+  //   promess.push(
+  //     Course.findByIdAndUpdate(data._id, {
+  //       courseId: `00${index + 1}`,
+  //     })
+  //   );
+  // });
+  // Promise.all(promess).then(values => {
+  //   console.log(values);
+  // });
 };
 test();
 
@@ -173,7 +159,5 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   });
   next();
 });
-
-
 
 export default app;
