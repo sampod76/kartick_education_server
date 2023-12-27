@@ -168,6 +168,7 @@ const getAllModuleFromDb = async (
 const getSingleModuleFromDb = async (id: string): Promise<IModule | null> => {
   const result = await Module.aggregate([
     { $match: { _id: new ObjectId(id) } },
+ 
     {
       $lookup: {
         from: 'lessons',
@@ -189,6 +190,29 @@ const getSingleModuleFromDb = async (id: string): Promise<IModule | null> => {
           // },
         ],
         as: 'lessons',
+      },
+    },
+    {
+      $lookup: {
+        from: 'quizzes',
+        let: { id: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$module', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+          // {
+          //   $project: {
+          //     __v: 0,
+          //   },
+          // },
+        ],
+        as: 'quizzes',
       },
     },
   ]);

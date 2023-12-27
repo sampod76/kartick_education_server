@@ -33,6 +33,10 @@ const quizSchema = new Schema<IQuiz, QuizModel>(
       type: Schema.Types.ObjectId,
       ref: 'Module',
     },
+    lesson: {
+      type: Schema.Types.ObjectId,
+      ref: 'Lesson',
+    },
     status: {
       type: String,
       enum: STATUS_ARRAY,
