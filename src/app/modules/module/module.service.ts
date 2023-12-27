@@ -62,7 +62,7 @@ const getAllModuleFromDb = async (
   if (Object.keys(filtersData).length) {
     andConditions.push({
       $and: Object.entries(filtersData).map(([field, value]) =>
-         field === 'milestone'
+        field === 'milestone'
           ? { [field]: new Types.ObjectId(value) }
           : { [field]: value }
       ),
@@ -120,7 +120,7 @@ const getAllModuleFromDb = async (
         as: 'milestoneDetails',
       },
     },
-    
+
     {
       $project: { milestone: 0 },
     },
@@ -135,14 +135,13 @@ const getAllModuleFromDb = async (
         },
       },
     },
-   
+
     {
       $project: { milestoneDetails: 0 },
     },
     {
       $unwind: '$milestone',
     },
-   
   ];
 
   let result = null;
@@ -166,11 +165,56 @@ const getAllModuleFromDb = async (
 };
 
 // get single e form db
-const getSingleModuleFromDb = async (
-  id: string
-): Promise<IModule | null> => {
+const getSingleModuleFromDb = async (id: string): Promise<IModule | null> => {
   const result = await Module.aggregate([
     { $match: { _id: new ObjectId(id) } },
+ 
+    {
+      $lookup: {
+        from: 'lessons',
+        let: { id: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$module', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+          // {
+          //   $project: {
+          //     __v: 0,
+          //   },
+          // },
+        ],
+        as: 'lessons',
+      },
+    },
+    {
+      $lookup: {
+        from: 'quizzes',
+        let: { id: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$module', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+          // {
+          //   $project: {
+          //     __v: 0,
+          //   },
+          // },
+        ],
+        as: 'quizzes',
+      },
+    },
   ]);
 
   return result[0];
