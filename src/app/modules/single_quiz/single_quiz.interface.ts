@@ -2,7 +2,7 @@ import { Model, Types } from 'mongoose';
 import { IUser } from '../user/user.interface';
 
 import { IModule } from '../module/module.interface';
-import { IQuiz } from '../singel_quiz/quiz.interface';
+import { IQuiz } from '../quiz/quiz.interface';
 
 export type ISingleQuizFilters = {
   searchTerm?: string;
