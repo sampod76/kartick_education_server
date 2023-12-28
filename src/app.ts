@@ -17,9 +17,8 @@ import httpStatus from 'http-status';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 // import { uploadSingleImage } from './app/middlewares/uploader.multer';
 
-import { User } from './app/modules/user/user.model';
+import { Course } from './app/modules/course/course.model';
 import routers from './app/routes/index_route';
-import { ENUM_USER_ROLE } from './enums/users';
 
 const app: Application = express();
 // app.use(cors());
@@ -111,9 +110,7 @@ app.get('/', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 const test = async () => {
-  const restul = await User.find({
-    $or: [{ role: ENUM_USER_ROLE.ADMIN }, { role: ENUM_USER_ROLE.STUDENT }],
-  });
+  const restul = await Course.isCourseExistMethod({title:"ENGLISH Smart"})
 
   console.log(restul);
   //  const result= await firebaseAdmin.auth().setCustomUserClaims("St9VaFVV3JX8QFEGwFQd3A3psR23",{_id:"650fd9626e7c6052b7e19242",role:"general-user"});

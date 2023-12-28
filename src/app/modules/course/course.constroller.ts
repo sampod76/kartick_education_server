@@ -49,6 +49,32 @@ const getAllCourse = catchAsync(async (req: Request, res: Response) => {
   // next();
 });
 
+const getAllCourseMilestoneModuleList = catchAsync(async (req: Request, res: Response) => {
+  //****************search and filter start******* */
+  // console.log(req.query);
+  const queryObject = req.query;
+ 
+  const filters = pick(queryObject, COURSE_FILTERABLE_FIELDS);
+
+  //****************pagination start************ */
+
+  const paginationOptions = pick(queryObject, PAGINATION_FIELDS);
+
+  const result = await CourseService.getAllCourseMilestoneModuleListFromDb(
+    filters,
+    paginationOptions
+  );
+
+  sendResponse<ICourse[]>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'successfull Get academic Course',
+    meta: result.meta,
+    data: result.data,
+  });
+  // next();
+});
+
 const getSingleCourse = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await CourseService.getSingleCourseFromDb(id);
@@ -105,4 +131,5 @@ export const CourseController = {
   updateCourse,
   deleteCourse,
   courseReviewsByUser,
+  getAllCourseMilestoneModuleList
 };
