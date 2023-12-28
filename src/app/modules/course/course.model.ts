@@ -37,7 +37,7 @@ const courseSchema = new Schema<ICourse, CourseModel>(
       min: 0,
     },
     duration: {
-      type: String,
+      type: [Date],
     },
     level: {
       type: String,
@@ -76,5 +76,25 @@ const courseSchema = new Schema<ICourse, CourseModel>(
     },
   }
 );
+courseSchema.statics.isCourseExistMethod = async function ({
+  id,
+  title,
+}: {
+  id?: string;
+  title?: string;
+}): Promise<Pick<ICourse, 'title'> | null> {
+  let result = null;
+  if (id) {
+    result = await Course.findById(id);
+  }
+  if (title) {
+    result = await Course.findOne(
+      { title: new RegExp(title, 'i') },
+      { title: 1 }
+    );
+  }
+
+  return result;
+};
 
 export const Course = model<ICourse, CourseModel>('Course', courseSchema);

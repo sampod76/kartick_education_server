@@ -16,17 +16,13 @@ const { ObjectId } = mongoose.Types;
 const createMilestoneByDb = async (
   payload: IMilestone
 ): Promise<IMilestone> => {
-  const result = (await Milestone.create(payload)).populate([
-    {
-      path: 'author',
-      select: {
-        needsPasswordChange: 0,
-        createdAt: 0,
-        updatedAt: 0,
-        __v: 0,
-      },
-    },
-  ]);
+  const isExists = await Milestone.findOne({
+    title: new RegExp(payload.title, 'i'),
+  });
+  if (isExists) {
+    throw new ApiError(403, 'This Milestone is already exists');
+  }
+  const result = await Milestone.create(payload);
   return result;
 };
 

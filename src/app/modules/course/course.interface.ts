@@ -11,7 +11,7 @@ export type ICourseFilters = {
   price_type?: string;
   category?: string;
   select?: string;
-  delete?: "yes" | "no" ;
+  delete?: 'yes' | 'no';
   // other query parameters
 };
 
@@ -31,7 +31,7 @@ export type ICourse = {
   price: number;
   tax?: number;
   vat?: number;
-  duration?: string;
+  duration?: string[];
   level?: string;
   price_type: 'free' | 'paid' | 'closed' | 'recurring';
   status: 'active' | 'deactivate' | 'save' | 'disable';
@@ -41,4 +41,13 @@ export type ICourse = {
   tags?: string[];
 };
 
-export type CourseModel = Model<ICourse, Record<string, unknown>>;
+// export type CourseModel = Model<ICourse, Record<string, unknown>>;
+export type CourseModel = {
+  isCourseExistMethod({
+    id,
+    title,
+  }: {
+    id?: string;
+    title?: string;
+  }): Promise<Pick<ICourse, 'title'>>;
+} & Model<ICourse>;

@@ -2,6 +2,7 @@ import { Model, Types } from 'mongoose';
 
 import { IAdmin } from '../admin/admin.interface';
 // import { IModerator } from '../moderator/moderator.interface';
+import { IStatus } from '../../interface/globalTypes';
 import { ISeller } from '../seller/seller.interface';
 import { IStudent } from '../student/student.interface';
 import { ITrainer } from '../trainer/trainer.interface';
@@ -17,14 +18,16 @@ export type IRole =
 export type IUserFilters = {
   searchTerm?: string;
   delete?: 'yes' | 'no';
-  role?: IRole;
+  role?: string;
+  multipleRole?: string;
+  status?: IStatus;
 };
 
 export type IUser = {
   role: string;
   email: string;
   password: string;
-  status: 'active' | 'deactivate' | 'disabled' | 'block';
+  status: IStatus;
   blockingTimeout?: number;
   //
   admin?: Types.ObjectId | IAdmin;

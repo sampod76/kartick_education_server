@@ -17,6 +17,10 @@ router
   );
 
 router
+  .route('/course-milestone-module')
+  .get(CourseController.getAllCourseMilestoneModuleList)
+ 
+router
   .route('/:id')
   .get(CourseController.getSingleCourse)
   .patch(

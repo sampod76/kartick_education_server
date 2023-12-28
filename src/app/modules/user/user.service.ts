@@ -16,6 +16,7 @@ import { IStudent } from '../student/student.interface';
 import { Student } from '../student/student.model';
 import { ITrainer } from '../trainer/trainer.interface';
 import { Trainer } from '../trainer/trainer.model';
+import { userPipeline } from './pipeline/userPipeline';
 import { userSearchableFields } from './user.constant';
 import { IUser, IUserFilters } from './user.interface';
 import { User } from './user.model';
@@ -24,21 +25,31 @@ const getAllUsers = async (
   filters: IUserFilters,
   paginationOptions: IPaginationOption
 ): Promise<IGenericResponse<IUser[]>> => {
-  const { searchTerm, ...filtersData } = filters;
+  const { searchTerm, multipleRole, ...filtersData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelper.calculatePagination(paginationOptions);
 
   const andConditions = [];
 
-  if (searchTerm) {
-    andConditions.push({
-      $or: userSearchableFields.map(field => ({
-        [field]: {
-          $regex: searchTerm,
-          $options: 'i',
-        },
-      })),
-    });
+  if (searchTerm || multipleRole) {
+    const value: any = [];
+    if (!filters.role && multipleRole) {
+      const allRoles = multipleRole.split(',').map(field => field.trim());
+      allRoles.map(role => {
+        value.push({ role });
+      });
+    }
+    //! default or condition
+    userSearchableFields.map(field => ({
+      [field]: {
+        $regex: searchTerm,
+        $options: 'i',
+      },
+    })),
+      //! total $or condition
+      andConditions.push({
+        $or: value,
+      });
   }
 
   if (Object.keys(filtersData).length) {
@@ -65,194 +76,19 @@ const getAllUsers = async (
     .skip(Number(skip))
     .limit(Number(limit)); 
   */
-  const pipeline: PipelineStage[] = [
-    { $match: whereConditions },
-    { $sort: sortConditions },
-    { $skip: Number(skip) || 0 },
-    { $limit: Number(limit) || 15 },
-    //admin
-    {
-      $lookup: {
-        from: 'admins',
-        let: { id: '$admin' },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
-              // Additional filter conditions for collection2
-            },
-          },
-          // Additional stages for collection2
-
-          {
-            $project: {
-              password: 0,
-              __v: 0,
-            },
-          },
-        ],
-        as: 'adminDetails',
-      },
-    },
-    {
-      $project: { admin: 0 },
-    },
-    //মনে রাখতে হবে যদি এটি দেওয়া না হয় তাহলে সে যখন কোন একটি ক্যাটাগরির থাম্বেল না পাবে সে তাকে দেবে না
-    {
-      $addFields: {
-        admin: {
-          $cond: {
-            if: { $eq: [{ $size: '$adminDetails' }, 0] },
-            then: [{}],
-            else: '$adminDetails',
-          },
-        },
-      },
-    },
-    {
-      $project: { adminDetails: 0 },
-    },
-    {
-      $unwind: '$admin',
-    },
-
-    // student
-    {
-      $lookup: {
-        from: 'students',
-        let: { id: '$student' },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
-              // Additional filter conditions for collection2
-            },
-          },
-          // Additional stages for collection2
-
-          {
-            $project: {
-              password: 0,
-              __v: 0,
-            },
-          },
-        ],
-        as: 'studentDetails',
-      },
-    },
-
-    {
-      $project: { student: 0 },
-    },
-    {
-      $addFields: {
-        student: {
-          $cond: {
-            if: { $eq: [{ $size: '$studentDetails' }, 0] },
-            then: [{}],
-            else: '$studentDetails',
-          },
-        },
-      },
-    },
-    {
-      $project: { studentDetails: 0 },
-    },
-    {
-      $unwind: '$student',
-    },
-    // trainer
-    {
-      $lookup: {
-        from: 'trainers',
-        let: { id: '$trainer' },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
-              // Additional filter conditions for collection2
-            },
-          },
-          // Additional stages for collection2
-
-          {
-            $project: {
-              password: 0,
-              __v: 0,
-            },
-          },
-        ],
-        as: 'trainerDetails',
-      },
-    },
-    {
-      $project: { trainer: 0 },
-    },
-    {
-      $addFields: {
-        trainer: {
-          $cond: {
-            if: { $eq: [{ $size: '$trainerDetails' }, 0] },
-            then: [{}],
-            else: '$trainerDetails',
-          },
-        },
-      },
-    },
-    {
-      $project: { trainerDetails: 0 },
-    },
-    {
-      $unwind: '$trainer',
-    },
-
-    // seller
-    {
-      $lookup: {
-        from: 'sellers',
-        let: { id: '$seller' },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
-              // Additional filter conditions for collection2
-            },
-          },
-          // Additional stages for collection2
-          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
-
-          {
-            $project: {
-              password: 0,
-              __v: 0,
-            },
-          },
-        ],
-        as: 'sellerDetails',
-      },
-    },
-    {
-      $project: { seller: 0 },
-    },
-    {
-      $addFields: {
-        seller: {
-          $cond: {
-            if: { $eq: [{ $size: '$sellerDetails' }, 0] },
-            then: [{}],
-            else: '$sellerDetails',
-          },
-        },
-      },
-    },
-    {
-      $project: { sellerDetails: 0 },
-    },
-    {
-      $unwind: '$seller',
-    },
-  ];
-
+  const pipeline: PipelineStage[] = multipleRole
+    ? userPipeline.author({
+        whereConditions,
+        sortConditions,
+        limit,
+        skip,
+      })
+    : userPipeline.allUser({
+        whereConditions,
+        sortConditions,
+        limit,
+        skip,
+      });
   const result = await User.aggregate(pipeline);
 
   const total = await User.countDocuments(whereConditions);
