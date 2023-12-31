@@ -4,6 +4,8 @@ import { IUser } from '../user/user.interface';
 import { IModule } from '../module/module.interface';
 import { IQuiz } from '../quiz/quiz.interface';
 
+export type IQUIZ_TYPE = 'input' | 'select' | 'multiple_select' | 'text';
+
 export type ISingleQuizFilters = {
   searchTerm?: string;
   status?: string;
@@ -32,6 +34,7 @@ export type ISingleQuiz = {
     img?: string;
     status: 'active' | 'deactivate' | 'save';
   }>;
+  type: IQUIZ_TYPE;
   //
   quiz: Types.ObjectId | IQuiz;
   author?: Types.ObjectId | IUser;

@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { STATUS_ARRAY } from '../../../constant/globalConstant';
+import { SINGLE_QUIZ_TYPE } from './single_quiz.constant';
 import { ISingleQuiz, SingleQuizModel } from './single_quiz.interface';
 
 const singleQuizSchema = new Schema<ISingleQuiz, SingleQuizModel>(
@@ -10,36 +11,45 @@ const singleQuizSchema = new Schema<ISingleQuiz, SingleQuizModel>(
       required: true,
       index: true,
     },
-    answers:[{
-      title: {
+    answers: [
+      {
+        title: {
+          type: String,
+          trim: true,
+        },
+        correct: {
+          type: Boolean,
+          default: false,
+        },
+        img: {
+          type: String,
+          trim: true,
+        },
+        serialNumber: {
+          type: Number,
+          default: 0,
+        },
+        status: {
+          type: String,
+          enum: STATUS_ARRAY,
+          default: 'active',
+        },
+      },
+    ],
+    imgs: [
+      {
         type: String,
         trim: true,
       },
-      correct: {
-        type: Boolean,
-        default: false,
-      },
-      img: {
-        type: String,
-        trim: true,
-      },
-      serialNumber: {
-        type: Number,
-        default: 0,
-      },
-      status: {
-        type: String,
-        enum: STATUS_ARRAY,
-        default: 'active',
-      },
-    }],
-    imgs: [{
-      type: String,
-      trim: true,
-    }],
+    ],
     details: {
       type: String,
       trim: true,
+    },
+    type: {
+      type: String,
+      enum: SINGLE_QUIZ_TYPE,
+      default: 'select',
     },
     serialNumber: {
       type: Number,
