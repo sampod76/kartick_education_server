@@ -20,7 +20,7 @@ export type ISingleQuizSearchableField = {
 
 export type ISingleQuiz = {
   title: string;
-  img?: string;
+  imgs?: string[];
   details?: string;
   hints?: string;
   serialNumber?: number;

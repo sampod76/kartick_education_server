@@ -33,9 +33,10 @@ const singleQuizSchema = new Schema<ISingleQuiz, SingleQuizModel>(
         default: 'active',
       },
     }],
-    img: {
+    imgs: [{
       type: String,
-    },
+      trim: true,
+    }],
     details: {
       type: String,
       trim: true,

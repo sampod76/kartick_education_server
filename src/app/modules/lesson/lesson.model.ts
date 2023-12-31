@@ -38,6 +38,9 @@ const lessonSchema = new Schema<ILesson,LessonModel>(
     lesson_number: {
       type: Number,
     },
+    lecture: {
+      type: Number,
+    },
    
     demo_video: {
       type: Object,
