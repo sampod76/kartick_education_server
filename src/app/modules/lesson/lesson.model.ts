@@ -18,6 +18,10 @@ const lessonSchema = new Schema<ILesson,LessonModel>(
       type: String,
       trim: true,
     },
+    short_details: {
+      type: String,
+      trim: true,
+    },
     author: {
       type: Schema.Types.ObjectId,
       ref: 'User',

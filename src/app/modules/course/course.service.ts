@@ -35,6 +35,7 @@ const getAllCourseFromDb = async (
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
+    console.log(select);
     const fieldNames = select?.split(',').map(field => field.trim());
     // Create the projection object
     fieldNames.forEach(field => {
@@ -218,7 +219,7 @@ const getAllCourseMilestoneModuleListFromDb = async (
 ): Promise<IGenericResponse<ICourse[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-
+console.log(select);
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {

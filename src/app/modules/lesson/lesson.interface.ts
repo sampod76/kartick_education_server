@@ -21,6 +21,7 @@ export type ILesson = {
   title: string;
   img?: string;
   details?: string;
+  short_details?: string;
   lecture: number;
   lesson_number: number;
   author?: Types.ObjectId | IUser;

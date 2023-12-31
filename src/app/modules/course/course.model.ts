@@ -20,6 +20,10 @@ const courseSchema = new Schema<ICourse, CourseModel>(
       type: String,
       trim: true,
     },
+    short_details: {
+      type: String,
+      trim: true,
+    },
     author: {
       type: Schema.Types.ObjectId,
       ref: 'User',
