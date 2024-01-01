@@ -11,6 +11,8 @@ import { CourseService } from './course.service';
 
 // import { z } from 'zod'
 const createCourse = catchAsync(async (req: Request, res: Response) => {
+
+  
   const { ...courseData } = req.body;
 
   const result = await CourseService.createCourseByDb(courseData);
