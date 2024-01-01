@@ -20,7 +20,7 @@ const courseSchema = new Schema<ICourse, CourseModel>(
       type: String,
       trim: true,
     },
-    short_details: {
+    short_description: {
       type: String,
       trim: true,
     },

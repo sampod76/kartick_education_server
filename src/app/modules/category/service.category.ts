@@ -80,6 +80,73 @@ const getAllCategoryFromDb = async (
     data: result,
   };
 };
+//getAllCategoryChildrenFromDb
+const getAllCategoryChildrenFromDb = async (
+  filters: ICategoryFilters,
+  paginationOptions: IPaginationOption
+): Promise<IGenericResponse<ICategory[]>> => {
+  //****************search and filters start************/
+  const { searchTerm, ...filtersData } = filters;
+  const andConditions = [];
+  if (searchTerm) {
+    andConditions.push({
+      $or: CATEGORY_SEARCHABLE_FIELDS.map(field => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: 'i',
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filtersData).length) {
+    andConditions.push({
+      $and: Object.entries(filtersData).map(([field, value]) => ({
+        [field]: value,
+      })),
+    });
+  }
+
+  //****************search and filters end**********/
+
+  //****************pagination start **************/
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationHelper.calculatePagination(paginationOptions);
+
+  const sortConditions: { [key: string]: 1 | -1 } = {};
+  if (sortBy && sortOrder) {
+    sortConditions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+  }
+  //****************pagination end ***************/
+
+  const whereConditions =
+    andConditions.length > 0 ? { $and: andConditions } : {};
+
+  // const result = await Category.find(whereConditions)
+  //   .populate('thumbnail')
+  //   .sort(sortConditions)
+  //   .skip(Number(skip))
+  //   .limit(Number(limit));
+  const pipeline: PipelineStage[] = [
+    { $match: whereConditions },
+    { $sort: sortConditions },
+    { $skip: Number(skip) || 0 },
+    // { $limit: Number(limit) || 15 },
+  ];
+
+  // console.log(pipeline);
+  const result = await Category.aggregate(pipeline);
+  // console.log(result, 127);
+  const total = await Category.countDocuments(whereConditions);
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
 
 // get single Categorye form db
 const getSingleCategoryFromDb = async (
@@ -120,4 +187,5 @@ export const CategoryService = {
   getSingleCategoryFromDb,
   updateCategoryFromDb,
   deleteCategoryByIdFromDb,
+  getAllCategoryChildrenFromDb
 };
