@@ -25,7 +25,7 @@ export type ICourse = {
   img: string;
   snid: string;
   details?: string;
-  short_details?: string;
+  short_description?: string;
   author: Types.ObjectId;
   category: Types.ObjectId;
   // sub1_course_category_id: Types.ObjectId;

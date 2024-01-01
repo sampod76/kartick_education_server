@@ -18,7 +18,7 @@ const lessonSchema = new Schema<ILesson,LessonModel>(
       type: String,
       trim: true,
     },
-    short_details: {
+    short_description: {
       type: String,
       trim: true,
     },

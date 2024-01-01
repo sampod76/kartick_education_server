@@ -18,6 +18,12 @@ router
   );
 
 router
+  .route('/category-children')
+  // This route is open
+  .get(CategoryController.getAllCategoryChildren)
+
+
+router
   .route('/:id')
   // This route is open
   .get(CategoryController.getSingleCategory)
