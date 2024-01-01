@@ -37,6 +37,7 @@
     "@types/ws": "^8.5.5",
     "axios": "^1.6.2",
     "bcrypt": "^5.1.0",
+    "cloudinary": "^1.41.1",
     "colors": "^1.4.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
