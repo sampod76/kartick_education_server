@@ -1,6 +1,6 @@
 export const COURSE_SEARCHABLE_FIELDS = [
   'title',
-  'details',
+  // 'details',
   'snid'
 ];
 export const COURSE_FILTERABLE_FIELDS = [
