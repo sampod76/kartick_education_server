@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import mongoose, { PipelineStage } from 'mongoose';
+import { PipelineStage } from 'mongoose';
 import config from '../../../config/index';
 import { paginationHelper } from '../../../helper/paginationHelper';
 import ApiError from '../../errors/ApiError';
@@ -159,40 +159,45 @@ const createAdminService = async (
   user.role = ENUM_USER_ROLE.ADMIN;
 
   let newUserAllData = null;
-  const session = await mongoose.startSession();
-  try {
-    session.startTransaction();
-
-    // const id = await generateAdminId();
-    // user.id = id;
-    // admin.id = id;
-
-    const newAdmin = await Admin.create([admin], { session });
-
-    if (!newAdmin.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create admin ');
-    }
-
-    user.admin = newAdmin[0]._id;
-
-    const newUser = await User.create([user], { session });
-
-    if (!newUser.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create admin');
-    }
-    newUserAllData = newUser[0];
-
-    await session.commitTransaction();
-    await session.endSession();
-  } catch (error) {
-    await session.abortTransaction();
-    await session.endSession();
-    throw error;
+  const newAdmin = await Admin.create(admin);
+  if (newAdmin) {
+    newUserAllData = await User.create(user);
+  } else {
+    throw new ApiError(404, 'Admin create failed');
   }
+  // const session = await mongoose.startSession();
+  // try {
+  //   session.startTransaction();
 
-  if (newUserAllData) {
-    newUserAllData = await User.findOne({ id: newUserAllData.id });
-  }
+  //   // const id = await generateAdminId();
+  //   // user.id = id;
+  //   // admin.id = id;
+
+  //   const newAdmin = await Admin.create([admin], { session });
+
+  //   if (!newAdmin.length) {
+  //     throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create admin ');
+  //   }
+
+  //   user.admin = newAdmin[0]._id;
+
+  //   const newUser = await User.create([user], { session });
+
+  //   if (!newUser.length) {
+  //     throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create admin');
+  //   }
+  //   newUserAllData = newUser[0];
+
+  //   await session.commitTransaction();
+  //   await session.endSession();
+  // } catch (error) {
+  //   await session.abortTransaction();
+  //   await session.endSession();
+  //   throw error;
+  // }
+  // if (newUserAllData) {
+  //   newUserAllData = await User.findOne({ id: newUserAllData.id });
+  // }
 
   return newUserAllData;
 };
@@ -211,38 +216,45 @@ const createStudentService = async (
   // set role
   user.role = ENUM_USER_ROLE.STUDENT;
 
+
   let newUserAllData = null;
-  const session = await mongoose.startSession();
-  try {
-    session.startTransaction();
-
-    //array
-    const newStudent = await Student.create([student], { session });
-
-    if (!newStudent.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create student');
-    }
-    //set student -->  _id into user.student
-    user.student = newStudent[0]._id;
-
-    const newUser = await User.create([user], { session });
-
-    if (!newUser.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create user');
-    }
-    newUserAllData = newUser[0];
-
-    await session.commitTransaction();
-    await session.endSession();
-  } catch (error) {
-    await session.abortTransaction();
-    await session.endSession();
-    throw error;
+  const newStudent = await Student.create(student);
+  if (newStudent) {
+    newUserAllData = await User.create(user);
+  } else {
+    throw new ApiError(404, 'Admin create failed');
   }
+  // const session = await mongoose.startSession();
+  // try {
+  //   session.startTransaction();
 
-  if (newUserAllData) {
-    newUserAllData = await User.findOne({ id: newUserAllData.id });
-  }
+  //   //array
+  //   const newStudent = await Student.create([student], { session });
+
+  //   if (!newStudent.length) {
+  //     throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create student');
+  //   }
+  //   //set student -->  _id into user.student
+  //   user.student = newStudent[0]._id;
+
+  //   const newUser = await User.create([user], { session });
+
+  //   if (!newUser.length) {
+  //     throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create user');
+  //   }
+  //   newUserAllData = newUser[0];
+
+  //   await session.commitTransaction();
+  //   await session.endSession();
+  // } catch (error) {
+  //   await session.abortTransaction();
+  //   await session.endSession();
+  //   throw error;
+  // }
+
+  // if (newUserAllData) {
+  //   newUserAllData = await User.findOne({ id: newUserAllData.id });
+  // }
 
   return newUserAllData;
 };
@@ -260,33 +272,40 @@ const createTrainerService = async (
   }
   // set role
   user.role = ENUM_USER_ROLE.TRAINER;
-  let newUserAllData = null;
-  const session = await mongoose.startSession();
-  try {
-    session.startTransaction();
-    //array
-    const newTrainer = await Trainer.create([trainer], { session });
-    if (!newTrainer.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create Trainer');
-    }
-    //set Trainer -->  _id into user.student
-    user.trainer = newTrainer[0]._id;
-    const newUser = await User.create([user], { session });
-    if (!newUser.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create user');
-    }
-    newUserAllData = newUser[0];
-    await session.commitTransaction();
-    await session.endSession();
-  } catch (error) {
-    await session.abortTransaction();
-    await session.endSession();
-    throw error;
-  }
 
-  if (newUserAllData) {
-    newUserAllData = await User.findOne({ id: newUserAllData.id });
+  let newUserAllData = null;
+  const newTrainer = await Trainer.create(trainer);
+  if (newTrainer) {
+    newUserAllData = await User.create(user);
+  } else {
+    throw new ApiError(404, 'Admin create failed');
   }
+  // const session = await mongoose.startSession();
+  // try {
+  //   session.startTransaction();
+  //   //array
+  //   const newTrainer = await Trainer.create([trainer], { session });
+  //   if (!newTrainer.length) {
+  //     throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create Trainer');
+  //   }
+  //   //set Trainer -->  _id into user.student
+  //   user.trainer = newTrainer[0]._id;
+  //   const newUser = await User.create([user], { session });
+  //   if (!newUser.length) {
+  //     throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create user');
+  //   }
+  //   newUserAllData = newUser[0];
+  //   await session.commitTransaction();
+  //   await session.endSession();
+  // } catch (error) {
+  //   await session.abortTransaction();
+  //   await session.endSession();
+  //   throw error;
+  // }
+
+  // if (newUserAllData) {
+  //   newUserAllData = await User.findOne({ id: newUserAllData.id });
+  // }
 
   return newUserAllData;
 };
@@ -305,38 +324,45 @@ const createSellerService = async (
   // set role
   user.role = ENUM_USER_ROLE.SELLER;
 
+
   let newUserAllData = null;
-  const session = await mongoose.startSession();
-  try {
-    session.startTransaction();
-
-    //array
-    const newSeller = await Seller.create([seller], { session });
-
-    if (!newSeller.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create Seller');
-    }
-    //set Seller -->  _id into user.Seller
-    user.seller = newSeller[0]._id;
-
-    const newUser = await User.create([user], { session });
-
-    if (!newUser.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create user');
-    }
-    newUserAllData = newUser[0];
-
-    await session.commitTransaction();
-    await session.endSession();
-  } catch (error) {
-    await session.abortTransaction();
-    await session.endSession();
-    throw error;
+  const newSeller = await Seller.create(seller);
+  if (newSeller) {
+    newUserAllData = await User.create(user);
+  } else {
+    throw new ApiError(404, 'Admin create failed');
   }
+  // const session = await mongoose.startSession();
+  // try {
+  //   session.startTransaction();
 
-  if (newUserAllData) {
-    newUserAllData = await User.findOne({ id: newUserAllData.id });
-  }
+  //   //array
+  //   const newSeller = await Seller.create([seller], { session });
+
+  //   if (!newSeller.length) {
+  //     throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create Seller');
+  //   }
+  //   //set Seller -->  _id into user.Seller
+  //   user.seller = newSeller[0]._id;
+
+  //   const newUser = await User.create([user], { session });
+
+  //   if (!newUser.length) {
+  //     throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create user');
+  //   }
+  //   newUserAllData = newUser[0];
+
+  //   await session.commitTransaction();
+  //   await session.endSession();
+  // } catch (error) {
+  //   await session.abortTransaction();
+  //   await session.endSession();
+  //   throw error;
+  // }
+
+  // if (newUserAllData) {
+  //   newUserAllData = await User.findOne({ id: newUserAllData.id });
+  // }
 
   return newUserAllData;
 };
