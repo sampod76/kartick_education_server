@@ -46,7 +46,7 @@ const lessonSchema = new Schema<ILesson, LessonModel>(
       type: Object,
       default: {},
     },
-    video: [
+    videos: [
       {
         type: Object,
         default: {},

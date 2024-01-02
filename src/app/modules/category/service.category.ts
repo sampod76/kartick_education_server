@@ -4,12 +4,17 @@ import { paginationHelper } from '../../../helper/paginationHelper';
 import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 
+import ApiError from '../../errors/ApiError';
 import { CATEGORY_SEARCHABLE_FIELDS } from './consent.category';
 import { ICategory, ICategoryFilters } from './interface.category';
 import { Category } from './model.category';
 
 const createCategoryByDb = async (payload: ICategory): Promise<ICategory> => {
-  const result = (await Category.create(payload))
+  const find = await Category.findOne({ title: payload.title });
+  if (find) {
+    throw new ApiError(400, 'This Category All Ready Exist');
+  }
+  const result = await Category.create(payload);
   return result;
 };
 
@@ -131,6 +136,29 @@ const getAllCategoryChildrenFromDb = async (
     { $match: whereConditions },
     { $sort: sortConditions },
     { $skip: Number(skip) || 0 },
+    {
+      $lookup: {
+        from: 'courses',
+        let: { id: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$category', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          
+          // {
+          //   $project: {
+          //     // password: 0,
+          //     __v: 0,
+          //   },
+          // },
+        ],
+        as: 'courses',
+      },
+    },
     // { $limit: Number(limit) || 15 },
   ];
 
@@ -177,7 +205,7 @@ const updateCategoryFromDb = async (
 const deleteCategoryByIdFromDb = async (
   id: string
 ): Promise<ICategory | null> => {
-  const result = await Category.findOneAndDelete({_id:id})
+  const result = await Category.findOneAndDelete({ _id: id });
   return result;
 };
 
@@ -187,5 +215,5 @@ export const CategoryService = {
   getSingleCategoryFromDb,
   updateCategoryFromDb,
   deleteCategoryByIdFromDb,
-  getAllCategoryChildrenFromDb
+  getAllCategoryChildrenFromDb,
 };

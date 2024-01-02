@@ -8,6 +8,7 @@ import { CourseRoute } from '../modules/course/course.route';
 import { LessonRoute } from '../modules/lesson/lesson.route';
 import { MilestoneRoute } from '../modules/milestone/milestone.route';
 
+import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 import { ModuleRoute } from '../modules/module/module.route';
 import { QuizRoute } from '../modules/quiz/quiz.route';
 import { SellerRoutes } from '../modules/seller/seller.route';
@@ -15,7 +16,6 @@ import { SingleQuizRoute } from '../modules/single_quiz/single_quiz.route';
 import { StudentRoutes } from '../modules/student/student.route';
 import { TrainerRoutes } from '../modules/trainer/trainer.route';
 import { UserRoutes } from '../modules/user/user.route';
-import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -47,7 +47,7 @@ const moduleRoutes = [
     route: SingleQuizRoute,
   },
   {
-    path: '/user',
+    path: '/users',
     route: UserRoutes,
   },
   {

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { STATUS_ARRAY } from '../../../constant/globalConstant';
+import { SINGLE_QUIZ_TYPE } from './single_quiz.constant';
 
 const createSingleQuizZodSchema = z.object({
   body: z.object({
@@ -15,13 +16,13 @@ const createSingleQuizZodSchema = z.object({
           title: z.string(),
           serialNumber: z.number().min(0).optional(),
           correct: z.boolean().optional(),
-          img: z.string().url().optional(),
+          img: z.string().optional(),
         })
       )
       .optional(),
     author: z.string().optional(),
-    quiz: z.string().optional(),
-    module: z.string({ required_error: 'module field is required' }),
+    quiz: z.string(),
+    type: z.enum([...SINGLE_QUIZ_TYPE] as [string, ...string[]]).optional(),
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
     demo_video: z.object({}).optional(),
     tags: z.array(z.string()).optional(),
@@ -42,14 +43,14 @@ const updateSingleQuizZodSchema = z.object({
           title: z.string().optional(),
           serialNumber: z.number().min(0).optional(),
           correct: z.boolean().optional(),
-          img: z.string().url().optional(),
+          img: z.string().optional(),
           status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
         })
       )
       .optional(),
     author: z.string().optional(),
     quiz: z.string().optional(),
-    module: z.string().optional(),
+    type: z.enum([...SINGLE_QUIZ_TYPE] as [string, ...string[]]).optional(),
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
     demo_video: z.object({}).optional(),
     tags: z.array(z.string()).optional(),
