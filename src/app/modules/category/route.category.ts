@@ -17,10 +17,11 @@ router
     CategoryController.createCategory
   );
 
+
 router
   .route('/category-children')
   // This route is open
-  .get(CategoryController.getAllCategoryChildren)
+  .get(CategoryController.getAllCategoryChildrenTitle)
 
 
 router

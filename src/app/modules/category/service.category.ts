@@ -8,6 +8,7 @@ import ApiError from '../../errors/ApiError';
 import { CATEGORY_SEARCHABLE_FIELDS } from './consent.category';
 import { ICategory, ICategoryFilters } from './interface.category';
 import { Category } from './model.category';
+import { categoryPipeline } from './pipeline/categoryChildren';
 
 const createCategoryByDb = async (payload: ICategory): Promise<ICategory> => {
   const find = await Category.findOne({ title: payload.title });
@@ -85,96 +86,6 @@ const getAllCategoryFromDb = async (
     data: result,
   };
 };
-//getAllCategoryChildrenFromDb
-const getAllCategoryChildrenFromDb = async (
-  filters: ICategoryFilters,
-  paginationOptions: IPaginationOption
-): Promise<IGenericResponse<ICategory[]>> => {
-  //****************search and filters start************/
-  const { searchTerm, ...filtersData } = filters;
-  const andConditions = [];
-  if (searchTerm) {
-    andConditions.push({
-      $or: CATEGORY_SEARCHABLE_FIELDS.map(field => ({
-        [field]: {
-          $regex: searchTerm,
-          $options: 'i',
-        },
-      })),
-    });
-  }
-
-  if (Object.keys(filtersData).length) {
-    andConditions.push({
-      $and: Object.entries(filtersData).map(([field, value]) => ({
-        [field]: value,
-      })),
-    });
-  }
-
-  //****************search and filters end**********/
-
-  //****************pagination start **************/
-  const { page, limit, skip, sortBy, sortOrder } =
-    paginationHelper.calculatePagination(paginationOptions);
-
-  const sortConditions: { [key: string]: 1 | -1 } = {};
-  if (sortBy && sortOrder) {
-    sortConditions[sortBy] = sortOrder === 'asc' ? 1 : -1;
-  }
-  //****************pagination end ***************/
-
-  const whereConditions =
-    andConditions.length > 0 ? { $and: andConditions } : {};
-
-  // const result = await Category.find(whereConditions)
-  //   .populate('thumbnail')
-  //   .sort(sortConditions)
-  //   .skip(Number(skip))
-  //   .limit(Number(limit));
-  const pipeline: PipelineStage[] = [
-    { $match: whereConditions },
-    { $sort: sortConditions },
-    { $skip: Number(skip) || 0 },
-    {
-      $lookup: {
-        from: 'courses',
-        let: { id: '$_id' },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ['$category', '$$id'] },
-              // Additional filter conditions for collection2
-            },
-          },
-          // Additional stages for collection2
-          
-          // {
-          //   $project: {
-          //     // password: 0,
-          //     __v: 0,
-          //   },
-          // },
-        ],
-        as: 'courses',
-      },
-    },
-    // { $limit: Number(limit) || 15 },
-  ];
-
-  // console.log(pipeline);
-  const result = await Category.aggregate(pipeline);
-  // console.log(result, 127);
-  const total = await Category.countDocuments(whereConditions);
-  return {
-    meta: {
-      page,
-      limit,
-      total,
-    },
-    data: result,
-  };
-};
 
 // get single Categorye form db
 const getSingleCategoryFromDb = async (
@@ -208,6 +119,88 @@ const deleteCategoryByIdFromDb = async (
   const result = await Category.findOneAndDelete({ _id: id });
   return result;
 };
+//
+
+//getAllCategoryChildrenFromDb
+const getAllCategoryChildrenTitleFromDb = async (
+  filters: ICategoryFilters,
+  paginationOptions: IPaginationOption
+): Promise<IGenericResponse<ICategory[]>> => {
+  //****************search and filters start************/
+  const { searchTerm, children, ...filtersData } = filters;
+  const andConditions = [];
+  if (searchTerm) {
+    andConditions.push({
+      $or: CATEGORY_SEARCHABLE_FIELDS.map(field => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: 'i',
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filtersData).length) {
+    andConditions.push({
+      $and: Object.entries(filtersData).map(([field, value]) => ({
+        [field]: value,
+      })),
+    });
+  }
+
+  //****************search and filters end**********/
+
+  //****************pagination start **************/
+  const { page, limit, sortBy, sortOrder } =
+    paginationHelper.calculatePagination(paginationOptions);
+
+  const sortConditions: { [key: string]: 1 | -1 } = {};
+  if (sortBy && sortOrder) {
+    sortConditions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+  }
+  //****************pagination end ***************/
+
+  const whereConditions =
+    andConditions.length > 0 ? { $and: andConditions } : {};
+
+  // const result = await Category.find(whereConditions)
+  //   .populate('thumbnail')
+  //   .sort(sortConditions)
+  //   .skip(Number(skip))
+  //   .limit(Number(limit));
+  const pipeline: PipelineStage[] =
+    children === 'course'
+      ? categoryPipeline.categoryCourse({ whereConditions, sortConditions })
+      : children === 'course-milestone'
+      ? categoryPipeline.categoryCourseMileston({
+          whereConditions,
+          sortConditions,
+        })
+      : children === 'course-milestone-module'
+      ? categoryPipeline.categoryCourseMilestonModule({
+          whereConditions,
+          sortConditions,
+        })
+      : children === 'course-milestone-module-lessons'
+      ? categoryPipeline.categoryCourseMilestonModuleLesson({
+          whereConditions,
+          sortConditions,
+        })
+      : categoryPipeline.all({ whereConditions, sortConditions });
+
+  // console.log(pipeline);
+  const result = await Category.aggregate(pipeline);
+  // console.log(result, 127);
+  const total = await Category.countDocuments(whereConditions);
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
 
 export const CategoryService = {
   createCategoryByDb,
@@ -215,5 +208,5 @@ export const CategoryService = {
   getSingleCategoryFromDb,
   updateCategoryFromDb,
   deleteCategoryByIdFromDb,
-  getAllCategoryChildrenFromDb,
+  getAllCategoryChildrenTitleFromDb,
 };

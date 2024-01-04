@@ -6,6 +6,7 @@ export type ICategoryFilters = {
   title?: string;
   status?: IStatus;
   delete?: 'yes' | 'no';
+  children?: string;
 };
 
 export type ICategory = {

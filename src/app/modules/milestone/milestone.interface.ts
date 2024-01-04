@@ -26,7 +26,7 @@ export type IMilestone = {
   course: Types.ObjectId | ICourse | string;
   // sub1_Milestone_category_id: Types.ObjectId;
   status: 'active' | 'deactivate' | 'save';
-  showing_number?: number;
+  milestone_number?: number;
   favorite: 'yes' | 'no';
   demo_video?: Record<string, string>;
   tags?: string[];

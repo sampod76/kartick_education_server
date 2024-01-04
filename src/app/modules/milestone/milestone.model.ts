@@ -2,7 +2,7 @@ import { Schema, model } from 'mongoose';
 import { STATUS_ARRAY, YN_ARRAY } from '../../../constant/globalConstant';
 import { IMilestone, MilestoneModel } from './milestone.interface';
 
-const milestoneSchema = new Schema<IMilestone,MilestoneModel>(
+const milestoneSchema = new Schema<IMilestone, MilestoneModel>(
   {
     title: {
       type: String,
@@ -30,9 +30,10 @@ const milestoneSchema = new Schema<IMilestone,MilestoneModel>(
       enum: STATUS_ARRAY,
       default: 'active',
     },
-    showing_number: {
+    milestone_number: {
       type: Number,
-      default: 9999,
+      // unique: true,
+      required: [true, 'milestone_number is required'],
     },
     demo_video: {
       type: Object,
@@ -54,4 +55,7 @@ const milestoneSchema = new Schema<IMilestone,MilestoneModel>(
   }
 );
 
-export const Milestone = model<IMilestone,MilestoneModel>('Milestone', milestoneSchema);
+export const Milestone = model<IMilestone, MilestoneModel>(
+  'Milestone',
+  milestoneSchema
+);
