@@ -8,14 +8,24 @@ import { AuthService } from './auth.service';
 
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const { ...loginData } = req.body;
-  const {refreshToken,...result} = await AuthService.loginUser(loginData);
-  // const { refreshToken } = result;
-  // set refresh token into cookie
+  const { refreshToken, ...result } = await AuthService.loginUser(loginData);
+ 
+  // const cookieOptions = {
+  //   secure: config.env === 'production',
+  //   httpOnly: true,
+  //   sameSite: false,
+  //   maxAge: parseInt(
+  //     (config.jwt.refresh_expires_in as string) || '31536000000'
+  //   ),
+  // };
   const cookieOptions = {
-    secure: config.env === 'production',
+    secure: config.env === 'production' ? true : false,
     httpOnly: true,
+    // sameSite: 'Lax', // or remove this line for testing
+    maxAge: parseInt((config.jwt.refresh_expires_in as string) || '31536000000'),
   };
-
+  
+  console.log(refreshToken,"refresh token");
   res.cookie('refreshToken', refreshToken, cookieOptions);
 
   sendResponse<ILoginUserResponse>(res, {
@@ -61,25 +71,23 @@ const changePassword = catchAsync(async (req: Request, res: Response) => {
 });
 
 const forgotPass = catchAsync(async (req: Request, res: Response) => {
-
   await AuthService.forgotPass(req.body);
 
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: "Check your email!",
+    message: 'Check your email!',
   });
 });
 
 const resetPassword = catchAsync(async (req: Request, res: Response) => {
-
-  const token = req.headers.authorization || "";
+  const token = req.headers.authorization || '';
   await AuthService.resetPassword(req.body, token);
 
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: "Account recovered!",
+    message: 'Account recovered!',
   });
 });
 
@@ -88,5 +96,5 @@ export const AuthController = {
   refreshToken,
   changePassword,
   forgotPass,
-  resetPassword
+  resetPassword,
 };

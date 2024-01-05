@@ -18,6 +18,8 @@ import globalErrorHandler from './app/middlewares/globalErrorHandler';
 // import { uploadSingleImage } from './app/middlewares/uploader.multer';
 
 import routers from './app/routes/index_route';
+import corsOptions from './config/corsOptions';
+import { Milestone } from './app/modules/milestone/milestone.model';
 
 const app: Application = express();
 // app.use(cors());
@@ -30,13 +32,7 @@ app.use(helmetOriginal());
 //   })
 // );
 
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  })
-);
+app.use(cors(corsOptions));
 
 //  app.use(function (req, res, next) {
 //   res.header("Access-Control-Allow-Origin", 'https://salontrainingpro.app')
@@ -109,16 +105,11 @@ app.get('/', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 const test = async () => {
-  // const restul = await SingleQuiz.updateMany({},{type:"select"})
-
+  // const restul = await Milestone.updateMany({},{$rename:{"showing_number":"milestone_number"}})
   // console.log(restul);
-  //  const result= await firebaseAdmin.auth().setCustomUserClaims("St9VaFVV3JX8QFEGwFQd3A3psR23",{_id:"650fd9626e7c6052b7e19242",role:"general-user"});
-  // console.log(result);
 
   // const updateArray = await Course.find({});
-
   // const promess: any = [];
-
   // updateArray.forEach((data, index) => {
   //   console.log(index);
   //   promess.push(

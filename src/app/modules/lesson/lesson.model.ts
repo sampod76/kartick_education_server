@@ -2,7 +2,7 @@ import { Schema, model } from 'mongoose';
 import { STATUS_ARRAY } from '../../../constant/globalConstant';
 import { ILesson, LessonModel } from './lesson.interface';
 
-const lessonSchema = new Schema<ILesson,LessonModel>(
+const lessonSchema = new Schema<ILesson, LessonModel>(
   {
     title: {
       type: String,
@@ -13,7 +13,7 @@ const lessonSchema = new Schema<ILesson,LessonModel>(
     img: {
       type: String,
     },
-    
+
     details: {
       type: String,
       trim: true,
@@ -41,14 +41,17 @@ const lessonSchema = new Schema<ILesson,LessonModel>(
     lecture: {
       type: Number,
     },
-   
+
     demo_video: {
       type: Object,
       default: {},
     },
-    video: {
-      type: String,
-    },
+    videos: [
+      {
+        type: Object,
+        default: {},
+      },
+    ],
     tags: [String],
   },
   {
@@ -60,4 +63,4 @@ const lessonSchema = new Schema<ILesson,LessonModel>(
   }
 );
 
-export const Lesson = model<ILesson,LessonModel>('Lesson', lessonSchema);
+export const Lesson = model<ILesson, LessonModel>('Lesson', lessonSchema);

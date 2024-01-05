@@ -4,4 +4,5 @@ export const CATEGORY_FILTERABLE_FIELDS = [
   'title',
   'status',
   'delete',
+  'children',
 ];

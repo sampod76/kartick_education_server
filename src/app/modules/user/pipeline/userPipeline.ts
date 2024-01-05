@@ -34,7 +34,7 @@ const allUser = ({
 
           {
             $project: {
-              password: 0,
+              // password: 0,
               __v: 0,
             },
           },

@@ -75,7 +75,7 @@ const singleQuizSchema = new Schema<ISingleQuiz, SingleQuizModel>(
     module: {
       type: Schema.Types.ObjectId,
       ref: 'Module',
-      required: true,
+      
     },
 
     status: {

@@ -28,7 +28,7 @@ export type ILesson = {
   module: Types.ObjectId | IModule | string;
   status: 'active' | 'deactivate' | 'save';
   demo_video?: Record<string, string>;
-  video?: string;
+  videos?: object[];
   tags?: string[];
 };
 
