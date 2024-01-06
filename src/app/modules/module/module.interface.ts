@@ -19,8 +19,9 @@ export type IModuleSearchableField = {
 
 export type IModule = {
   title: string;
-  img?: string;
+  imgs?: string[];
   details?: string;
+  short_description?: string;
   author?: Types.ObjectId | IUser;
   milestone: Types.ObjectId | IMilestone | string;
   status: 'active' | 'deactivate' | 'save';

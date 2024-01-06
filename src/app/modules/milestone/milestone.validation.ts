@@ -4,9 +4,10 @@ import { STATUS_ARRAY, YN_ARRAY } from '../../../constant/globalConstant';
 const createMilestoneZodSchema = z.object({
   body: z.object({
     title: z.string({ required_error: 'title field is required' }),
-    img: z.string().url().optional(),
+    imgs: z.array(z.string().url().optional()).optional(),
     course: z.string({ required_error: 'course id is required' }),
     details: z.string().optional(),
+    short_description: z.string().optional(),
     author: z.string().optional(),
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
     favorite: z.enum([...YN_ARRAY] as [string, ...string[]]).optional(),
@@ -21,9 +22,10 @@ const createMilestoneZodSchema = z.object({
 const updateMilestoneZodSchema = z.object({
   body: z.object({
     title: z.string().optional(),
-    img: z.string().url().optional(),
+    imgs: z.array(z.string().url().optional()).optional(),
     course: z.string().optional(),
     details: z.string().optional(),
+    short_description: z.string().optional(),
     author: z.string().optional(),
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
     favorite: z.enum([...YN_ARRAY] as [string, ...string[]]).optional(),

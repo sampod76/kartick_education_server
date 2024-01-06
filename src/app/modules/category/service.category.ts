@@ -186,6 +186,8 @@ const getAllCategoryChildrenTitleFromDb = async (
           whereConditions,
           sortConditions,
         })
+      : children === 'course-milestone-module-lessons-quiz'
+      ? categoryPipeline.all({ whereConditions, sortConditions })
       : categoryPipeline.all({ whereConditions, sortConditions });
 
   // console.log(pipeline);

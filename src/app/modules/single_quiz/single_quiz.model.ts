@@ -21,10 +21,12 @@ const singleQuizSchema = new Schema<ISingleQuiz, SingleQuizModel>(
           type: Boolean,
           default: false,
         },
-        img: {
-          type: String,
-          trim: true,
-        },
+        imgs: [
+          {
+            type: String,
+            trim: true,
+          },
+        ],
         serialNumber: {
           type: Number,
           default: 0,
@@ -43,6 +45,14 @@ const singleQuizSchema = new Schema<ISingleQuiz, SingleQuizModel>(
       },
     ],
     details: {
+      type: String,
+      trim: true,
+    },
+    short_description: {
+      type: String,
+      trim: true,
+    },
+    single_answer: {
       type: String,
       trim: true,
     },

@@ -4,12 +4,14 @@ import { STATUS_ARRAY } from '../../../constant/globalConstant';
 const createQuizZodSchema = z.object({
   body: z.object({
     title: z.string({ required_error: 'title field is required' }),
-    img: z.string().url().optional(),
+    imgs: z.array(z.string().url().optional()).optional(),
     details: z.string().optional(),
+    short_description: z.string().optional(),
     passingGrade: z.number().min(0).max(100).optional(),
     minus_skip: z.boolean().optional(),
 
     //
+    serial_number: z.number().min(0).optional(),
     author: z.string().optional(),
     lesson: z.string().optional(),
     module: z.string({ required_error: 'module field is required' }),
@@ -22,12 +24,14 @@ const createQuizZodSchema = z.object({
 const updateQuizZodSchema = z.object({
   body: z.object({
     title: z.string().optional(),
-    img: z.string().url().optional(),
+    imgs: z.array(z.string().url().optional()).optional(),
+    short_description: z.string().optional(),
     details: z.string().optional(),
     passingGrade: z.number().min(0).max(100).optional(),
     minus_skip: z.boolean().optional(),
 
     //
+    serial_number: z.number().min(0).optional(),
     author: z.string().optional(),
     lesson: z.string().optional(),
     module: z.string().optional(),
