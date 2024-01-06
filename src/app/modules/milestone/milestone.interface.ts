@@ -15,13 +15,14 @@ export type IMilestoneFilters = {
 
 export type IMilestoneSearchableField = {
   title?: string;
-  details?: string;
+  short_description?: string;
 };
 
 export type IMilestone = {
   title: string;
-  img: string;
+  imgs: string[];
   details?: string;
+  short_description?: string;
   author: Types.ObjectId;
   course: Types.ObjectId | ICourse | string;
   // sub1_Milestone_category_id: Types.ObjectId;

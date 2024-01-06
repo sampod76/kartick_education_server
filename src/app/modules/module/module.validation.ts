@@ -5,8 +5,9 @@ const createModuleZodSchema = z.object({
   body: z.object({
     title: z.string({ required_error: 'title field is required' }),
     milestone: z.string({ required_error: 'milestone field is required' }),
-    img: z.string().url().optional(),
+    imgs: z.array(z.string().url().optional()).optional(),
     details: z.string().optional(),
+    short_description: z.string().optional(),
     author: z.string().optional(),
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
     module_number: z.number().min(0).optional(),
@@ -19,9 +20,10 @@ const updateModuleZodSchema = z.object({
   body: z.object({
     title: z.string().optional(),
     milestone: z.string().optional(),
-    img: z.string().url().optional(),
+    imgs: z.array(z.string().url().optional()).optional(),
     course: z.string().optional(),
     details: z.string().optional(),
+    short_description: z.string().optional(),
     author: z.string().optional(),
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
     module_number: z.number().min(0).optional(),

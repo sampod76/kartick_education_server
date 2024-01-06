@@ -9,23 +9,20 @@ import { AuthService } from './auth.service';
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const { ...loginData } = req.body;
   const { refreshToken, ...result } = await AuthService.loginUser(loginData);
- 
-  // const cookieOptions = {
-  //   secure: config.env === 'production',
-  //   httpOnly: true,
-  //   sameSite: false,
-  //   maxAge: parseInt(
-  //     (config.jwt.refresh_expires_in as string) || '31536000000'
-  //   ),
-  // };
+
+
   const cookieOptions = {
+    //for development false 
     secure: config.env === 'production' ? true : false,
     httpOnly: true,
-    // sameSite: 'Lax', // or remove this line for testing
-    maxAge: parseInt((config.jwt.refresh_expires_in as string) || '31536000000'),
+    // when my site is same url example: frontend ->sampodnath.com , backend ->sampodnath-api.com. then sameSite lagba na, when frontend ->sampodnath.com , but backend api.sampodnath.com then  sameSite: 'none', 
+    sameSite: 'none', // or remove this line for testing
+    maxAge: 31536000000,
+    // maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'),
   };
-  
-  console.log(refreshToken,"refresh token");
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-ignore
   res.cookie('refreshToken', refreshToken, cookieOptions);
 
   sendResponse<ILoginUserResponse>(res, {

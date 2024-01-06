@@ -10,12 +10,20 @@ const quizSchema = new Schema<IQuiz, QuizModel>(
       required: true,
       index: true,
     },
-    img: {
+    imgs: [{
       type: String,
-    },
+    }],
     details: {
       type: String,
       trim: true,
+    },
+    short_description: {
+      type: String,
+      trim: true,
+    },
+    serial_number: {
+      type: Number,
+      min: 0,
     },
     passingGrade: {
       type: Number,

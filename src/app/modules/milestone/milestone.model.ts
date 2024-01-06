@@ -10,10 +10,14 @@ const milestoneSchema = new Schema<IMilestone, MilestoneModel>(
       required: true,
       index: true,
     },
-    img: {
+    imgs: [{
       type: String,
-    },
+    }],
     details: {
+      type: String,
+      trim: true,
+    },
+    short_description: {
       type: String,
       trim: true,
     },

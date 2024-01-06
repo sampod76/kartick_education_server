@@ -21,8 +21,10 @@ export type IQuizSearchableField = {
 
 export type IQuiz = {
   title: string;
-  img?: string;
+  imgs?: string[];
+  short_description?: string;
   details?: string;
+  serial_number?: string;
   passingGrade?: number;
   minus_skip?: boolean;
   //

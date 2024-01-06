@@ -24,16 +24,18 @@ export type ISingleQuiz = {
   title: string;
   imgs?: string[];
   details?: string;
+  short_description?: string;
   hints?: string;
   serialNumber?: number;
   time_duration?: number; // milliseconds
-  answers: Array<{
+  answers?: Array<{
     title: string;
     serialNumber?: number;
     correct?: boolean;
-    img?: string;
+    imgs?: Array<string>;
     status: 'active' | 'deactivate' | 'save';
   }>;
+  single_answer?: string;
   type: IQUIZ_TYPE;
   //
   quiz: Types.ObjectId | IQuiz;

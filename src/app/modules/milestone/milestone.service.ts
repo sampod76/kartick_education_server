@@ -20,7 +20,7 @@ const createMilestoneByDb = async (
     title: new RegExp(payload.title, 'i'),
   });
   if (isExists) {
-    throw new ApiError(403, 'This Milestone is already exists');
+    throw new ApiError(400, 'This Milestone is already exists');
   }
   const result = await Milestone.create(payload);
   return result;
