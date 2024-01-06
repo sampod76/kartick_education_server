@@ -415,26 +415,26 @@ const getSingleCourseFromDb = async (id: string): Promise<ICourse | null> => {
               as: 'adminDetails',
             },
           },
-          {
-            $project: { admin: 0 },
-          },
-          {
-            $addFields: {
-              admin: {
-                $cond: {
-                  if: { $eq: [{ $size: '$adminDetails' }, 0] },
-                  then: [{}],
-                  else: '$adminDetails',
-                },
-              },
-            },
-          },
-          {
-            $project: { adminDetails: 0 },
-          },
-          {
-            $unwind: '$admin',
-          },
+          // {
+          //   $project: { admin: 0 },
+          // },
+          // {
+          //   $addFields: {
+          //     admin: {
+          //       $cond: {
+          //         if: { $eq: [{ $size: '$adminDetails' }, 0] },
+          //         then: [{}],
+          //         else: '$adminDetails',
+          //       },
+          //     },
+          //   },
+          // },
+          // {
+          //   $project: { adminDetails: 0 },
+          // },
+          // {
+          //   $unwind: '$admin',
+          // },
           //! 2nd trainer lookup
           {
             $lookup: {
@@ -459,26 +459,26 @@ const getSingleCourseFromDb = async (id: string): Promise<ICourse | null> => {
               as: 'trainerDetails',
             },
           },
-          {
-            $project: { trainer: 0 },
-          },
-          {
-            $addFields: {
-              trainer: {
-                $cond: {
-                  if: { $eq: [{ $size: '$trainerDetails' }, 0] },
-                  then: [{}],
-                  else: '$trainerDetails',
-                },
-              },
-            },
-          },
-          {
-            $project: { trainerDetails: 0 },
-          },
-          {
-            $unwind: '$trainer',
-          },
+          // {
+          //   $project: { trainer: 0 },
+          // },
+          // {
+          //   $addFields: {
+          //     trainer: {
+          //       $cond: {
+          //         if: { $eq: [{ $size: '$trainerDetails' }, 0] },
+          //         then: [{}],
+          //         else: '$trainerDetails',
+          //       },
+          //     },
+          //   },
+          // },
+          // {
+          //   $project: { trainerDetails: 0 },
+          // },
+          // {
+          //   $unwind: '$trainer',
+          // },
 
           {
             $project: {
@@ -489,26 +489,26 @@ const getSingleCourseFromDb = async (id: string): Promise<ICourse | null> => {
         as: 'authorDetails',
       },
     },
-    {
-      $project: { author: 0 },
-    },
-    {
-      $addFields: {
-        author: {
-          $cond: {
-            if: { $eq: [{ $size: '$authorDetails' }, 0] },
-            then: [{}],
-            else: '$authorDetails',
-          },
-        },
-      },
-    },
-    {
-      $project: { authorDetails: 0 },
-    },
-    {
-      $unwind: '$author',
-    },
+    // {
+    //   $project: { author: 0 },
+    // },
+    // {
+    //   $addFields: {
+    //     author: {
+    //       $cond: {
+    //         if: { $eq: [{ $size: '$authorDetails' }, 0] },
+    //         then: [{}],
+    //         else: '$authorDetails',
+    //       },
+    //     },
+    //   },
+    // },
+    // {
+    //   $project: { authorDetails: 0 },
+    // },
+    // {
+    //   $unwind: '$author',
+    // },
     ///***************** */ category field ******start
     {
       $lookup: {
@@ -534,26 +534,26 @@ const getSingleCourseFromDb = async (id: string): Promise<ICourse | null> => {
         as: 'categoryDetails', // The field to store the matched results from the second collection
       },
     },
-    {
-      $project: { category: 0 },
-    },
-    {
-      $addFields: {
-        category: {
-          $cond: {
-            if: { $eq: [{ $size: '$categoryDetails' }, 0] },
-            then: [{}],
-            else: '$categoryDetails',
-          },
-        },
-      },
-    },
-    {
-      $project: { categoryDetails: 0 },
-    },
-    {
-      $unwind: '$category',
-    },
+    // {
+    //   $project: { category: 0 },
+    // },
+    // {
+    //   $addFields: {
+    //     category: {
+    //       $cond: {
+    //         if: { $eq: [{ $size: '$categoryDetails' }, 0] },
+    //         then: [{}],
+    //         else: '$categoryDetails',
+    //       },
+    //     },
+    //   },
+    // },
+    // {
+    //   $project: { categoryDetails: 0 },
+    // },
+    // {
+    //   $unwind: '$category',
+    // },
   ]);
 
   return result[0];
@@ -566,7 +566,7 @@ const updateCourseFromDb = async (
 ): Promise<ICourse | null> => {
   const { demo_video, ...otherData } = payload;
   const updateData = { ...otherData };
-
+console.log(updateData,id);
   if (demo_video && Object.keys(demo_video).length > 0) {
     Object.keys(demo_video).forEach(key => {
       const demo_videoKey = `demo_video.${key}`; // `demo_video.status`

@@ -159,10 +159,14 @@ const createAdminService = async (
   user.role = ENUM_USER_ROLE.ADMIN;
 
   let newUserAllData = null;
-  const newAdmin = await Admin.create(admin);
+  const newAdmin = await Admin.create(admin)
   if (newAdmin) {
+    user.admin = newAdmin?._id;
     newUserAllData = await User.create(user);
   } else {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    await Admin.findByIdAndDelete(newAdmin._id);
     throw new ApiError(404, 'Admin create failed');
   }
   // const session = await mongoose.startSession();
@@ -216,12 +220,15 @@ const createStudentService = async (
   // set role
   user.role = ENUM_USER_ROLE.STUDENT;
 
-
   let newUserAllData = null;
   const newStudent = await Student.create(student);
   if (newStudent) {
+    user.student = newStudent?._id;
     newUserAllData = await User.create(user);
   } else {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    await Student.findByIdAndDelete(newStudent._id);
     throw new ApiError(404, 'Admin create failed');
   }
   // const session = await mongoose.startSession();
@@ -276,8 +283,12 @@ const createTrainerService = async (
   let newUserAllData = null;
   const newTrainer = await Trainer.create(trainer);
   if (newTrainer) {
+    user.trainer = newTrainer?._id;
     newUserAllData = await User.create(user);
   } else {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    await Trainer.findByIdAndDelete(newTrainer._id);
     throw new ApiError(404, 'Admin create failed');
   }
   // const session = await mongoose.startSession();
@@ -324,12 +335,15 @@ const createSellerService = async (
   // set role
   user.role = ENUM_USER_ROLE.SELLER;
 
-
   let newUserAllData = null;
   const newSeller = await Seller.create(seller);
   if (newSeller) {
+    user.seller = newSeller?._id;
     newUserAllData = await User.create(user);
   } else {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    await Seller.findByIdAndDelete(newSeller._id);
     throw new ApiError(404, 'Admin create failed');
   }
   // const session = await mongoose.startSession();
