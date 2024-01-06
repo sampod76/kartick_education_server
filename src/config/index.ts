@@ -6,11 +6,11 @@ dotenv.config({ path: path.join(process.cwd(), '.env') }); // এখানে �
 export default {
   env: process.env.NODE_ENV,
   port: process.env.PORT,
-  database_url: process.env.DATABASE_URL_ATLAS,
-  // database_url:
-  //   process.env.NODE_ENV === 'development'
-  //     ? process.env.DATABASE_URL_ATLAS
-  //     : process.env.DATABASE_URL_COMPASS,
+  // database_url: process.env.DATABASE_URL_ATLAS,
+  database_url:
+    process.env.NODE_ENV === 'development'
+      ? process.env.DATABASE_URL_ATLAS
+      : process.env.DATABASE_URL_COMPASS,
   default_student_pass: process.env.DEFAULT_STUDENT_PASS,
   default_moderator_pass: process.env.DEFAULT_MODERATOR_PASS,
   default_admin_pass: process.env.DEFAULT_ADMIN_PASS,
