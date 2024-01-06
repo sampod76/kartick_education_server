@@ -138,6 +138,75 @@ const getSingleMilestoneFromDb = async (
 ): Promise<IMilestone | null> => {
   const result = await Milestone.aggregate([
     { $match: { _id: new ObjectId(id) } },
+    {
+      $lookup: {
+        from: 'courses',
+        let: { id: '$course' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$_id', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+          {
+            $lookup: {
+              from: 'categories',
+              let: { id: '$category' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ['$_id', '$$id'] },
+                    // Additional filter conditions for collection2
+                  },
+                },
+                // Additional stages for collection2
+                // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+                {
+                  $project: {
+                    title: 1,
+                  },
+                },
+              ],
+              as: 'category',
+            },
+          },
+          { $unwind: '$category' },
+          {
+            $project: {
+              title: 1,
+              category: 1,
+            },
+          },
+        ],
+        as: 'courseDetails',
+      },
+    },
+
+    {
+      $project: { course: 0 },
+    },
+    {
+      $addFields: {
+        course: {
+          $cond: {
+            if: { $eq: [{ $size: '$courseDetails' }, 0] },
+            then: [{}],
+            else: '$courseDetails',
+          },
+        },
+      },
+    },
+
+    {
+      $project: { courseDetails: 0 },
+    },
+    {
+      $unwind: '$course',
+    },
   ]);
 
   return result[0];
