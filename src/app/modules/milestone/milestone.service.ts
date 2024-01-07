@@ -34,6 +34,7 @@ const getAllMilestoneFromDb = async (
   //****************search and filters start************/
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { searchTerm, select, module: isModule, ...filtersData } = filters;
+  console.log("🚀 ~ file: milestone.service.ts:37 ~ filters:", filters)
 
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
@@ -246,7 +247,7 @@ const deleteMilestoneByIdFromDb = async (
   if (query.delete === ENUM_YN.YES) {
     result = await Milestone.findByIdAndDelete(id);
   } else {
-    result = await Milestone.findOneAndUpdate({
+    result = await Milestone.findOneAndUpdate({_id:id},{
       status: ENUM_STATUS.DEACTIVATE,
     });
   }
