@@ -283,9 +283,9 @@ const updateSingleQuizFromDb = async (
   payload: Partial<ISingleQuiz>
 ): Promise<ISingleQuiz | null> => {
   console.log('🚀 ~ file: single_quiz.service.ts:285 ~ id:', id);
-  const { /* demo_video,  */ ...otherData } = payload;
-  console.log('🚀 ~ file: single_quiz.service.ts:286 ~ payload:', payload);
-  const updateData = { ...otherData };
+  // const { /* demo_video,  */ ...otherData } = payload;
+  // console.log('🚀 ~ file: single_quiz.service.ts:286 ~ payload:', payload);
+  // const updateData = { ...otherData };
   // if (demo_video && Object.keys(demo_video).length > 0) {
   //   Object.keys(demo_video).forEach(key => {
   //     const demo_videoKey = `demo_video.${key}`; // `demo_video.status`
@@ -294,7 +294,10 @@ const updateSingleQuizFromDb = async (
   //   });
   // }
 
-  const result = await SingleQuiz.findByIdAndUpdate(new mongoose.Types.ObjectId(id), updateData);
+  const result = await SingleQuiz.findOneAndUpdate({ _id: id }, payload, {
+    new: true,
+    runValidators: true,
+  });
   if (!result) {
     throw new ApiError(500, 'SingleQuiz update fail!!😪😭😰');
   }
@@ -310,7 +313,7 @@ const deleteSingleQuizByIdFromDb = async (
   if (query.delete === ENUM_YN.YES) {
     result = await SingleQuiz.findByIdAndDelete(id);
   } else {
-    result = await SingleQuiz.findOneAndUpdate({
+    result = await SingleQuiz.findOneAndUpdate({_id:id},{
       status: ENUM_STATUS.DEACTIVATE,
     });
   }
