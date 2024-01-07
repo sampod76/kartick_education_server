@@ -10,9 +10,9 @@ const lessonSchema = new Schema<ILesson, LessonModel>(
       required: true,
       index: true,
     },
-    img: {
+    imgs: [{
       type: String,
-    },
+    }],
 
     details: {
       type: String,

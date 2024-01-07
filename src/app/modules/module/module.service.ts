@@ -355,7 +355,6 @@ const getSingleModuleFromDb = async (
           },
         },
       },
-
       {
         $project: { milestoneDetails: 0 },
       },
