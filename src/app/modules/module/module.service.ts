@@ -165,57 +165,205 @@ const getAllModuleFromDb = async (
 };
 
 // get single e form db
-const getSingleModuleFromDb = async (id: string): Promise<IModule | null> => {
-  const result = await Module.aggregate([
-    { $match: { _id: new ObjectId(id) } },
- 
-    {
-      $lookup: {
-        from: 'lessons',
-        let: { id: '$_id' },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ['$module', '$$id'] },
-              // Additional filter conditions for collection2
+const getSingleModuleFromDb = async (
+  id: string,
+  query: IModuleFilters
+): Promise<IModule | null> => {
+  let result;
+  if (query['lesson_quiz'] === ENUM_YN.YES) {
+    result = await Module.aggregate([
+      { $match: { _id: new ObjectId(id) } },
+
+      {
+        $lookup: {
+          from: 'lessons',
+          let: { id: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$module', '$$id'] },
+                // Additional filter conditions for collection2
+              },
+            },
+            // Additional stages for collection2
+            // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+            // {
+            //   $project: {
+            //     __v: 0,
+            //   },
+            // },
+          ],
+          as: 'lessons',
+        },
+      },
+      {
+        $lookup: {
+          from: 'quizzes',
+          let: { id: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$module', '$$id'] },
+                // Additional filter conditions for collection2
+              },
+            },
+            // Additional stages for collection2
+            // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+            // {
+            //   $project: {
+            //     __v: 0,
+            //   },
+            // },
+          ],
+          as: 'quizzes',
+        },
+      },
+    ]);
+  } else {
+    result = await Module.aggregate([
+      { $match: { _id: new ObjectId(id) } },
+
+      {
+        $lookup: {
+          from: 'milestones',
+          let: { id: '$milestone' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$_id', '$$id'] },
+                // Additional filter conditions for collection2
+              },
+            },
+            // Additional stages for collection2
+            {
+              $lookup: {
+                from: 'courses',
+                let: { id: '$course' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: { $eq: ['$_id', '$$id'] },
+                      // Additional filter conditions for collection2
+                    },
+                  },
+                  // Additional stages for collection2
+                  {
+                    $lookup: {
+                      from: 'categories',
+                      let: { id: '$category' },
+                      pipeline: [
+                        {
+                          $match: {
+                            $expr: { $eq: ['$_id', '$$id'] },
+                            // Additional filter conditions for collection2
+                          },
+                        },
+                        // Additional stages for collection2
+                        // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+                        {
+                          $project: {
+                            title: 1,
+                          },
+                        },
+                      ],
+                      as: 'categoryDetails',
+                    },
+                  },
+                  {
+                    $project: { category: 0 },
+                  },
+                  {
+                    $addFields: {
+                      category: {
+                        $cond: {
+                          if: { $eq: [{ $size: '$categoryDetails' }, 0] },
+                          then: [{}],
+                          else: '$categoryDetails',
+                        },
+                      },
+                    },
+                  },
+
+                  {
+                    $project: { categoryDetails: 0 },
+                  },
+                  {
+                    $unwind: '$category',
+                  },
+
+                  //! ///////
+
+                  {
+                    $project: {
+                      title: 1,
+                      category: 1,
+                    },
+                  },
+                ],
+                as: 'courseDetails',
+              },
+            },
+            {
+              $project: { milestone: 0 },
+            },
+            {
+              $addFields: {
+                course: {
+                  $cond: {
+                    if: { $eq: [{ $size: '$courseDetails' }, 0] },
+                    then: [{}],
+                    else: '$courseDetails',
+                  },
+                },
+              },
+            },
+
+            {
+              $project: { courseDetails: 0 },
+            },
+            {
+              $unwind: '$course',
+            },
+
+            //! ////////////////////////
+
+            {
+              $project: {
+                title: 1,
+                course: 1,
+                milestone_number: 1,
+              },
+            },
+          ],
+          as: 'milestoneDetails',
+        },
+      },
+      {
+        $project: { milestone: 0 },
+      },
+      {
+        $addFields: {
+          milestone: {
+            $cond: {
+              if: { $eq: [{ $size: '$milestoneDetails' }, 0] },
+              then: [{}],
+              else: '$milestoneDetails',
             },
           },
-          // Additional stages for collection2
-          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
-
-          // {
-          //   $project: {
-          //     __v: 0,
-          //   },
-          // },
-        ],
-        as: 'lessons',
+        },
       },
-    },
-    {
-      $lookup: {
-        from: 'quizzes',
-        let: { id: '$_id' },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ['$module', '$$id'] },
-              // Additional filter conditions for collection2
-            },
-          },
-          // Additional stages for collection2
-          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
 
-          // {
-          //   $project: {
-          //     __v: 0,
-          //   },
-          // },
-        ],
-        as: 'quizzes',
+      {
+        $project: { milestoneDetails: 0 },
       },
-    },
-  ]);
+      {
+        $unwind: '$milestone',
+      },
+    ]);
+  }
 
   return result[0];
 };

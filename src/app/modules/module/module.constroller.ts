@@ -51,7 +51,8 @@ const getAllModule = catchAsync(async (req: Request, res: Response) => {
 
 const getSingleModule = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await ModuleService.getSingleModuleFromDb(id);
+  const filters = pick(req.query, MODULE_FILTERABLE_FIELDS);
+  const result = await ModuleService.getSingleModuleFromDb(id,filters);
   sendResponse<IModule>(res, {
     success: true,
     statusCode: httpStatus.OK,
