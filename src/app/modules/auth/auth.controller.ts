@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import config from '../../../config';
 
 import catchAsync from '../../share/catchAsync';
 import sendResponse from '../../share/sendResponse';
@@ -10,16 +9,23 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   const { ...loginData } = req.body;
   const { refreshToken, ...result } = await AuthService.loginUser(loginData);
 
-
   const cookieOptions = {
-    //for development false 
-    secure: config.env === 'production' ? true : false,
-    httpOnly: true,
-    // when my site is same url example: frontend ->sampodnath.com , backend ->sampodnath-api.com. then sameSite lagba na, when frontend ->sampodnath.com , but backend api.sampodnath.com then  sameSite: 'none', 
-    sameSite: 'none', // or remove this line for testing
-    maxAge: 31536000000,
+    //for development false
+      secure:  false,
+      httpOnly: true,
+      // when my site is same url example: frontend ->sampodnath.com , backend ->sampodnath-api.com. then sameSite lagba na, when frontend ->sampodnath.com , but backend api.sampodnath.com then  sameSite: 'none',
+      sameSite: 'none', // or remove this line for testing
+      maxAge: 31536000000,
+      // maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'),
+    };
+
+    // secure: true,
+    // httpOnly: true,
+    // // when my site is same url example: frontend ->sampodnath.com , backend ->sampodnath-api.com. then sameSite lagba na, when frontend ->sampodnath.com , but backend api.sampodnath.com then  sameSite: 'none',
+    // sameSite: 'none', // or remove this line for testing
+    // maxAge: 31536000000,
     // maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'),
-  };
+ 
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
@@ -38,12 +44,26 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 
   const result = await AuthService.refreshToken(refreshToken);
 
-  // set refresh token into cookie
+  
   const cookieOptions = {
-    secure: config.env === 'production',
-    httpOnly: true,
-  };
+    //for development false
+    //   secure: config.env === 'production' ? true : false,
+    //   httpOnly: true,
+    //   // when my site is same url example: frontend ->sampodnath.com , backend ->sampodnath-api.com. then sameSite lagba na, when frontend ->sampodnath.com , but backend api.sampodnath.com then  sameSite: 'none',
+    //   sameSite: 'none', // or remove this line for testing
+    //   maxAge: 31536000000,
+    //   // maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'),
+    // };
 
+    secure: true,
+    httpOnly: true,
+    // when my site is same url example: frontend ->sampodnath.com , backend ->sampodnath-api.com. then sameSite lagba na, when frontend ->sampodnath.com , but backend api.sampodnath.com then  sameSite: 'none',
+    sameSite: 'none', // or remove this line for testing
+    maxAge: 31536000000,
+    // maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'),
+  };
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-ignore
   res.cookie('refreshToken', refreshToken, cookieOptions);
 
   sendResponse<IRefreshTokenResponse>(res, {

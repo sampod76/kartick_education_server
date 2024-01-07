@@ -282,20 +282,19 @@ const updateSingleQuizFromDb = async (
   id: string,
   payload: Partial<ISingleQuiz>
 ): Promise<ISingleQuiz | null> => {
-  const { demo_video, ...otherData } = payload;
+  console.log('🚀 ~ file: single_quiz.service.ts:285 ~ id:', id);
+  const { /* demo_video,  */ ...otherData } = payload;
+  console.log('🚀 ~ file: single_quiz.service.ts:286 ~ payload:', payload);
   const updateData = { ...otherData };
-  if (demo_video && Object.keys(demo_video).length > 0) {
-    Object.keys(demo_video).forEach(key => {
-      const demo_videoKey = `demo_video.${key}`; // `demo_video.status`
-      (updateData as any)[demo_videoKey] =
-        demo_video[key as keyof typeof demo_video];
-    });
-  }
+  // if (demo_video && Object.keys(demo_video).length > 0) {
+  //   Object.keys(demo_video).forEach(key => {
+  //     const demo_videoKey = `demo_video.${key}`; // `demo_video.status`
+  //     (updateData as any)[demo_videoKey] =
+  //       demo_video[key as keyof typeof demo_video];
+  //   });
+  // }
 
-  const result = await SingleQuiz.findOneAndUpdate({ _id: id }, updateData, {
-    new: true,
-    runValidators: true,
-  });
+  const result = await SingleQuiz.findByIdAndUpdate(new mongoose.Types.ObjectId(id), updateData);
   if (!result) {
     throw new ApiError(500, 'SingleQuiz update fail!!😪😭😰');
   }

@@ -390,7 +390,7 @@ const deleteLessonByIdFromDb = async (
   if (query.delete === ENUM_YN.YES) {
     result = await Lesson.findByIdAndDelete(id);
   } else {
-    result = await Lesson.findOneAndUpdate({ status: ENUM_STATUS.DEACTIVATE });
+    result = await Lesson.findOneAndUpdate({_id:id},{ status: ENUM_STATUS.DEACTIVATE });
   }
   return result;
 };

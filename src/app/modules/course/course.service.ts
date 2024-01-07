@@ -593,7 +593,7 @@ const deleteCourseByIdFromDb = async (
   if (query.delete === ENUM_YN.YES) {
     result = await Course.findByIdAndDelete(id);
   } else {
-    result = await Course.findOneAndUpdate({ status: ENUM_STATUS.DEACTIVATE });
+    result = await Course.findOneAndUpdate({_id:id},{ status: ENUM_STATUS.DEACTIVATE });
   }
   return result;
 };
