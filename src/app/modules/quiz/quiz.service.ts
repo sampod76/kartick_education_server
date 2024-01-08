@@ -13,7 +13,7 @@ import { Quiz } from './quiz.model';
 
 const { ObjectId } = mongoose.Types;
 const createQuizByDb = async (payload: IQuiz): Promise<IQuiz> => {
-  const result = (await Quiz.create(payload))
+  const result = await Quiz.create(payload);
   return result;
 };
 
@@ -52,7 +52,7 @@ const getAllQuizFromDb = async (
   if (Object.keys(filtersData).length) {
     andConditions.push({
       $and: Object.entries(filtersData).map(([field, value]) =>
-         field === 'module'
+        field === 'module'
           ? { [field]: new Types.ObjectId(value) }
           : { [field]: value }
       ),
@@ -101,16 +101,17 @@ const getAllQuizFromDb = async (
           // Additional stages for collection2
           // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
 
-          // {
-          //   $project: {
-          //     __v: 0,
-          //   },
-          // },
+          {
+            $project: {
+              title: 1,
+              module_number: 1,
+            },
+          },
         ],
         as: 'moduleDetails',
       },
     },
-    
+
     {
       $project: { module: 0 },
     },
@@ -131,7 +132,50 @@ const getAllQuizFromDb = async (
     {
       $unwind: '$module',
     },
-   
+    {
+      $lookup: {
+        from: 'lessons',
+        let: { id: '$lesson' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$_id', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+
+          {
+            $project: {
+              title: 1,
+              lesson_number: 1,
+            },
+          },
+        ],
+        as: 'lessonDetails',
+      },
+    },
+
+    {
+      $project: { lesson: 0 },
+    },
+    {
+      $addFields: {
+        lesson: {
+          $cond: {
+            if: { $eq: [{ $size: '$lessonDetails' }, 0] },
+            then: [{}],
+            else: '$lessonDetails',
+          },
+        },
+      },
+    },
+    {
+      $project: { lessonDetails: 0 },
+    },
+    {
+      $unwind: '$lesson',
+    },
   ];
 
   let result = null;
@@ -155,11 +199,235 @@ const getAllQuizFromDb = async (
 };
 
 // get single e form db
-const getSingleQuizFromDb = async (
-  id: string
-): Promise<IQuiz | null> => {
+const getSingleQuizFromDb = async (id: string): Promise<IQuiz | null> => {
   const result = await Quiz.aggregate([
     { $match: { _id: new ObjectId(id) } },
+    {
+      $lookup: {
+        from: 'lessons',
+        let: { id: '$lesson' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$_id', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+          {
+            $lookup: {
+              from: 'modules',
+              let: { id: '$module' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ['$_id', '$$id'] },
+                    // Additional filter conditions for collection2
+                  },
+                },
+                {
+                  $lookup: {
+                    from: 'milestones',
+                    let: { id: '$milestone' },
+                    pipeline: [
+                      {
+                        $match: {
+                          $expr: { $eq: ['$_id', '$$id'] },
+                          // Additional filter conditions for collection2
+                        },
+                      },
+                      // Additional stages for collection2
+                      {
+                        $lookup: {
+                          from: 'courses',
+                          let: { id: '$course' },
+                          pipeline: [
+                            {
+                              $match: {
+                                $expr: { $eq: ['$_id', '$$id'] },
+                                // Additional filter conditions for collection2
+                              },
+                            },
+                            // Additional stages for collection2
+                            {
+                              $lookup: {
+                                from: 'categories',
+                                let: { id: '$category' },
+                                pipeline: [
+                                  {
+                                    $match: {
+                                      $expr: { $eq: ['$_id', '$$id'] },
+                                      // Additional filter conditions for collection2
+                                    },
+                                  },
+                                  // Additional stages for collection2
+                                  // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+          
+                                  {
+                                    $project: {
+                                      title: 1,
+                                    },
+                                  },
+                                ],
+                                as: 'categoryDetails',
+                              },
+                            },
+                            {
+                              $project: { category: 0 },
+                            },
+                            {
+                              $addFields: {
+                                category: {
+                                  $cond: {
+                                    if: { $eq: [{ $size: '$categoryDetails' }, 0] },
+                                    then: [{}],
+                                    else: '$categoryDetails',
+                                  },
+                                },
+                              },
+                            },
+          
+                            {
+                              $project: { categoryDetails: 0 },
+                            },
+                            {
+                              $unwind: '$category',
+                            },
+          
+                            //! ///////
+          
+                            {
+                              $project: {
+                                title: 1,
+                                category: 1,
+                              },
+                            },
+                          ],
+                          as: 'courseDetails',
+                        },
+                      },
+                      {
+                        $project: { milestone: 0 },
+                      },
+                      {
+                        $addFields: {
+                          course: {
+                            $cond: {
+                              if: { $eq: [{ $size: '$courseDetails' }, 0] },
+                              then: [{}],
+                              else: '$courseDetails',
+                            },
+                          },
+                        },
+                      },
+          
+                      {
+                        $project: { courseDetails: 0 },
+                      },
+                      {
+                        $unwind: '$course',
+                      },
+          
+                      //! ////////////////////////
+          
+                      {
+                        $project: {
+                          title: 1,
+                          course: 1,
+                          milestone_number: 1,
+                        },
+                      },
+                    ],
+                    as: 'milestoneDetails',
+                  },
+                },
+                {
+                  $project: { milestone: 0 },
+                },
+                {
+                  $addFields: {
+                    milestone: {
+                      $cond: {
+                        if: { $eq: [{ $size: '$milestoneDetails' }, 0] },
+                        then: [{}],
+                        else: '$milestoneDetails',
+                      },
+                    },
+                  },
+                },
+                {
+                  $project: { milestoneDetails: 0 },
+                },
+                {
+                  $unwind: '$milestone',
+                },
+      
+                {
+                  $project: {
+                    title: 1,
+                    milestone:1,
+                    module_number: 1,
+                  },
+                },
+              ],
+              as: 'moduleDetails',
+            },
+          },
+      
+          {
+            $project: { module: 0 },
+          },
+          {
+            $addFields: {
+              module: {
+                $cond: {
+                  if: { $eq: [{ $size: '$moduleDetails' }, 0] },
+                  then: [{}],
+                  else: '$moduleDetails',
+                },
+              },
+            },
+          },
+      
+          {
+            $project: { moduleDetails: 0 },
+          },
+          {
+            $unwind: '$module',
+          },
+
+          {
+            $project: {
+              title: 1,
+              lesson_number: 1,
+              module:1,
+            },
+          },
+        ],
+        as: 'lessonDetails',
+      },
+    },
+
+    {
+      $project: { lesson: 0 },
+    },
+    {
+      $addFields: {
+        lesson: {
+          $cond: {
+            if: { $eq: [{ $size: '$lessonDetails' }, 0] },
+            then: [{}],
+            else: '$lessonDetails',
+          },
+        },
+      },
+    },
+    {
+      $project: { lessonDetails: 0 },
+    },
+    {
+      $unwind: '$lesson',
+    },
+
   ]);
 
   return result[0];
@@ -199,7 +467,7 @@ const deleteQuizByIdFromDb = async (
   if (query.delete === ENUM_YN.YES) {
     result = await Quiz.findByIdAndDelete(id);
   } else {
-    result = await Quiz.findOneAndUpdate({ status: ENUM_STATUS.DEACTIVATE });
+    result = await Quiz.findOneAndUpdate({_id:id},{ status: ENUM_STATUS.DEACTIVATE });
   }
   return result;
 };

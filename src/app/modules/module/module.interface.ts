@@ -9,6 +9,7 @@ export type IModuleFilters = {
   milestone?: string;
   select?: string;
   delete?: "yes" | "no" ;
+  lesson_quiz?: "yes" | "no" ;
   // other query parameters
 };
 

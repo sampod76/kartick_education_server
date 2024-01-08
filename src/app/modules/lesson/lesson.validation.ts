@@ -4,7 +4,7 @@ import { STATUS_ARRAY } from '../../../constant/globalConstant';
 const createLessonZodSchema = z.object({
   body: z.object({
     title: z.string({ required_error: 'title field is required' }),
-    img: z.string().url().optional(),
+    imgs: z.array(z.string().url().optional()).optional(),
     videos: z.array(z.object({ platform: z.string().optional(), link: z.string().url() })),
     details: z.string().optional(),
     short_description: z.string().optional(),
@@ -21,7 +21,7 @@ const createLessonZodSchema = z.object({
 const updateLessonZodSchema = z.object({
   body: z.object({
     title: z.string().optional(),
-    img: z.string().url().optional(),
+    imgs: z.array(z.string().url().optional()).optional(),
     details: z.string().optional(),
     short_description: z.string().optional(),
     author: z.string().optional(),

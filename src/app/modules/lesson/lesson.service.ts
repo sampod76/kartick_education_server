@@ -62,7 +62,7 @@ const getAllLessonFromDb = async (
   if (Object.keys(filtersData).length) {
     andConditions.push({
       $and: Object.entries(filtersData).map(([field, value]) =>
-         field === 'module'
+        field === 'module'
           ? { [field]: new Types.ObjectId(value) }
           : { [field]: value }
       ),
@@ -120,7 +120,7 @@ const getAllLessonFromDb = async (
         as: 'moduleDetails',
       },
     },
-    
+
     {
       $project: { module: 0 },
     },
@@ -135,23 +135,22 @@ const getAllLessonFromDb = async (
         },
       },
     },
-   
+
     {
       $project: { moduleDetails: 0 },
     },
     {
       $unwind: '$module',
     },
-   
   ];
 
   let result = null;
   if (select) {
     result = await Lesson.find(whereConditions)
-    .sort({ ...sortConditions })
-    .skip(Number(skip))
-    .limit(Number(limit))
-    .select({ ...projection });
+      .sort({ ...sortConditions })
+      .skip(Number(skip))
+      .limit(Number(limit))
+      .select({ ...projection });
   } else {
     result = await Lesson.aggregate(pipeline);
   }
@@ -168,11 +167,190 @@ const getAllLessonFromDb = async (
 };
 
 // get single e form db
-const getSingleLessonFromDb = async (
-  id: string
-): Promise<ILesson | null> => {
+const getSingleLessonFromDb = async (id: string): Promise<ILesson | null> => {
   const result = await Lesson.aggregate([
     { $match: { _id: new ObjectId(id) } },
+    {
+      $lookup: {
+        from: 'modules',
+        let: { id: '$module' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$_id', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+          {
+            $lookup: {
+              from: 'milestones',
+              let: { id: '$milestone' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ['$_id', '$$id'] },
+                    // Additional filter conditions for collection2
+                  },
+                },
+                // Additional stages for collection2
+                {
+                  $lookup: {
+                    from: 'courses',
+                    let: { id: '$course' },
+                    pipeline: [
+                      {
+                        $match: {
+                          $expr: { $eq: ['$_id', '$$id'] },
+                          // Additional filter conditions for collection2
+                        },
+                      },
+                      // Additional stages for collection2
+                      {
+                        $lookup: {
+                          from: 'categories',
+                          let: { id: '$category' },
+                          pipeline: [
+                            {
+                              $match: {
+                                $expr: { $eq: ['$_id', '$$id'] },
+                                // Additional filter conditions for collection2
+                              },
+                            },
+                            // Additional stages for collection2
+                            // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+    
+                            {
+                              $project: {
+                                title: 1,
+                              },
+                            },
+                          ],
+                          as: 'categoryDetails',
+                        },
+                      },
+                      {
+                        $project: { category: 0 },
+                      },
+                      {
+                        $addFields: {
+                          category: {
+                            $cond: {
+                              if: { $eq: [{ $size: '$categoryDetails' }, 0] },
+                              then: [{}],
+                              else: '$categoryDetails',
+                            },
+                          },
+                        },
+                      },
+    
+                      {
+                        $project: { categoryDetails: 0 },
+                      },
+                      {
+                        $unwind: '$category',
+                      },
+    
+                      //! ///////
+    
+                      {
+                        $project: {
+                          title: 1,
+                          category: 1,
+                        },
+                      },
+                    ],
+                    as: 'courseDetails',
+                  },
+                },
+                {
+                  $project: { milestone: 0 },
+                },
+                {
+                  $addFields: {
+                    course: {
+                      $cond: {
+                        if: { $eq: [{ $size: '$courseDetails' }, 0] },
+                        then: [{}],
+                        else: '$courseDetails',
+                      },
+                    },
+                  },
+                },
+    
+                {
+                  $project: { courseDetails: 0 },
+                },
+                {
+                  $unwind: '$course',
+                },
+    
+                //! ////////////////////////
+    
+                {
+                  $project: {
+                    title: 1,
+                    course: 1,
+                    milestone_number: 1,
+                  },
+                },
+              ],
+              as: 'milestoneDetails',
+            },
+          },
+          {
+            $project: { milestone: 0 },
+          },
+          {
+            $addFields: {
+              milestone: {
+                $cond: {
+                  if: { $eq: [{ $size: '$milestoneDetails' }, 0] },
+                  then: [{}],
+                  else: '$milestoneDetails',
+                },
+              },
+            },
+          },
+          {
+            $project: { milestoneDetails: 0 },
+          },
+          {
+            $unwind: '$milestone',
+          },
+
+          {
+            $project: {
+              title: 1,
+              milestone:1,
+              module_number: 1,
+            },
+          },
+        ],
+        as: 'moduleDetails',
+      },
+    },
+
+    {
+      $project: { module: 0 },
+    },
+    {
+      $addFields: {
+        module: {
+          $cond: {
+            if: { $eq: [{ $size: '$moduleDetails' }, 0] },
+            then: [{}],
+            else: '$moduleDetails',
+          },
+        },
+      },
+    },
+
+    {
+      $project: { moduleDetails: 0 },
+    },
+    {
+      $unwind: '$module',
+    },
   ]);
 
   return result[0];
@@ -212,7 +390,7 @@ const deleteLessonByIdFromDb = async (
   if (query.delete === ENUM_YN.YES) {
     result = await Lesson.findByIdAndDelete(id);
   } else {
-    result = await Lesson.findOneAndUpdate({ status: ENUM_STATUS.DEACTIVATE });
+    result = await Lesson.findOneAndUpdate({_id:id},{ status: ENUM_STATUS.DEACTIVATE });
   }
   return result;
 };

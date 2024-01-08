@@ -282,17 +282,19 @@ const updateSingleQuizFromDb = async (
   id: string,
   payload: Partial<ISingleQuiz>
 ): Promise<ISingleQuiz | null> => {
-  const { demo_video, ...otherData } = payload;
-  const updateData = { ...otherData };
-  if (demo_video && Object.keys(demo_video).length > 0) {
-    Object.keys(demo_video).forEach(key => {
-      const demo_videoKey = `demo_video.${key}`; // `demo_video.status`
-      (updateData as any)[demo_videoKey] =
-        demo_video[key as keyof typeof demo_video];
-    });
-  }
+  console.log('🚀 ~ file: single_quiz.service.ts:285 ~ id:', id);
+  // const { /* demo_video,  */ ...otherData } = payload;
+  // console.log('🚀 ~ file: single_quiz.service.ts:286 ~ payload:', payload);
+  // const updateData = { ...otherData };
+  // if (demo_video && Object.keys(demo_video).length > 0) {
+  //   Object.keys(demo_video).forEach(key => {
+  //     const demo_videoKey = `demo_video.${key}`; // `demo_video.status`
+  //     (updateData as any)[demo_videoKey] =
+  //       demo_video[key as keyof typeof demo_video];
+  //   });
+  // }
 
-  const result = await SingleQuiz.findOneAndUpdate({ _id: id }, updateData, {
+  const result = await SingleQuiz.findOneAndUpdate({ _id: id }, payload, {
     new: true,
     runValidators: true,
   });
@@ -311,7 +313,7 @@ const deleteSingleQuizByIdFromDb = async (
   if (query.delete === ENUM_YN.YES) {
     result = await SingleQuiz.findByIdAndDelete(id);
   } else {
-    result = await SingleQuiz.findOneAndUpdate({
+    result = await SingleQuiz.findOneAndUpdate({_id:id},{
       status: ENUM_STATUS.DEACTIVATE,
     });
   }

@@ -19,7 +19,7 @@ export type ILessonSearchableField = {
 
 export type ILesson = {
   title: string;
-  img?: string;
+  imgs?: string[];
   details?: string;
   short_description?: string;
   lecture: number;
