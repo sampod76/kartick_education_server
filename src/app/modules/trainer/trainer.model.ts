@@ -37,6 +37,9 @@ const TrainerSchema = new Schema<ITrainer, TrainerModel>(
     address: {
       type: String,
     },
+    user_bio: {
+      type: String,
+    },
     img: {
       type: String,
     },

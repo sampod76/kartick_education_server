@@ -33,6 +33,7 @@ const updateSeller = z.object({
       .string()
       .optional(),
     img: z.string().optional(),
+    user_bio: z.string().optional(),
   }),
 });
 

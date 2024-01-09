@@ -17,7 +17,8 @@ export type ICourseFilters = {
 
 export type ICourseSearchableField = {
   title?: string;
-  details?: string;
+  short_description?: string;
+  favorite?: string;
 };
 
 export type ICourse = {

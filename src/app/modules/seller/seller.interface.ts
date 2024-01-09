@@ -15,6 +15,7 @@ export type ISeller = {
   address: string;
   img: string;
   details?: string;
+  user_bio?: string;
 };
 
 export type SellerModel = Model<ISeller, Record<string, unknown>>;

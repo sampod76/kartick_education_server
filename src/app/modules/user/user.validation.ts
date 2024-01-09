@@ -68,6 +68,7 @@ const createAdminZodSchema = z.object({
       email: z.string().email().optional(),
       phoneNumber: z.string().optional(),
       address: z.string().optional(),
+      user_bio: z.string().optional(),
       img: z.string().optional(),
     }),
   }),
@@ -89,6 +90,7 @@ const createSellerZodSchema = z.object({
       phoneNumber: z.string().optional(),
       address: z.string().optional(),
       img: z.string().optional(),
+      user_bio: z.string().optional(),
     }),
   }),
 });
@@ -109,6 +111,7 @@ const createTrainerZodSchema = z.object({
       phoneNumber: z.string().optional(),
       address: z.string().optional(),
       img: z.string().optional(),
+      user_bio: z.string().optional(),
     }),
   }),
 });
