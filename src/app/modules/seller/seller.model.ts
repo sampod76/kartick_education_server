@@ -36,6 +36,9 @@ const SellerSchema = new Schema<ISeller, SellerModel>(
     address: {
       type: String,
     },
+    user_bio: {
+      type: String,
+    },
     img: {
       type: String,
     },

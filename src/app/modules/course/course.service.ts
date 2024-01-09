@@ -14,11 +14,6 @@ import { generateCourseId } from './course.utils';
 
 const { ObjectId } = mongoose.Types;
 const createCourseByDb = async (payload: ICourse): Promise<ICourse> => {
-  const isExists = await Course.isCourseExistMethod({ title: payload.title });
-
-  if (isExists) {
-    throw new ApiError(403, 'Already Exist this title');
-  }
   payload.snid = await generateCourseId();
   const result = await Course.create(payload);
   return result;
@@ -184,7 +179,7 @@ const getAllCourseFromDb = async (
       },
     },
     {
-      $project: { categoryDetails: 0 },
+      $project: { categoryDetails: 0, details: 0 },
     },
     {
       $unwind: '$category',
@@ -219,7 +214,7 @@ const getAllCourseMilestoneModuleListFromDb = async (
 ): Promise<IGenericResponse<ICourse[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-console.log(select);
+  console.log(select);
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -284,7 +279,7 @@ console.log(select);
   const pipeline: PipelineStage[] = [
     { $match: whereConditions },
     { $sort: sortConditions },
-   
+
     {
       $lookup: {
         from: 'milestones',
@@ -566,7 +561,7 @@ const updateCourseFromDb = async (
 ): Promise<ICourse | null> => {
   const { demo_video, ...otherData } = payload;
   const updateData = { ...otherData };
-console.log(updateData,id);
+  console.log(updateData, id);
   if (demo_video && Object.keys(demo_video).length > 0) {
     Object.keys(demo_video).forEach(key => {
       const demo_videoKey = `demo_video.${key}`; // `demo_video.status`
@@ -593,7 +588,10 @@ const deleteCourseByIdFromDb = async (
   if (query.delete === ENUM_YN.YES) {
     result = await Course.findByIdAndDelete(id);
   } else {
-    result = await Course.findOneAndUpdate({_id:id},{ status: ENUM_STATUS.DEACTIVATE });
+    result = await Course.findOneAndUpdate(
+      { _id: id },
+      { status: ENUM_STATUS.DEACTIVATE }
+    );
   }
   return result;
 };
