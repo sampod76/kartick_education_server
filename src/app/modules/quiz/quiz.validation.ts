@@ -13,8 +13,12 @@ const createQuizZodSchema = z.object({
     //
     serial_number: z.number().min(0).optional(),
     author: z.string().optional(),
-    lesson: z.string().optional(),
+    course: z.string({ required_error: 'course field is required' }),
+    category: z.string({ required_error: 'category field is required' }),
+    milestone: z.string({ required_error: 'milestone field is required' }),
     module: z.string({ required_error: 'module field is required' }),
+    lesson: z.string({ required_error: 'lesson field is required' }).optional(),
+
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
     demo_video: z.object({}).optional(),
     tags: z.array(z.string()).optional(),
@@ -30,11 +34,15 @@ const updateQuizZodSchema = z.object({
     passingGrade: z.number().min(0).max(100).optional(),
     minus_skip: z.boolean().optional(),
 
-    //
     serial_number: z.number().min(0).optional(),
+    //
     author: z.string().optional(),
-    lesson: z.string().optional(),
+    course: z.string().optional(),
+    category: z.string().optional(),
+    milestone: z.string().optional(),
     module: z.string().optional(),
+    lesson: z.string().optional(),
+
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
     demo_video: z.object({}).optional(),
     tags: z.array(z.string()).optional(),

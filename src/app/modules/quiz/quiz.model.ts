@@ -37,6 +37,19 @@ const quizSchema = new Schema<IQuiz, QuizModel>(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
+  //
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+    },
+    course: {
+      type: Schema.Types.ObjectId,
+      ref: 'Course',
+    },
+    milestone: {
+      type: Schema.Types.ObjectId,
+      ref: 'Milestone',
+    },
     module: {
       type: Schema.Types.ObjectId,
       ref: 'Module',
@@ -45,6 +58,7 @@ const quizSchema = new Schema<IQuiz, QuizModel>(
       type: Schema.Types.ObjectId,
       ref: 'Lesson',
     },
+    //
     status: {
       type: String,
       enum: STATUS_ARRAY,

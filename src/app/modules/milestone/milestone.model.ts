@@ -29,6 +29,10 @@ const milestoneSchema = new Schema<IMilestone, MilestoneModel>(
       type: Schema.Types.ObjectId,
       ref: 'Course',
     },
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+    },
     status: {
       type: String,
       enum: STATUS_ARRAY,

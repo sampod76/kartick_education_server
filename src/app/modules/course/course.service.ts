@@ -26,6 +26,7 @@ const getAllCourseFromDb = async (
 ): Promise<IGenericResponse<ICourse[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
+  console.log("🚀 ~ filtersData:", filtersData)
 
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};

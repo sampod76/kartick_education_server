@@ -1,6 +1,8 @@
 import { Model, Types } from 'mongoose';
 import { IMilestone } from '../milestone/milestone.interface';
 import { IUser } from '../user/user.interface';
+import { ICourse } from '../course/course.interface';
+import { ICategory } from '../category/interface.category';
 
 
 export type IModuleFilters = {
@@ -24,6 +26,8 @@ export type IModule = {
   details?: string;
   short_description?: string;
   author?: Types.ObjectId | IUser;
+  category: Types.ObjectId | ICategory | string;
+  course: Types.ObjectId | ICourse | string;
   milestone: Types.ObjectId | IMilestone | string;
   status: 'active' | 'deactivate' | 'save';
   module_number?: number;

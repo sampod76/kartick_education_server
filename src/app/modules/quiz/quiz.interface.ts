@@ -3,6 +3,9 @@ import { IUser } from '../user/user.interface';
 
 import { IModule } from '../module/module.interface';
 import { ILesson } from '../lesson/lesson.interface';
+import { ICategory } from '../category/interface.category';
+import { ICourse } from '../course/course.interface';
+import { IMilestone } from '../milestone/milestone.interface';
 
 export type IQuizFilters = {
   searchTerm?: string;
@@ -28,9 +31,14 @@ export type IQuiz = {
   passingGrade?: number;
   minus_skip?: boolean;
   //
+  category: Types.ObjectId | ICategory | string;
+  course: Types.ObjectId | ICourse | string;
+  milestone: Types.ObjectId | IMilestone | string;
+  module: Types.ObjectId | IModule | string;
   lesson?: Types.ObjectId | ILesson;
+  //
   author?: Types.ObjectId | IUser;
-  module: Types.ObjectId | IModule ;
+
   status: 'active' | 'deactivate' | 'save';
   demo_video?: Record<string, string>;
   tags?: string[];
