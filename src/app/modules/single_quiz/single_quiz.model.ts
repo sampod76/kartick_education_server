@@ -74,6 +74,27 @@ const singleQuizSchema = new Schema<ISingleQuiz, SingleQuizModel>(
       type: String,
       trim: true,
     },
+    //
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+    },
+    course: {
+      type: Schema.Types.ObjectId,
+      ref: 'Course',
+    },
+    milestone: {
+      type: Schema.Types.ObjectId,
+      ref: 'Milestone',
+    },
+    module: {
+      type: Schema.Types.ObjectId,
+      ref: 'Module',
+    },
+    lesson: {
+      type: Schema.Types.ObjectId,
+      ref: 'Lesson',
+    },
     quiz: {
       type: Schema.Types.ObjectId,
       ref: 'Quiz',
@@ -82,11 +103,7 @@ const singleQuizSchema = new Schema<ISingleQuiz, SingleQuizModel>(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    module: {
-      type: Schema.Types.ObjectId,
-      ref: 'Module',
-      
-    },
+   //
 
     status: {
       type: String,

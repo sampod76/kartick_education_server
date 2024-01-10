@@ -26,6 +26,20 @@ const lessonSchema = new Schema<ILesson, LessonModel>(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
+   
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+    },
+    course: {
+      type: Schema.Types.ObjectId,
+      ref: 'Course',
+    },
+    
+    milestone: {
+      type: Schema.Types.ObjectId,
+      ref: 'Milestone',
+    },
     module: {
       type: Schema.Types.ObjectId,
       ref: 'Module',
