@@ -17,6 +17,7 @@ const getAllTrainersDB = async (
   paginationOptions: IPaginationOption
 ): Promise<IGenericResponse<ITrainer[]>> => {
   const { searchTerm, ...filtersData } = filters;
+  
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelper.calculatePagination(paginationOptions);
 

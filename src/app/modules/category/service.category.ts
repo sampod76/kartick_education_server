@@ -4,6 +4,7 @@ import { paginationHelper } from '../../../helper/paginationHelper';
 import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 
+import { ENUM_STATUS } from '../../../enums/globalEnums';
 import ApiError from '../../errors/ApiError';
 import { CATEGORY_SEARCHABLE_FIELDS } from './consent.category';
 import { ICategory, ICategoryFilters } from './interface.category';
@@ -26,6 +27,7 @@ const getAllCategoryFromDb = async (
 ): Promise<IGenericResponse<ICategory[]>> => {
   //****************search and filters start************/
   const { searchTerm, ...filtersData } = filters;
+   filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
   const andConditions = [];
   if (searchTerm) {
     andConditions.push({
@@ -128,6 +130,7 @@ const getAllCategoryChildrenTitleFromDb = async (
 ): Promise<IGenericResponse<ICategory[]>> => {
   //****************search and filters start************/
   const { searchTerm, children, ...filtersData } = filters;
+   filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
   const andConditions = [];
   if (searchTerm) {
     andConditions.push({

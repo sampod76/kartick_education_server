@@ -24,7 +24,7 @@ const getAllQuizFromDb = async (
 ): Promise<IGenericResponse<IQuiz[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-
+  filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {

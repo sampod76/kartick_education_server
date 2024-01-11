@@ -26,6 +26,9 @@ const getAllUsers = async (
   paginationOptions: IPaginationOption
 ): Promise<IGenericResponse<IUser[]>> => {
   const { searchTerm, multipleRole, ...filtersData } = filters;
+  filtersData.status = filtersData.status
+    ? filtersData.status
+    : ENUM_STATUS.ACTIVE;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelper.calculatePagination(paginationOptions);
 
@@ -159,7 +162,7 @@ const createAdminService = async (
   user.role = ENUM_USER_ROLE.ADMIN;
 
   let newUserAllData = null;
-  const newAdmin = await Admin.create(admin)
+  const newAdmin = await Admin.create(admin);
   if (newAdmin) {
     user.admin = newAdmin?._id;
     newUserAllData = await User.create(user);
@@ -226,7 +229,7 @@ const createStudentService = async (
     user.student = newStudent?._id;
     newUserAllData = await User.create(user);
   } else {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     await Student.findByIdAndDelete(newStudent._id);
     throw new ApiError(404, 'Admin create failed');
@@ -286,7 +289,7 @@ const createTrainerService = async (
     user.trainer = newTrainer?._id;
     newUserAllData = await User.create(user);
   } else {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     await Trainer.findByIdAndDelete(newTrainer._id);
     throw new ApiError(404, 'Admin create failed');
@@ -341,7 +344,7 @@ const createSellerService = async (
     user.seller = newSeller?._id;
     newUserAllData = await User.create(user);
   } else {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     await Seller.findByIdAndDelete(newSeller._id);
     throw new ApiError(404, 'Admin create failed');

@@ -35,7 +35,7 @@ const getAllMilestoneFromDb = async (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { searchTerm, select, module: isModule, ...filtersData } = filters;
   console.log("🚀 ~ file: milestone.service.ts:37 ~ filters:", filters)
-
+  filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {

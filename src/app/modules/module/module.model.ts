@@ -25,10 +25,20 @@ const moduleSchema = new Schema<IModule,ModuleModel>(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
+    //
+    course: {
+      type: Schema.Types.ObjectId,
+      ref: 'Course',
+    },
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+    },
     milestone: {
       type: Schema.Types.ObjectId,
       ref: 'Milestone',
     },
+    //
     status: {
       type: String,
       enum: STATUS_ARRAY,

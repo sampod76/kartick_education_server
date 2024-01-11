@@ -4,9 +4,11 @@ import { STATUS_ARRAY } from '../../../constant/globalConstant';
 const createModuleZodSchema = z.object({
   body: z.object({
     title: z.string({ required_error: 'title field is required' }),
+    //
     category: z.string().optional(),
     course: z.string().optional(),
     milestone: z.string({ required_error: 'milestone field is required' }),
+    //
     imgs: z.array(z.string().url().optional()).optional(),
     details: z.string().optional(),
     short_description: z.string().optional(),
@@ -21,9 +23,11 @@ const createModuleZodSchema = z.object({
 const updateModuleZodSchema = z.object({
   body: z.object({
     title: z.string().optional(),
+    //
     category: z.string().optional(),
     course: z.string().optional(),
     milestone: z.string().optional(),
+    //
     imgs: z.array(z.string().url().optional()).optional(),
     details: z.string().optional(),
     short_description: z.string().optional(),

@@ -17,6 +17,7 @@ const getAllSellersDB = async (
   paginationOptions: IPaginationOption
 ): Promise<IGenericResponse<ISeller[]>> => {
   const { searchTerm, ...filtersData } = filters;
+  filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelper.calculatePagination(paginationOptions);
 

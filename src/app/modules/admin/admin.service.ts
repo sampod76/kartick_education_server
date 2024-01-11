@@ -17,7 +17,7 @@ const getAllAdminsDB = async (
   paginationOptions: IPaginationOption
 ): Promise<IGenericResponse<IAdmin[]>> => {
   const { searchTerm, select, ...filtersData } = filters;
-
+   filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {

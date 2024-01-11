@@ -52,6 +52,7 @@ const getAllFileUploadeFromDb = async (
 ): Promise<IGenericResponse<IFileUploade[]>> => {
   //****************search and filters start************/
   const { searchTerm, ...filtersData } = filters;
+  
   const andConditions = [];
   if (searchTerm) {
     andConditions.push({

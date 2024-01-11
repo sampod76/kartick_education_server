@@ -26,7 +26,8 @@ const getAllCourseFromDb = async (
 ): Promise<IGenericResponse<ICourse[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-  console.log("🚀 ~ filtersData:", filtersData)
+
+  filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
 
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
@@ -215,7 +216,7 @@ const getAllCourseMilestoneModuleListFromDb = async (
 ): Promise<IGenericResponse<ICourse[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-  console.log(select);
+  filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {

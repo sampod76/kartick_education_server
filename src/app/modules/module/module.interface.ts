@@ -26,9 +26,11 @@ export type IModule = {
   details?: string;
   short_description?: string;
   author?: Types.ObjectId | IUser;
+  //
   category: Types.ObjectId | ICategory | string;
   course: Types.ObjectId | ICourse | string;
   milestone: Types.ObjectId | IMilestone | string;
+  //
   status: 'active' | 'deactivate' | 'save';
   module_number?: number;
   demo_video?: Record<string, string>;

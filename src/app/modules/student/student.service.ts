@@ -18,6 +18,7 @@ const getAllStudents = async (
   paginationOptions: IPaginationOption
 ): Promise<IGenericResponse<IStudent[]>> => {
   const { searchTerm, ...filtersData } = filters;
+
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelper.calculatePagination(paginationOptions);
 

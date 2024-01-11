@@ -9,6 +9,7 @@ const courseSchema = new Schema<ICourse, CourseModel>(
       type: String,
       trim: true,
       index: true,
+      required: true,
     },
     snid: {
       type: String,
@@ -31,6 +32,7 @@ const courseSchema = new Schema<ICourse, CourseModel>(
     category: {
       type: Schema.Types.ObjectId,
       ref: 'Category',
+      required: true,
     },
     // sub1_course_category_id: {
     //   type: Schema.Types.ObjectId,
@@ -63,7 +65,6 @@ const courseSchema = new Schema<ICourse, CourseModel>(
 
     showing_number: {
       type: Number,
-      default: 9999,
     },
     favorite: {
       type: String,

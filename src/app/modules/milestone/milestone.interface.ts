@@ -26,6 +26,7 @@ export type IMilestone = {
   details?: string;
   short_description?: string;
   author: Types.ObjectId;
+  //
   course: Types.ObjectId | ICourse | string;
   category: Types.ObjectId | ICategory | string;
   // sub1_Milestone_category_id: Types.ObjectId;
