@@ -34,7 +34,9 @@ const getAllModuleFromDb = async (
 ): Promise<IGenericResponse<IModule[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-  filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
+  filtersData.status = filtersData.status
+    ? filtersData.status
+    : ENUM_STATUS.ACTIVE;
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -62,7 +64,11 @@ const getAllModuleFromDb = async (
   if (Object.keys(filtersData).length) {
     andConditions.push({
       $and: Object.entries(filtersData).map(([field, value]) =>
-        field === 'milestone'
+        field === 'category'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'course'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'milestone'
           ? { [field]: new Types.ObjectId(value) }
           : { [field]: value }
       ),
@@ -401,7 +407,10 @@ const deleteModuleByIdFromDb = async (
   if (query.delete === ENUM_YN.YES) {
     result = await Module.findByIdAndDelete(id);
   } else {
-    result = await Module.findOneAndUpdate({_id:id},{ status: ENUM_STATUS.DEACTIVATE });
+    result = await Module.findOneAndUpdate(
+      { _id: id },
+      { status: ENUM_STATUS.DEACTIVATE }
+    );
   }
   return result;
 };

@@ -1,10 +1,10 @@
 import express from 'express';
 
+import { ENUM_USER_ROLE } from '../../../enums/users';
+import authMiddleware from '../../middlewares/authMiddleware';
+import validateRequestZod from '../../middlewares/validateRequestZod';
 import { AuthController } from './auth.controller';
 import { AuthValidation } from './auth.validation';
-import validateRequestZod from '../../middlewares/validateRequestZod';
-import authMiddleware from '../../middlewares/authMiddleware';
-import { ENUM_USER_ROLE } from '../../../enums/users';
 const router = express.Router();
 
 router.post(
@@ -25,7 +25,19 @@ router.post(
   authMiddleware(
     ENUM_USER_ROLE.ADMIN,
     ENUM_USER_ROLE.MODERATOR,
-    ENUM_USER_ROLE.STUDENT
+    ENUM_USER_ROLE.STUDENT,
+    ENUM_USER_ROLE.SELLER
+  ),
+  AuthController.changePassword
+);
+
+router.post(
+  '/profile',
+  authMiddleware(
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.MODERATOR,
+    ENUM_USER_ROLE.STUDENT,
+    ENUM_USER_ROLE.SELLER
   ),
   AuthController.changePassword
 );

@@ -7,8 +7,11 @@ import { ICategory } from '../category/interface.category';
 export type IMilestoneFilters = {
   searchTerm?: string;
   status?: string;
+  //
   course?: string;
   category?: string;
+  milestone?: string;
+  //
   select?: string;
   delete?: "yes" | "no" ;
   module?: 'yes' | 'no';

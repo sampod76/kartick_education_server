@@ -10,7 +10,12 @@ export type ILessonFilters = {
   searchTerm?: string;
   status?: string;
   select?: string;
+  //
+  category?: string;
+  course?: string;
+  milestone?: string;
   module?: string;
+  //
   delete?: "yes" | "no" ;
   // other query parameters
 };
