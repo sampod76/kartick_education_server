@@ -38,6 +38,8 @@ export type IUser = {
   moderator?: Types.ObjectId | IAdmin;
   superAdmin?: Types.ObjectId | IAdmin;
   teacher?: Types.ObjectId | IAdmin;
+  //
+  author: Types.ObjectId ; // this is author mines which person create this account--> this is IUser
 };
 
 // export type UserModel = Model<IUser, Record<string, unknown>>;

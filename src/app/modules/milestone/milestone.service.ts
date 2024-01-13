@@ -34,8 +34,10 @@ const getAllMilestoneFromDb = async (
   //****************search and filters start************/
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { searchTerm, select, module: isModule, ...filtersData } = filters;
-  console.log("🚀 ~ file: milestone.service.ts:37 ~ filters:", filters)
-  filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
+  console.log('🚀 ~ file: milestone.service.ts:37 ~ filters:', filters);
+  filtersData.status = filtersData.status
+    ? filtersData.status
+    : ENUM_STATUS.ACTIVE;
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -63,7 +65,9 @@ const getAllMilestoneFromDb = async (
   if (Object.keys(filtersData).length) {
     andConditions.push({
       $and: Object.entries(filtersData).map(([field, value]) =>
-        field === 'course'
+        field === 'category'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'course'
           ? { [field]: new Types.ObjectId(value) }
           : { [field]: value }
       ),
@@ -247,9 +251,12 @@ const deleteMilestoneByIdFromDb = async (
   if (query.delete === ENUM_YN.YES) {
     result = await Milestone.findByIdAndDelete(id);
   } else {
-    result = await Milestone.findOneAndUpdate({_id:id},{
-      status: ENUM_STATUS.DEACTIVATE,
-    });
+    result = await Milestone.findOneAndUpdate(
+      { _id: id },
+      {
+        status: ENUM_STATUS.DEACTIVATE,
+      }
+    );
   }
   return result;
 };

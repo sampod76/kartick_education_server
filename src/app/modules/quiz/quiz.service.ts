@@ -24,7 +24,9 @@ const getAllQuizFromDb = async (
 ): Promise<IGenericResponse<IQuiz[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-  filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
+  filtersData.status = filtersData.status
+    ? filtersData.status
+    : ENUM_STATUS.ACTIVE;
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -52,7 +54,15 @@ const getAllQuizFromDb = async (
   if (Object.keys(filtersData).length) {
     andConditions.push({
       $and: Object.entries(filtersData).map(([field, value]) =>
-        field === 'module'
+        field === 'category'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'course'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'milestone'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'module'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'lesson'
           ? { [field]: new Types.ObjectId(value) }
           : { [field]: value }
       ),
@@ -261,7 +271,7 @@ const getSingleQuizFromDb = async (id: string): Promise<IQuiz | null> => {
                                   },
                                   // Additional stages for collection2
                                   // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
-          
+
                                   {
                                     $project: {
                                       title: 1,
@@ -278,23 +288,25 @@ const getSingleQuizFromDb = async (id: string): Promise<IQuiz | null> => {
                               $addFields: {
                                 category: {
                                   $cond: {
-                                    if: { $eq: [{ $size: '$categoryDetails' }, 0] },
+                                    if: {
+                                      $eq: [{ $size: '$categoryDetails' }, 0],
+                                    },
                                     then: [{}],
                                     else: '$categoryDetails',
                                   },
                                 },
                               },
                             },
-          
+
                             {
                               $project: { categoryDetails: 0 },
                             },
                             {
                               $unwind: '$category',
                             },
-          
+
                             //! ///////
-          
+
                             {
                               $project: {
                                 title: 1,
@@ -319,16 +331,16 @@ const getSingleQuizFromDb = async (id: string): Promise<IQuiz | null> => {
                           },
                         },
                       },
-          
+
                       {
                         $project: { courseDetails: 0 },
                       },
                       {
                         $unwind: '$course',
                       },
-          
+
                       //! ////////////////////////
-          
+
                       {
                         $project: {
                           title: 1,
@@ -360,11 +372,11 @@ const getSingleQuizFromDb = async (id: string): Promise<IQuiz | null> => {
                 {
                   $unwind: '$milestone',
                 },
-      
+
                 {
                   $project: {
                     title: 1,
-                    milestone:1,
+                    milestone: 1,
                     module_number: 1,
                   },
                 },
@@ -372,7 +384,7 @@ const getSingleQuizFromDb = async (id: string): Promise<IQuiz | null> => {
               as: 'moduleDetails',
             },
           },
-      
+
           {
             $project: { module: 0 },
           },
@@ -387,7 +399,7 @@ const getSingleQuizFromDb = async (id: string): Promise<IQuiz | null> => {
               },
             },
           },
-      
+
           {
             $project: { moduleDetails: 0 },
           },
@@ -399,7 +411,7 @@ const getSingleQuizFromDb = async (id: string): Promise<IQuiz | null> => {
             $project: {
               title: 1,
               lesson_number: 1,
-              module:1,
+              module: 1,
             },
           },
         ],
@@ -427,7 +439,6 @@ const getSingleQuizFromDb = async (id: string): Promise<IQuiz | null> => {
     {
       $unwind: '$lesson',
     },
-
   ]);
 
   return result[0];
@@ -467,7 +478,10 @@ const deleteQuizByIdFromDb = async (
   if (query.delete === ENUM_YN.YES) {
     result = await Quiz.findByIdAndDelete(id);
   } else {
-    result = await Quiz.findOneAndUpdate({_id:id},{ status: ENUM_STATUS.DEACTIVATE });
+    result = await Quiz.findOneAndUpdate(
+      { _id: id },
+      { status: ENUM_STATUS.DEACTIVATE }
+    );
   }
   return result;
 };

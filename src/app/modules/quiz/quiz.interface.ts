@@ -1,19 +1,24 @@
 import { Model, Types } from 'mongoose';
 import { IUser } from '../user/user.interface';
 
-import { IModule } from '../module/module.interface';
-import { ILesson } from '../lesson/lesson.interface';
 import { ICategory } from '../category/interface.category';
 import { ICourse } from '../course/course.interface';
+import { ILesson } from '../lesson/lesson.interface';
 import { IMilestone } from '../milestone/milestone.interface';
+import { IModule } from '../module/module.interface';
 
 export type IQuizFilters = {
   searchTerm?: string;
   status?: string;
   select?: string;
+  //
+  category?: string;
+  course?: string;
+  milestone?: string;
   module?: string;
   lesson?: string;
-  delete?: "yes" | "no" ;
+ //
+  delete?: 'yes' | 'no';
   // other query parameters
 };
 

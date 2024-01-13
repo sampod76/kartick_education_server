@@ -34,7 +34,9 @@ const getAllLessonFromDb = async (
 ): Promise<IGenericResponse<ILesson[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-  filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
+  filtersData.status = filtersData.status
+    ? filtersData.status
+    : ENUM_STATUS.ACTIVE;
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -62,7 +64,13 @@ const getAllLessonFromDb = async (
   if (Object.keys(filtersData).length) {
     andConditions.push({
       $and: Object.entries(filtersData).map(([field, value]) =>
-        field === 'module'
+        field === 'category'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'course'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'milestone'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'module'
           ? { [field]: new Types.ObjectId(value) }
           : { [field]: value }
       ),
@@ -218,7 +226,7 @@ const getSingleLessonFromDb = async (id: string): Promise<ILesson | null> => {
                             },
                             // Additional stages for collection2
                             // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
-    
+
                             {
                               $project: {
                                 title: 1,
@@ -242,16 +250,16 @@ const getSingleLessonFromDb = async (id: string): Promise<ILesson | null> => {
                           },
                         },
                       },
-    
+
                       {
                         $project: { categoryDetails: 0 },
                       },
                       {
                         $unwind: '$category',
                       },
-    
+
                       //! ///////
-    
+
                       {
                         $project: {
                           title: 1,
@@ -276,16 +284,16 @@ const getSingleLessonFromDb = async (id: string): Promise<ILesson | null> => {
                     },
                   },
                 },
-    
+
                 {
                   $project: { courseDetails: 0 },
                 },
                 {
                   $unwind: '$course',
                 },
-    
+
                 //! ////////////////////////
-    
+
                 {
                   $project: {
                     title: 1,
@@ -321,7 +329,7 @@ const getSingleLessonFromDb = async (id: string): Promise<ILesson | null> => {
           {
             $project: {
               title: 1,
-              milestone:1,
+              milestone: 1,
               module_number: 1,
             },
           },
@@ -390,7 +398,10 @@ const deleteLessonByIdFromDb = async (
   if (query.delete === ENUM_YN.YES) {
     result = await Lesson.findByIdAndDelete(id);
   } else {
-    result = await Lesson.findOneAndUpdate({_id:id},{ status: ENUM_STATUS.DEACTIVATE });
+    result = await Lesson.findOneAndUpdate(
+      { _id: id },
+      { status: ENUM_STATUS.DEACTIVATE }
+    );
   }
   return result;
 };

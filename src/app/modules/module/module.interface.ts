@@ -8,7 +8,10 @@ import { ICategory } from '../category/interface.category';
 export type IModuleFilters = {
   searchTerm?: string;
   status?: string;
+  category?: string;
+  course?: string;
   milestone?: string;
+
   select?: string;
   delete?: "yes" | "no" ;
   lesson_quiz?: "yes" | "no" ;

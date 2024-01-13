@@ -26,7 +26,9 @@ const getAllSingleQuizFromDb = async (
 ): Promise<IGenericResponse<ISingleQuiz[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-  filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
+  filtersData.status = filtersData.status
+    ? filtersData.status
+    : ENUM_STATUS.ACTIVE;
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -54,7 +56,17 @@ const getAllSingleQuizFromDb = async (
   if (Object.keys(filtersData).length) {
     andConditions.push({
       $and: Object.entries(filtersData).map(([field, value]) =>
-        field === 'module'
+        field === 'category'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'course'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'milestone'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'module'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'lesson'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'quiz'
           ? { [field]: new Types.ObjectId(value) }
           : { [field]: value }
       ),
@@ -313,9 +325,12 @@ const deleteSingleQuizByIdFromDb = async (
   if (query.delete === ENUM_YN.YES) {
     result = await SingleQuiz.findByIdAndDelete(id);
   } else {
-    result = await SingleQuiz.findOneAndUpdate({_id:id},{
-      status: ENUM_STATUS.DEACTIVATE,
-    });
+    result = await SingleQuiz.findOneAndUpdate(
+      { _id: id },
+      {
+        status: ENUM_STATUS.DEACTIVATE,
+      }
+    );
   }
   return result;
 };
