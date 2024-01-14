@@ -2,7 +2,6 @@ import bcrypt from 'bcrypt';
 import httpStatus from 'http-status';
 import { JwtPayload, Secret } from 'jsonwebtoken';
 import config from '../../../config';
-
 import { ENUM_STATUS } from '../../../enums/globalEnums';
 import { jwtHelpers } from '../../../helper/jwtHelpers';
 import ApiError from '../../errors/ApiError';
@@ -19,10 +18,11 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   const { email, password } = payload;
 
   const isUserExist = await User.isUserExistMethod(email);
-
+  console.log(isUserExist);
   if (!isUserExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist');
   }
+
   // switch (isUserExist.status) {
   //   case ENUM_STATUS.DEACTIVATE:
   //     throw new ApiError(httpStatus.NOT_FOUND, 'Your account is deactivated');
@@ -31,10 +31,10 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   //       httpStatus.NOT_FOUND,
   //       `Your account is blocked ${isUserExist?.blockingTimeout}`
   //     );
-
   //   default:
   //     null
   // }
+
   if (isUserExist.status === ENUM_STATUS.DEACTIVATE) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Your account is deactivated');
   } else if (isUserExist.status === ENUM_STATUS.BLOCK) {
@@ -52,17 +52,16 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   }
 
   //create access token & refresh token
-
-  const { email: existEmail, role } = isUserExist;
+  const { email: existEmail, role, _id } = isUserExist as any;
 
   const accessToken = jwtHelpers.createToken(
-    { email: existEmail, role },
+    { email: existEmail, role, id: _id },
     config.jwt.secret as Secret,
     config.jwt.expires_in as string
   );
 
   const refreshToken = jwtHelpers.createToken(
-    { email: existEmail, role },
+    { email: existEmail, role, id: _id },
     config.jwt.refresh_secret as Secret,
     config.jwt.refresh_expires_in as string
   );
@@ -89,10 +88,8 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
   const { email } = verifiedToken;
 
   // console.log(verifiedToken,"email..........");
-  // tumi delete hye gso  kintu tumar refresh token ase
-  // checking deleted user's refresh token
 
-  const isUserExist = await User.isUserExistMethod(email);
+  const isUserExist: any = await User.isUserExistMethod(email);
   if (!isUserExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist');
   }
@@ -110,6 +107,7 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
     {
       email: isUserExist.email,
       role: isUserExist.role,
+      id: isUserExist._id,
     },
     config.jwt.secret as Secret,
     config.jwt.expires_in as string
@@ -176,7 +174,7 @@ const changePassword = async (
 };
 
 const forgotPass = async (payload: { id: string }) => {
-  const profile = await User.findById(payload.id).populate('admin',"");
+  const profile = await User.findById(payload.id).populate('admin', '');
 
   if (!profile) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User does not exist!');

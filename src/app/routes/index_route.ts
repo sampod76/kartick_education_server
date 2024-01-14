@@ -18,6 +18,7 @@ import { TrainerRoutes } from '../modules/trainer/trainer.route';
 import { UserRoutes } from '../modules/user/user.route';
 import { GlossaryRoute } from '../modules/glossary/glossary.route';
 import { ResourceRoute } from '../modules/resource/resource.route';
+import { QuizSubmitRoute } from '../modules/quizSubmit/quizSubmit.route';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -88,6 +89,10 @@ const moduleRoutes = [
   {
     path: '/upload',
     route: FileUploadeRoute,
+  },
+  {
+    path: '/quiz_submit',
+    route: QuizSubmitRoute,
   },
 ];
 
