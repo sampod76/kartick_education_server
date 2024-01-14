@@ -3,4 +3,4 @@ export const RESOURCE_SEARCHABLE_FIELDS = [
 // 'details',
 "tags"
 ];
-export const RESOURCE_FILTERABLE_FIELDS = ['searchTerm', 'status',"select","module",'delete'];
+export const RESOURCE_FILTERABLE_FIELDS = ['searchTerm', 'status',"select","module",'delete',"isDelete"];

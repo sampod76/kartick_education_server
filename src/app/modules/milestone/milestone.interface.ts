@@ -15,6 +15,7 @@ export type IMilestoneFilters = {
   select?: string;
   delete?: "yes" | "no" ;
   module?: 'yes' | 'no';
+  isDelete?: string;
   // other query parameters
 };
 
@@ -34,6 +35,7 @@ export type IMilestone = {
   category: Types.ObjectId | ICategory | string;
   // sub1_Milestone_category_id: Types.ObjectId;
   status: 'active' | 'deactivate' | 'save';
+  isDelete: boolean;
   milestone_number?: number;
   favorite: 'yes' | 'no';
   demo_video?: Record<string, string>;

@@ -6,7 +6,16 @@ import { QuizSubmitController } from './quizSubmit.constroller';
 import { QuizSubmitValidation } from './quizSubmit.validation';
 
 const router = express.Router();
-
+router
+  .route('/verify/:id')
+  .get(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.STUDENT
+    ),
+    QuizSubmitController.getVerifyQuizSubmit
+  );
 router
   .route('/')
   .get(QuizSubmitController.getAllQuizSubmit)
@@ -19,15 +28,7 @@ router
     validateRequestZod(QuizSubmitValidation.createQuizSubmitZodSchema),
     QuizSubmitController.createQuizSubmit
   );
-router
-  .route('/verify')
-  .get(
-    authMiddleware(
-      ENUM_USER_ROLE.ADMIN,
-      ENUM_USER_ROLE.SUPER_ADMIN,
-      ENUM_USER_ROLE.STUDENT
-    )
-  );
+
 router
   .route('/:id')
   .get(QuizSubmitController.getSingleQuizSubmit)

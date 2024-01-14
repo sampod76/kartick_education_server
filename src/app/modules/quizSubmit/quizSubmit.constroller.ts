@@ -64,6 +64,17 @@ const getSingleQuizSubmit = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getVerifyQuizSubmit = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await QuizSubmitService.getQuizSubmitVerifyFromDb(id, req.user);
+  sendResponse<IQuizSubmit>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'successfull get  QuizSubmit',
+    data: result,
+  });
+});
+
 const deleteQuizSubmit = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await QuizSubmitService.deleteQuizSubmitByIdFromDb(
@@ -83,4 +94,5 @@ export const QuizSubmitController = {
   getAllQuizSubmit,
   getSingleQuizSubmit,
   deleteQuizSubmit,
+  getVerifyQuizSubmit
 };

@@ -20,6 +20,7 @@ const createQuizZodSchema = z.object({
     lesson: z.string({ required_error: 'lesson field is required' }).optional(),
 
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
+    isDelete: z.boolean().optional(),
     demo_video: z.object({}).optional(),
     tags: z.array(z.string()).optional(),
   }),
@@ -44,6 +45,7 @@ const updateQuizZodSchema = z.object({
     lesson: z.string().optional(),
 
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
+    isDelete: z.boolean().optional(),
     demo_video: z.object({}).optional(),
     tags: z.array(z.string()).optional(),
   }),

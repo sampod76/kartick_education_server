@@ -36,7 +36,10 @@ const ResourceSchema = new Schema<IResource, ResourceModel>(
       enum: STATUS_ARRAY,
       default: 'active',
     },
-    
+    isDelete: {
+      type: Boolean,
+      default: false,
+    },
     demo_video: {
       type: Object,
       default: {},

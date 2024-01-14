@@ -24,6 +24,7 @@ const createCourseZodSchema = z.object({
     price: z.number().min(0).optional(),
     demo_video: z.object({}).optional(),
     tags: z.array(z.string()).optional(),
+    isDelete: z.boolean().optional(),
   }),
 });
 
@@ -48,6 +49,7 @@ const updateCourseZodSchema = z.object({
     showing_number: z.number().min(0).optional(),
     demo_video: z.object({}).optional(),
     tags: z.array(z.string()).optional(),
+    isDelete: z.boolean().optional(),
   }),
 });
 

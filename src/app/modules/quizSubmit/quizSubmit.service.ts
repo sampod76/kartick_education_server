@@ -16,13 +16,10 @@ const createQuizSubmitByDb = async (
   payload: IQuizSubmit,
   user: any
 ): Promise<IQuizSubmit | null> => {
-  console.log('🚀 ~ payload:', payload);
-  console.log('🚀 ~ user:', user);
   const findSubmitQuiz = await QuizSubmit.findOne({
     quiz: new Types.ObjectId(payload.quiz as string),
     user: new Types.ObjectId(user.id as string),
   });
-  console.log('🚀 ~ findSubmitQuiz:', findSubmitQuiz);
 
   let result;
 
@@ -35,7 +32,7 @@ const createQuizSubmitByDb = async (
     if (findExisting) {
       throw new ApiError(400, 'You are already submit this quiz');
     }
-    console.log('🚀 ~ findExisting:', findExisting);
+
     let updateResult;
     if (!findExisting) {
       updateResult = await QuizSubmit.findOneAndUpdate(
@@ -159,6 +156,19 @@ const getAllQuizSubmitFromDb = async (
 };
 
 // get single e form db
+const getQuizSubmitVerifyFromDb = async (
+  id: string,
+  user: any
+): Promise<IQuizSubmit | null> => {
+  console.log("🚀 ~ user:", user)
+  console.log("🚀 ~ id:", id)
+  const findSubmitQuiz = await QuizSubmit.findOne({
+    quiz: new Types.ObjectId(id as string),
+    user: new Types.ObjectId(user.id as string),
+  }).populate("userSubmitQuizzes.singleQuizId");
+
+  return findSubmitQuiz;
+};
 const getQuizSubmitSingelFromDb = async (
   id: string
 ): Promise<IQuizSubmit | null> => {
@@ -191,4 +201,5 @@ export const QuizSubmitService = {
   getAllQuizSubmitFromDb,
   getQuizSubmitSingelFromDb,
   deleteQuizSubmitByIdFromDb,
+  getQuizSubmitVerifyFromDb
 };
