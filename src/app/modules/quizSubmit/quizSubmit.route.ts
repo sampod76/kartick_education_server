@@ -7,7 +7,7 @@ import { QuizSubmitValidation } from './quizSubmit.validation';
 
 const router = express.Router();
 router
-  .route('/verify/:id')
+  .route('/verify/quizId/:id')
   .get(
     authMiddleware(
       ENUM_USER_ROLE.ADMIN,
