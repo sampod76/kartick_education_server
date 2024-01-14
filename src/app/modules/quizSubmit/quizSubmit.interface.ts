@@ -43,12 +43,14 @@ export type IQuizSubmit = {
   module: Types.ObjectId | IModule | string;
   lesson?: Types.ObjectId | ILesson | string;
   //
-  quiz: Types.ObjectId | IQuiz | string;
   user: Types.ObjectId | IUser | string;
+  quiz: Types.ObjectId | IQuiz | string;
+  singleQuiz: Types.ObjectId | IQuiz | string;
   status: 'active' | 'deactivate' | 'save';
   //
-  userSubmitQuizzes: IProvideUserQuiz[];
-  userSubmitQuiz: IProvideUserQuiz;
+  // userSubmitQuizzes: IProvideUserQuiz[];
+  // userSubmitQuiz: IProvideUserQuiz;
+  submitAnswers: string[];
 };
 
 export type QuizSubmitModel = Model<IQuizSubmit, Record<string, unknown>>;

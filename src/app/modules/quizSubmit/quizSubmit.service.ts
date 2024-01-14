@@ -18,35 +18,40 @@ const createQuizSubmitByDb = async (
 ): Promise<IQuizSubmit | null> => {
   const findSubmitQuiz = await QuizSubmit.findOne({
     quiz: new Types.ObjectId(payload.quiz as string),
+    singleQuiz: new Types.ObjectId(payload.singleQuiz as string),
     user: new Types.ObjectId(user.id as string),
   });
 
   let result;
-
   if (findSubmitQuiz) {
-    // Use findOneAndUpdate to update and get the updated document
-    const findExisting = findSubmitQuiz?.userSubmitQuizzes?.find(
-      (data: any) =>
-        data?.singleQuizId === payload.userSubmitQuizzes[0]?.singleQuizId
-    );
-    if (findExisting) {
-      throw new ApiError(400, 'You are already submit this quiz');
-    }
-
-    let updateResult;
-    if (!findExisting) {
-      updateResult = await QuizSubmit.findOneAndUpdate(
-        { _id: findSubmitQuiz._id },
-        { $push: { userSubmitQuizzes: { $each: payload.userSubmitQuizzes } } },
-        { new: true } // Return the updated document
-      ).populate('userSubmitQuizzes.singleQuizId');
-    }
-    result = updateResult || null; // If updateResult is null, set result to null
+    throw new ApiError(400, 'You are already submit this quiz');
   } else {
     result = (await QuizSubmit.create({ ...payload, user: user.id })).populate(
-      'userSubmitQuizzes.singleQuizId'
+      'singleQuiz'
     );
   }
+
+  // if (findSubmitQuiz) {
+  //   // Use findOneAndUpdate to update and get the updated document
+  //   // const findExisting = findSubmitQuiz?.userSubmitQuizzes?.find(
+  //   //   (data: any) =>
+  //   //     data?.singleQuizId === payload.userSubmitQuizzes[0]?.singleQuizId
+  //   // );
+
+  //   // let updateResult;
+  //   // if (!findExisting) {
+  //   //   updateResult = await QuizSubmit.findOneAndUpdate(
+  //   //     { _id: findSubmitQuiz._id },
+  //   //     { $push: { userSubmitQuizzes: { $each: payload.userSubmitQuizzes } } },
+  //   //     { new: true } // Return the updated document
+  //   //   ).populate('userSubmitQuizzes.singleQuizId');
+  //   // }
+  //   // result = updateResult || null; // If updateResult is null, set result to null
+  // } else {
+  //   result = (await QuizSubmit.create({ ...payload, user: user.id })).populate(
+  //     'userSubmitQuizzes.singleQuizId'
+  //   );
+  // }
 
   return result;
 };
@@ -160,12 +165,10 @@ const getQuizSubmitVerifyFromDb = async (
   id: string,
   user: any
 ): Promise<IQuizSubmit | null> => {
-  console.log("🚀 ~ user:", user)
-  console.log("🚀 ~ id:", id)
   const findSubmitQuiz = await QuizSubmit.findOne({
     quiz: new Types.ObjectId(id as string),
     user: new Types.ObjectId(user.id as string),
-  }).populate("userSubmitQuizzes.singleQuizId");
+  }).populate('userSubmitQuizzes.singleQuizId');
 
   return findSubmitQuiz;
 };
@@ -201,5 +204,5 @@ export const QuizSubmitService = {
   getAllQuizSubmitFromDb,
   getQuizSubmitSingelFromDb,
   deleteQuizSubmitByIdFromDb,
-  getQuizSubmitVerifyFromDb
+  getQuizSubmitVerifyFromDb,
 };

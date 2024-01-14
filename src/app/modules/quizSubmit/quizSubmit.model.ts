@@ -39,12 +39,14 @@ const quizSubmitSchema = new Schema<IQuizSubmit, QuizSubmitModel>(
       type: Schema.Types.ObjectId,
       ref: 'Quiz',
     },
-    userSubmitQuizzes: [
-      {
-        singleQuizId: { type: String, ref: 'SingleQuiz' },
-        submitAnswers: [String],
-      },
-    ],
+    singleQuiz: { type: Schema.Types.ObjectId, ref: 'SingleQuiz' },
+    submitAnswers: [String],
+    // userSubmitQuizzes: [
+    //   {
+    //     singleQuizId: { type: String, ref: 'SingleQuiz' },
+    //     submitAnswers: [String],
+    //   },
+    // ],
   },
   {
     timestamps: true,
