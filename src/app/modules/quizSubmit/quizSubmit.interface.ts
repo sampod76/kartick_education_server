@@ -23,6 +23,7 @@ export type IQuizSubmitFilters = {
   delete?: 'yes' | 'no';
   // other query parameters
   quiz?: string;
+  singleQuiz?: string;
   user?: string;
 };
 
