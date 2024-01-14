@@ -591,8 +591,8 @@ const deleteCourseByIdFromDb = async (
     result = await Course.findByIdAndDelete(id);
   } else {
     result = await Course.findOneAndUpdate(
-      { _id: id },
-      { status: ENUM_STATUS.DEACTIVATE }
+     { _id: id },
+      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
     );
   }
   return result;

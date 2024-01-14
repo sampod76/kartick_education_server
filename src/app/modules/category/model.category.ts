@@ -20,8 +20,8 @@ const CategorySchema = new Schema<ICategory, CategoryModel>(
       default: 'active',
     },
     isDelete: {
-      type: Boolean,
-      default: false,
+      type: String,
+      default: 'yes',
     },
   },
   {

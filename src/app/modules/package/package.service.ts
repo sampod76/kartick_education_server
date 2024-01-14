@@ -7,65 +7,40 @@ import { IPaginationOption } from '../../interface/pagination';
 
 import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import ApiError from '../../errors/ApiError';
-import { QUIZ_SUBMIT_SEARCHABLE_FIELDS } from './quizSubmit.constant';
-import { IQuizSubmit, IQuizSubmitFilters } from './quizSubmit.interface';
-import { QuizSubmit } from './quizSubmit.model';
+import { QUIZ_SUBMIT_SEARCHABLE_FIELDS } from './package.constant';
+import { IPackage, IPackageFilters } from './package.interface';
+import { Package } from './package.model';
 
 const { ObjectId } = mongoose.Types;
-const createQuizSubmitByDb = async (
-  payload: IQuizSubmit,
-  user: any
-): Promise<IQuizSubmit | null> => {
-  const findSubmitQuiz = await QuizSubmit.findOne({
-    quiz: new Types.ObjectId(payload.quiz as string),
-    singleQuiz: new Types.ObjectId(payload.singleQuiz as string),
-    user: new Types.ObjectId(user.id as string),
+const createPackageByDb = async (
+  payload: IPackage
+): Promise<IPackage | null> => {
+  const findPackage = await Package.findOne({
+    title: payload.title,
+    isDelete: false,
   });
 
   let result;
-  if (findSubmitQuiz) {
-    throw new ApiError(400, 'You are already submit this quiz');
+  if (findPackage) {
+    throw new ApiError(400, 'This package is already have');
   } else {
-    result = (await QuizSubmit.create({ ...payload, user: user.id })).populate(
-      'singleQuiz'
-    );
+    result = await Package.create({ ...payload });
   }
-
-  // if (findSubmitQuiz) {
-  //   // Use findOneAndUpdate to update and get the updated document
-  //   // const findExisting = findSubmitQuiz?.userSubmitQuizzes?.find(
-  //   //   (data: any) =>
-  //   //     data?.singleQuizId === payload.userSubmitQuizzes[0]?.singleQuizId
-  //   // );
-
-  //   // let updateResult;
-  //   // if (!findExisting) {
-  //   //   updateResult = await QuizSubmit.findOneAndUpdate(
-  //   //     { _id: findSubmitQuiz._id },
-  //   //     { $push: { userSubmitQuizzes: { $each: payload.userSubmitQuizzes } } },
-  //   //     { new: true } // Return the updated document
-  //   //   ).populate('userSubmitQuizzes.singleQuizId');
-  //   // }
-  //   // result = updateResult || null; // If updateResult is null, set result to null
-  // } else {
-  //   result = (await QuizSubmit.create({ ...payload, user: user.id })).populate(
-  //     'userSubmitQuizzes.singleQuizId'
-  //   );
-  // }
 
   return result;
 };
 
 //getAllQuizFromDb
-const getAllQuizSubmitFromDb = async (
-  filters: IQuizSubmitFilters,
+const getAllPackageFromDb = async (
+  filters: IPackageFilters,
   paginationOptions: IPaginationOption
-): Promise<IGenericResponse<IQuizSubmit[]>> => {
+): Promise<IGenericResponse<IPackage[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-  filtersData.status = filtersData.status
-    ? filtersData.status
-    : ENUM_STATUS.ACTIVE;
+  filtersData.isDelete = filtersData.isDelete
+    ? filtersData.isDelete
+    : ENUM_YN.NO;
+
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -142,14 +117,14 @@ const getAllQuizSubmitFromDb = async (
 
   let result = null;
   if (select) {
-    result = await QuizSubmit.find({})
+    result = await Package.find({})
       .sort({ title: 1 })
       .select({ ...projection });
   } else {
-    result = await QuizSubmit.aggregate(pipeline);
+    result = await Package.aggregate(pipeline);
   }
 
-  const total = await QuizSubmit.countDocuments(whereConditions);
+  const total = await Package.countDocuments(whereConditions);
   return {
     meta: {
       page,
@@ -161,21 +136,19 @@ const getAllQuizSubmitFromDb = async (
 };
 
 // get single e form db
-const getQuizSubmitVerifyFromDb = async (
+const getPackageVerifyFromDb = async (
   id: string,
   user: any
-): Promise<IQuizSubmit[] | null> => {
-  const findSubmitQuiz = await QuizSubmit.find({
+): Promise<IPackage[] | null> => {
+  const findSubmitQuiz = await Package.find({
     quiz: new Types.ObjectId(id as string),
     user: new Types.ObjectId(user.id as string),
   }).populate('singleQuiz');
 
   return findSubmitQuiz;
 };
-const getQuizSubmitSingelFromDb = async (
-  id: string
-): Promise<IQuizSubmit | null> => {
-  const result = await QuizSubmit.aggregate([
+const getPackageSingelFromDb = async (id: string): Promise<IPackage | null> => {
+  const result = await Package.aggregate([
     { $match: { _id: new ObjectId(id) } },
   ]);
 
@@ -183,26 +156,26 @@ const getQuizSubmitSingelFromDb = async (
 };
 
 // delete e form db
-const deleteQuizSubmitByIdFromDb = async (
+const deletePackageByIdFromDb = async (
   id: string,
-  query: IQuizSubmitFilters
-): Promise<IQuizSubmit | null> => {
+  query: IPackageFilters
+): Promise<IPackage | null> => {
   let result;
   if (query.delete === ENUM_YN.YES) {
-    result = await QuizSubmit.findByIdAndDelete(id);
+    result = await Package.findByIdAndDelete(id);
   } else {
-    result = await QuizSubmit.findOneAndUpdate(
-     { _id: id },
+    result = await Package.findOneAndUpdate(
+      { _id: id },
       { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
     );
   }
   return result;
 };
 
-export const QuizSubmitService = {
-  createQuizSubmitByDb,
-  getAllQuizSubmitFromDb,
-  getQuizSubmitSingelFromDb,
-  deleteQuizSubmitByIdFromDb,
-  getQuizSubmitVerifyFromDb,
+export const PackageService = {
+  createPackageByDb,
+  getAllPackageFromDb,
+  getPackageSingelFromDb,
+  deletePackageByIdFromDb,
+  getPackageVerifyFromDb,
 };

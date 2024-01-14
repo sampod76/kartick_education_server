@@ -45,7 +45,7 @@ const updateAdmin = z.object({
         required_error: 'address is required',
       })
       .optional(),
-    isDelete: z.boolean().optional(),
+    isDelete: z.string().optional(),
     img: z.string({ required_error: 'img is required' }).optional(),
   }),
 });

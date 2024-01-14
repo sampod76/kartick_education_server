@@ -14,7 +14,7 @@ export type ICategory = {
   title: string;
   img?: string;
   status: IStatus;
-  isDelete: boolean;
+  isDelete: string;
 };
 
 export type CategoryModel = Model<ICategory, Record<string, unknown>>;

@@ -39,6 +39,10 @@ const quizSubmitSchema = new Schema<IQuizSubmit, QuizSubmitModel>(
       type: Schema.Types.ObjectId,
       ref: 'Quiz',
     },
+    isDelete: {
+      type: String,
+      default: 'yes',
+    },
     singleQuiz: { type: Schema.Types.ObjectId, ref: 'SingleQuiz' },
     submitAnswers: [String],
     // userSubmitQuizzes: [

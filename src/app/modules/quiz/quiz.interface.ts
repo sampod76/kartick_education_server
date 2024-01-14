@@ -46,7 +46,7 @@ export type IQuiz = {
   author?: Types.ObjectId | IUser;
 
   status: 'active' | 'deactivate' | 'save';
-  isDelete: boolean;
+  isDelete: string;
   demo_video?: Record<string, string>;
   tags?: string[];
 };

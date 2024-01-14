@@ -37,8 +37,8 @@ const ResourceSchema = new Schema<IResource, ResourceModel>(
       default: 'active',
     },
     isDelete: {
-      type: Boolean,
-      default: false,
+      type: String,
+      default: 'yes',
     },
     demo_video: {
       type: Object,

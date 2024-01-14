@@ -28,7 +28,7 @@ export type IResource = {
   module: Types.ObjectId | IModule | string;
   status: 'active' | 'deactivate' | 'save';
 
-  isDelete: boolean;
+  isDelete: string;
   demo_video?: Record<string, string>;
   videos?: object[];
   tags?: string[];

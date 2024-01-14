@@ -21,6 +21,7 @@ export type ISingleQuizFilters = {
   lesson?: string;
   quiz?: string;
   delete?: 'yes' | 'no';
+  isDelete?: string;
   // other query parameters
 };
 
@@ -57,6 +58,7 @@ export type ISingleQuiz = {
   quiz: Types.ObjectId | IQuiz;
   //
   status: 'active' | 'deactivate' | 'save';
+  isDelete: string;
   demo_video?: Record<string, string>;
   tags?: string[];
 };

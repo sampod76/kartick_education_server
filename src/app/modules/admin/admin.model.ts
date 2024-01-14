@@ -38,8 +38,8 @@ const AdminSchema = new Schema<IAdmin, AdminModel>(
       type: String,
     },
     isDelete: {
-      type: Boolean,
-      default: false,
+      type: String,
+      default: 'yes',
     },
     img: {
       type: String,

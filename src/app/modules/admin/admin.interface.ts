@@ -16,7 +16,7 @@ export type IAdmin = {
   address: string;
   courseId: Types.ObjectId;
   img: string;
-  isDelete: boolean;
+  isDelete: string;
 };
 
 export type AdminModel = Model<IAdmin, Record<string, unknown>>;
@@ -30,5 +30,5 @@ export type IAdminFilters = {
   delete?: 'yes' | 'no';
   status?: IStatus;
   select?: string;
-  isDelete?: boolean;
+  isDelete?: string;
 };

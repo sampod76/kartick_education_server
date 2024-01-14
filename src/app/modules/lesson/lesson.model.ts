@@ -50,8 +50,8 @@ const lessonSchema = new Schema<ILesson, LessonModel>(
       default: 'active',
     },
     isDelete: {
-      type: Boolean,
-      default: false,
+      type: String,
+      default: 'yes',
     },
     lesson_number: {
       type: Number,

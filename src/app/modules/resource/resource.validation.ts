@@ -14,7 +14,7 @@ const createResourceZodSchema = z.object({
     author: z.string().optional(),
     module: z.string({ required_error: 'module field is required' }),
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
-    isDelete: z.boolean().optional(),
+    isDelete: z.string().optional(),
     demo_video: z.object({}).optional(),
     tags: z.array(z.string()).optional(),
   }),
@@ -29,7 +29,7 @@ const updateResourceZodSchema = z.object({
     author: z.string().optional(),
     module: z.string().optional(),
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
-    isDelete: z.boolean().optional(),
+    isDelete: z.string().optional(),
     videos: z
       .array(
         z.object({

@@ -39,8 +39,8 @@ const milestoneSchema = new Schema<IMilestone, MilestoneModel>(
       default: 'active',
     },
     isDelete: {
-      type: Boolean,
-      default: false,
+      type: String,
+      default: 'yes',
     },
     milestone_number: {
       type: Number,

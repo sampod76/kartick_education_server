@@ -59,8 +59,8 @@ const courseSchema = new Schema<ICourse, CourseModel>(
       default: 'active',
     },
     isDelete: {
-      type: Boolean,
-      default: false,
+      type: String,
+      default: 'yes',
     },
     demo_video: {
       type: Object,

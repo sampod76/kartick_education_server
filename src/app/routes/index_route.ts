@@ -19,6 +19,7 @@ import { UserRoutes } from '../modules/user/user.route';
 import { GlossaryRoute } from '../modules/glossary/glossary.route';
 import { ResourceRoute } from '../modules/resource/resource.route';
 import { QuizSubmitRoute } from '../modules/quizSubmit/quizSubmit.route';
+import { PackageRoute } from '../modules/package/package.route';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -93,6 +94,10 @@ const moduleRoutes = [
   {
     path: '/quiz_submit',
     route: QuizSubmitRoute,
+  },
+  {
+    path: '/packages',
+    route: PackageRoute,
   },
 ];
 

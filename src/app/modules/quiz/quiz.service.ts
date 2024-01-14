@@ -479,8 +479,8 @@ const deleteQuizByIdFromDb = async (
     result = await Quiz.findByIdAndDelete(id);
   } else {
     result = await Quiz.findOneAndUpdate(
-      { _id: id },
-      { status: ENUM_STATUS.DEACTIVATE }
+     { _id: id },
+      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
     );
   }
   return result;

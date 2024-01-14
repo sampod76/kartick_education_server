@@ -45,8 +45,8 @@ const moduleSchema = new Schema<IModule,ModuleModel>(
       default: 'active',
     },
     isDelete: {
-      type: Boolean,
-      default: false,
+      type: String,
+      default: 'yes',
     },
     module_number: {
       type: Number,

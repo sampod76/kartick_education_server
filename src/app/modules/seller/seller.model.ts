@@ -46,8 +46,8 @@ const SellerSchema = new Schema<ISeller, SellerModel>(
       type: String,
     },
     isDelete: {
-      type: Boolean,
-      default: false,
+      type: String,
+      default: 'yes',
     },
   },
   {
