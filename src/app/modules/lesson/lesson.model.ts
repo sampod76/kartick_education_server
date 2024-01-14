@@ -49,8 +49,9 @@ const lessonSchema = new Schema<ILesson, LessonModel>(
       enum: STATUS_ARRAY,
       default: 'active',
     },
-    isDelete: {
+isDelete: {
       type: String,
+      enum:["yes", "no"],
       default: 'yes',
     },
     lesson_number: {

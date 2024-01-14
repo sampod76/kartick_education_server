@@ -37,8 +37,9 @@ const AdminSchema = new Schema<IAdmin, AdminModel>(
     address: {
       type: String,
     },
-    isDelete: {
+isDelete: {
       type: String,
+      enum:["yes", "no"],
       default: 'yes',
     },
     img: {

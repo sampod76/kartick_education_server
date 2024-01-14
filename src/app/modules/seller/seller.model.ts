@@ -45,8 +45,9 @@ const SellerSchema = new Schema<ISeller, SellerModel>(
     details: {
       type: String,
     },
-    isDelete: {
+isDelete: {
       type: String,
+      enum:["yes", "no"],
       default: 'yes',
     },
   },

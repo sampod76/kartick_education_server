@@ -58,8 +58,9 @@ const courseSchema = new Schema<ICourse, CourseModel>(
       enum: STATUS_ARRAY,
       default: 'active',
     },
-    isDelete: {
+isDelete: {
       type: String,
+      enum:["yes", "no"],
       default: 'yes',
     },
     demo_video: {

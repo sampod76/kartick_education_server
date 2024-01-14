@@ -38,8 +38,9 @@ const milestoneSchema = new Schema<IMilestone, MilestoneModel>(
       enum: STATUS_ARRAY,
       default: 'active',
     },
-    isDelete: {
+isDelete: {
       type: String,
+      enum:["yes", "no"],
       default: 'yes',
     },
     milestone_number: {

@@ -113,6 +113,28 @@ const getAllPackageFromDb = async (
     { $sort: sortConditions },
     { $skip: Number(skip) || 0 },
     { $limit: Number(limit) || 15 },
+    {
+      $lookup: {
+        from: 'categories',
+        let: { id: '$categories.category' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$_id', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+
+          {
+            $project: {
+              __v: 0,
+            },
+          },
+        ],
+        as: 'data_entry_info',
+      },
+    },
   ];
 
   let result = null;

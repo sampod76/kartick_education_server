@@ -10,11 +10,31 @@ const quizSubmitSchema = new Schema<IPackage, PackageModel>(
     },
     title: { type: String, required: true },
     img: { type: String },
-    categories: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
-    date_range: [{ type: String }],
+    categories: [
+      {
+        category: { type: Schema.Types.ObjectId, ref: 'Category' },
+        label: { type: String },
+        //!----------- if type is multiple_select ----------
+        biannual: {
+          price: { type: Number },
+          each_student_increment: { type: Number },
+        },
+        monthly: {
+          price: { type: Number },
+          each_student_increment: { type: Number },
+        },
+        yearly: {
+          price: { type: Number },
+          each_student_increment: { type: Number },
+        },
+        //!---------------------------------------------------
+      },
+    ],
+    date_range: [{ type: Date }],
     type: {
       type: String,
       enum: PACKAGE_TYPES_ARRAY,
+      required: true,
     },
     status: {
       type: String,
@@ -33,7 +53,7 @@ const quizSubmitSchema = new Schema<IPackage, PackageModel>(
       price: { type: Number },
       each_student_increment: { type: Number },
     },
-    isDelete: { type: String, default: 'yes' },
+    isDelete: { type: String, default: 'no' },
   },
   {
     timestamps: true,

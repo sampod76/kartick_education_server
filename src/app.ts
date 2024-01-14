@@ -17,7 +17,9 @@ import httpStatus from 'http-status';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 // import { uploadSingleImage } from './app/middlewares/uploader.multer';
 
+import { User } from './app/modules/user/user.model';
 import routers from './app/routes/index_route';
+import { ENUM_YN } from './enums/globalEnums';
 
 const app: Application = express();
 // app.use(cors());
@@ -26,7 +28,7 @@ app.use(helmetOriginal());
 
 app.use(
   cors({
-    origin:true,
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   })
@@ -105,8 +107,8 @@ app.get('/', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 const test = async () => {
-  // const restul = await Milestone.updateMany({},{$rename:{"showing_number":"milestone_number"}})
-  // console.log(restul);
+  const restul = await User.updateMany({}, { isDelete: ENUM_YN.NO });
+  console.log(restul);
   // const updateArray = await Course.find({});
   // const promess: any = [];
   // updateArray.forEach((data, index) => {

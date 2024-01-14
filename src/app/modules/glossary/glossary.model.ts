@@ -36,8 +36,9 @@ const glossarySchema = new Schema<IGlossary, GlossaryModel>(
       enum: STATUS_ARRAY,
       default: 'active',
     },
-    isDelete: {
+isDelete: {
       type: String,
+      enum:["yes", "no"],
       default: 'yes',
     },
     demo_video: {
