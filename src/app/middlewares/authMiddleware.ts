@@ -6,8 +6,6 @@ import config from '../../config';
 import { jwtHelpers } from '../../helper/jwtHelpers';
 import ApiError from '../errors/ApiError';
 
-
-
 const authMiddleware =
   (...requiredRoles: string[]) =>
   async (req: Request, res: Response, next: NextFunction) => {
@@ -27,9 +25,10 @@ const authMiddleware =
           token,
           config.jwt.secret as Secret
         );
+
         req.user = verifiedUser;
       }
-    
+
       // role diye guard korar jnno
       if (requiredRoles.length && !requiredRoles.includes(verifiedUser?.role)) {
         throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden access');
