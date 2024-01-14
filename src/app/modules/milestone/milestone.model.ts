@@ -38,6 +38,10 @@ const milestoneSchema = new Schema<IMilestone, MilestoneModel>(
       enum: STATUS_ARRAY,
       default: 'active',
     },
+    isDelete: {
+      type: Boolean,
+      default: false,
+    },
     milestone_number: {
       type: Number,
       // unique: true,

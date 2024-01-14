@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
-import { AdminModel, IAdmin } from './admin.interface';
 import { GENDER_ARRAY } from '../../../constant/globalConstant';
+import { AdminModel, IAdmin } from './admin.interface';
 
 const AdminSchema = new Schema<IAdmin, AdminModel>(
   {
@@ -36,6 +36,10 @@ const AdminSchema = new Schema<IAdmin, AdminModel>(
     },
     address: {
       type: String,
+    },
+    isDelete: {
+      type: Boolean,
+      default: false,
     },
     img: {
       type: String,

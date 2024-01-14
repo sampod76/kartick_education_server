@@ -3,4 +3,4 @@ export const GLOSSARY_SEARCHABLE_FIELDS = [
 // 'details',
 "tags"
 ];
-export const GLOSSARY_FILTERABLE_FIELDS = ['searchTerm', 'status',"select","module",'delete'];
+export const GLOSSARY_FILTERABLE_FIELDS = ['searchTerm', 'status',"select","module",'delete',"isDelete"];

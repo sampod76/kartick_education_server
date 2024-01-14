@@ -9,6 +9,7 @@ export type IResourceFilters = {
   select?: string;
   module?: string;
   delete?: "yes" | "no" ;
+  isDelete?: string;
   // other query parameters
 };
 
@@ -26,6 +27,8 @@ export type IResource = {
   author?: Types.ObjectId | IUser;
   module: Types.ObjectId | IModule | string;
   status: 'active' | 'deactivate' | 'save';
+
+  isDelete: boolean;
   demo_video?: Record<string, string>;
   videos?: object[];
   tags?: string[];

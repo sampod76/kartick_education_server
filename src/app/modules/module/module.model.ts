@@ -44,6 +44,10 @@ const moduleSchema = new Schema<IModule,ModuleModel>(
       enum: STATUS_ARRAY,
       default: 'active',
     },
+    isDelete: {
+      type: Boolean,
+      default: false,
+    },
     module_number: {
       type: Number,
     },

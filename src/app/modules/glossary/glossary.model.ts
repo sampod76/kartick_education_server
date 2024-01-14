@@ -36,7 +36,10 @@ const glossarySchema = new Schema<IGlossary, GlossaryModel>(
       enum: STATUS_ARRAY,
       default: 'active',
     },
-    
+    isDelete: {
+      type: Boolean,
+      default: false,
+    },
     demo_video: {
       type: Object,
       default: {},

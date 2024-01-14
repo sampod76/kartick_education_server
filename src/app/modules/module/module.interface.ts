@@ -15,6 +15,7 @@ export type IModuleFilters = {
   select?: string;
   delete?: "yes" | "no" ;
   lesson_quiz?: "yes" | "no" ;
+  isDelete?: string;
   // other query parameters
 };
 
@@ -35,6 +36,7 @@ export type IModule = {
   milestone: Types.ObjectId | IMilestone | string;
   //
   status: 'active' | 'deactivate' | 'save';
+  isDelete: boolean;
   module_number?: number;
   demo_video?: Record<string, string>;
   tags?: string[];

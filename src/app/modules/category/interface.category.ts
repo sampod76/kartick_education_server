@@ -7,12 +7,14 @@ export type ICategoryFilters = {
   status?: IStatus;
   delete?: 'yes' | 'no';
   children?: string;
+  isDelete?: string;
 };
 
 export type ICategory = {
   title: string;
   img?: string;
   status: IStatus;
+  isDelete: boolean;
 };
 
 export type CategoryModel = Model<ICategory, Record<string, unknown>>;

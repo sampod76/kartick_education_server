@@ -4,7 +4,8 @@ export const sellerFilterableFields = [
   'email',
   'status',
   'phoneNumber',
-  'delete'
+  'delete',
+  "isDelete"
 ];
 
 export const sellerSearchableFields = [

@@ -13,5 +13,6 @@ export const adminSearchableFields = [
   'name.firstName',
   'name.lastName',
   'delete',
-  "select"
+  "select",
+  "isDelete"
 ];

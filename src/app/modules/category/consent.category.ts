@@ -5,4 +5,5 @@ export const CATEGORY_FILTERABLE_FIELDS = [
   'status',
   'delete',
   'children',
+  "isDelete"
 ];

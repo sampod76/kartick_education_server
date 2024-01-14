@@ -13,6 +13,7 @@ const createMilestoneZodSchema = z.object({
     short_description: z.string().optional(),
     author: z.string().optional(),
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
+    isDelete: z.boolean().optional(),
     favorite: z.enum([...YN_ARRAY] as [string, ...string[]]).optional(),
     milestone_number: z
       .number({ required_error: 'mileston number is required' })
@@ -32,6 +33,7 @@ const updateMilestoneZodSchema = z.object({
     short_description: z.string().optional(),
     author: z.string().optional(),
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
+    isDelete: z.boolean().optional(),
     favorite: z.enum([...YN_ARRAY] as [string, ...string[]]).optional(),
     milestone_number: z.number().min(0).optional(),
     demo_video: z.object({}).optional(),

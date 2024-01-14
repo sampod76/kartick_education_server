@@ -19,6 +19,10 @@ const CategorySchema = new Schema<ICategory, CategoryModel>(
       enum: STATUS_ARRAY,
       default: 'active',
     },
+    isDelete: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

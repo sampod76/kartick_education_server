@@ -19,6 +19,7 @@ export type IQuizFilters = {
   lesson?: string;
  //
   delete?: 'yes' | 'no';
+  isDelete?: string;
   // other query parameters
 };
 
@@ -45,6 +46,7 @@ export type IQuiz = {
   author?: Types.ObjectId | IUser;
 
   status: 'active' | 'deactivate' | 'save';
+  isDelete: boolean;
   demo_video?: Record<string, string>;
   tags?: string[];
 };

@@ -16,6 +16,7 @@ export type ISeller = {
   img: string;
   details?: string;
   user_bio?: string;
+  isDelete: boolean;
 };
 
 export type SellerModel = Model<ISeller, Record<string, unknown>>;
@@ -27,5 +28,6 @@ export type ISellerFilters = {
   email?: string;
   phoneNumber?: string;
   delete?: 'yes' | 'no';
+  isDelete?: string;
   status?:'active' | 'deactivate' | 'disabled' | 'block'
 };

@@ -13,7 +13,8 @@ export const COURSE_FILTERABLE_FIELDS = [
   'delete',
   'select',
   'category',
-  'favorite'
+  'favorite',
+  "isDelete"
 ];
 
 export const COURSE_TYPES = ['free', 'paid', 'open', 'closed', 'recurrig'];

@@ -12,6 +12,7 @@ export type ICourseFilters = {
   category?: string;
   select?: string;
   delete?: 'yes' | 'no';
+  isDelete?: string;
   // other query parameters
 };
 
@@ -41,6 +42,7 @@ export type ICourse = {
   favorite: 'yes' | 'no';
   demo_video?: Record<string, string>;
   tags?: string[];
+  isDelete: boolean;
 };
 
 // export type CourseModel = Model<ICourse, Record<string, unknown>>;

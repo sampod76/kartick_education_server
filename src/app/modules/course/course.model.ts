@@ -58,6 +58,10 @@ const courseSchema = new Schema<ICourse, CourseModel>(
       enum: STATUS_ARRAY,
       default: 'active',
     },
+    isDelete: {
+      type: Boolean,
+      default: false,
+    },
     demo_video: {
       type: Object,
       default: {},
