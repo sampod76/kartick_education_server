@@ -13,13 +13,14 @@ const createQuizSubmitZodSchema = z.object({
     lesson: z.string().optional(),
     //
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
-    user: z.string({ required_error: 'userid required' }).optional(),
-    userSubmitQuizzes: z.array(
-      z.object({
-        singleQuizId: z.string({ required_error: 'quizid required' }),
-        submitAnswers: z.array(z.string().optional()),
-      })
-    ),
+    singleQuiz: z.string({ required_error: 'single required' }),
+    submitAnswers: z.array(z.string()),
+    // userSubmitQuizzes: z.array(
+    //   z.object({
+    //     singleQuizId: z.string({ required_error: 'quizid required' }),
+    //     submitAnswers: z.array(z.string().optional()),
+    //   })
+    // ),
   }),
 });
 
