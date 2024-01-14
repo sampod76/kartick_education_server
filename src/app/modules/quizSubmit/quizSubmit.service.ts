@@ -164,11 +164,11 @@ const getAllQuizSubmitFromDb = async (
 const getQuizSubmitVerifyFromDb = async (
   id: string,
   user: any
-): Promise<IQuizSubmit | null> => {
-  const findSubmitQuiz = await QuizSubmit.findOne({
+): Promise<IQuizSubmit[] | null> => {
+  const findSubmitQuiz = await QuizSubmit.find({
     quiz: new Types.ObjectId(id as string),
     user: new Types.ObjectId(user.id as string),
-  }).populate('userSubmitQuizzes.singleQuizId');
+  }).populate('singleQuiz');
 
   return findSubmitQuiz;
 };

@@ -5,8 +5,8 @@ import { PAGINATION_FIELDS } from '../../../constant/pagination';
 import catchAsync from '../../share/catchAsync';
 import pick from '../../share/pick';
 import sendResponse from '../../share/sendResponse';
-import { QuizSubmitService } from './quizSubmit.service';
 import { IQuizSubmit } from './quizSubmit.interface';
+import { QuizSubmitService } from './quizSubmit.service';
 
 import { QUIZ_SUBMIT_FILTERABLE_FIELDS } from './quizSubmit.constant';
 
@@ -67,7 +67,7 @@ const getSingleQuizSubmit = catchAsync(async (req: Request, res: Response) => {
 const getVerifyQuizSubmit = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await QuizSubmitService.getQuizSubmitVerifyFromDb(id, req.user);
-  sendResponse<IQuizSubmit>(res, {
+  sendResponse<IQuizSubmit[]>(res, {
     success: true,
     statusCode: httpStatus.OK,
     message: 'successfull get  QuizSubmit',
