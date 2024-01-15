@@ -16,7 +16,7 @@ const createGlossaryZodSchema = z.object({
 
     demo_video: z.object({}).optional(),
     tags: z.array(z.string()).optional(),
-    isDelete: z.boolean().optional(),
+    isDelete: z.string().optional(),
   }),
 });
 
@@ -40,7 +40,7 @@ const updateGlossaryZodSchema = z.object({
       .optional(),
 
     demo_video: z.object({}).optional(),
-    isDelete: z.boolean().optional(),
+    isDelete: z.string().optional(),
     tags: z.array(z.string()).optional(),
   }),
 });

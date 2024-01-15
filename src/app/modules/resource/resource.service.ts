@@ -244,8 +244,8 @@ const deleteResourceByIdFromDb = async (
     result = await Resource.findByIdAndDelete(id);
   } else {
     result = await Resource.findOneAndUpdate(
-      { _id: id },
-      { status: ENUM_STATUS.DEACTIVATE }
+     { _id: id },
+      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
     );
   }
   return result;

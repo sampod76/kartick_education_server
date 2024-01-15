@@ -111,6 +111,11 @@ const singleQuizSchema = new Schema<ISingleQuiz, SingleQuizModel>(
       default: 'active',
     },
 
+isDelete: {
+      type: String,
+      enum:["yes", "no"],
+      default: 'yes',
+    },
     demo_video: {
       type: Object,
       default: {},

@@ -244,8 +244,8 @@ const deleteGlossaryByIdFromDb = async (
     result = await Glossary.findByIdAndDelete(id);
   } else {
     result = await Glossary.findOneAndUpdate(
-      { _id: id },
-      { status: ENUM_STATUS.DEACTIVATE }
+     { _id: id },
+      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
     );
   }
   return result;

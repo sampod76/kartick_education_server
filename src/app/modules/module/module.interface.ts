@@ -1,8 +1,8 @@
 import { Model, Types } from 'mongoose';
+import { ICategory } from '../category/interface.category';
+import { ICourse } from '../course/course.interface';
 import { IMilestone } from '../milestone/milestone.interface';
 import { IUser } from '../user/user.interface';
-import { ICourse } from '../course/course.interface';
-import { ICategory } from '../category/interface.category';
 
 
 export type IModuleFilters = {
@@ -36,7 +36,7 @@ export type IModule = {
   milestone: Types.ObjectId | IMilestone | string;
   //
   status: 'active' | 'deactivate' | 'save';
-  isDelete: boolean;
+  isDelete: string;
   module_number?: number;
   demo_video?: Record<string, string>;
   tags?: string[];

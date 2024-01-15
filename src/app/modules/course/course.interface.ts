@@ -42,7 +42,7 @@ export type ICourse = {
   favorite: 'yes' | 'no';
   demo_video?: Record<string, string>;
   tags?: string[];
-  isDelete: boolean;
+  isDelete: string;
 };
 
 // export type CourseModel = Model<ICourse, Record<string, unknown>>;

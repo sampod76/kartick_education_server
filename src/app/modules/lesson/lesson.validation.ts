@@ -18,7 +18,7 @@ const createLessonZodSchema = z.object({
     module: z.string({ required_error: 'module field is required' }),
     //
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
-    isDelete: z.boolean().optional(),
+    isDelete: z.string().optional(),
     lesson_number: z.number().min(0).optional(),
     lecture: z.number().min(0).optional(),
     demo_video: z.object({}).optional(),
@@ -52,7 +52,7 @@ const updateLessonZodSchema = z.object({
     lecture: z.number().min(0).optional(),
     demo_video: z.object({}).optional(),
     tags: z.array(z.string()).optional(),
-    isDelete: z.boolean().optional(),
+    isDelete: z.string().optional(),
   }),
 });
 

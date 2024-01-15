@@ -408,8 +408,8 @@ const deleteModuleByIdFromDb = async (
     result = await Module.findByIdAndDelete(id);
   } else {
     result = await Module.findOneAndUpdate(
-      { _id: id },
-      { status: ENUM_STATUS.DEACTIVATE }
+     { _id: id },
+      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
     );
   }
   return result;

@@ -34,7 +34,7 @@ const updateSeller = z.object({
       .optional(),
     img: z.string().optional(),
     user_bio: z.string().optional(),
-    isDelete: z.boolean().optional(),
+    isDelete: z.string().optional(),
   }),
 });
 

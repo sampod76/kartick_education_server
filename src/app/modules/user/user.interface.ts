@@ -21,6 +21,7 @@ export type IUserFilters = {
   role?: string;
   multipleRole?: string;
   status?: IStatus;
+  isDelete?: string;
 };
 
 export type IUser = {
@@ -39,7 +40,8 @@ export type IUser = {
   superAdmin?: Types.ObjectId | IAdmin;
   teacher?: Types.ObjectId | IAdmin;
   //
-  author: Types.ObjectId ; // this is author mines which person create this account--> this is IUser
+  author: Types.ObjectId; // this is author mines which person create this account--> this is IUser
+  isDelete:string;
 };
 
 // export type UserModel = Model<IUser, Record<string, unknown>>;

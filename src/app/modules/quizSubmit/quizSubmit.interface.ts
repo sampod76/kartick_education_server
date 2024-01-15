@@ -21,6 +21,7 @@ export type IQuizSubmitFilters = {
   lesson?: string;
   //
   delete?: 'yes' | 'no';
+  isDelete?: string;
   // other query parameters
   quiz?: string;
   singleQuiz?: string;
@@ -48,6 +49,7 @@ export type IQuizSubmit = {
   quiz: Types.ObjectId | IQuiz | string;
   singleQuiz: Types.ObjectId | IQuiz | string;
   status: 'active' | 'deactivate' | 'save';
+  isDelete: string;
   //
   // userSubmitQuizzes: IProvideUserQuiz[];
   // userSubmitQuiz: IProvideUserQuiz;

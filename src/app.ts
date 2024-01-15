@@ -26,7 +26,7 @@ app.use(helmetOriginal());
 
 app.use(
   cors({
-    origin:true,
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   })
@@ -105,7 +105,7 @@ app.get('/', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 const test = async () => {
-  // const restul = await Milestone.updateMany({},{$rename:{"showing_number":"milestone_number"}})
+  // const restul = await User.updateMany({}, { isDelete: ENUM_YN.NO });
   // console.log(restul);
   // const updateArray = await Course.find({});
   // const promess: any = [];

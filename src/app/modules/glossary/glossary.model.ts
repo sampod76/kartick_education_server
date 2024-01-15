@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { STATUS_ARRAY } from '../../../constant/globalConstant';
-import { IGlossary, GlossaryModel } from './glossary.interface';
+import { GlossaryModel, IGlossary } from './glossary.interface';
 
 const glossarySchema = new Schema<IGlossary, GlossaryModel>(
   {
@@ -36,9 +36,10 @@ const glossarySchema = new Schema<IGlossary, GlossaryModel>(
       enum: STATUS_ARRAY,
       default: 'active',
     },
-    isDelete: {
-      type: Boolean,
-      default: false,
+isDelete: {
+      type: String,
+      enum:["yes", "no"],
+      default: 'yes',
     },
     demo_video: {
       type: Object,

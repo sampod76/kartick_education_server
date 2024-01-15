@@ -31,6 +31,7 @@ const createSingleQuizZodSchema = z.object({
     quiz: z.string({ required_error: 'quiz field is required' }),
     type: z.enum([...SINGLE_QUIZ_TYPE] as [string, ...string[]]).optional(),
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
+    isDelete: z.string().optional(),
     demo_video: z.object({}).optional(),
     tags: z.array(z.string()).optional(),
     //optional
@@ -69,6 +70,7 @@ const updateSingleQuizZodSchema = z.object({
     lesson: z.string().optional(),
     quiz: z.string().optional(),
     //
+    isDelete: z.string().optional(),
     type: z.enum([...SINGLE_QUIZ_TYPE] as [string, ...string[]]).optional(),
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
     demo_video: z.object({}).optional(),

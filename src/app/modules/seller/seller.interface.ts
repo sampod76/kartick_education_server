@@ -16,7 +16,7 @@ export type ISeller = {
   img: string;
   details?: string;
   user_bio?: string;
-  isDelete: boolean;
+  isDelete: string;
 };
 
 export type SellerModel = Model<ISeller, Record<string, unknown>>;

@@ -1,6 +1,6 @@
 import { Model, Types } from 'mongoose';
-import { ICourse } from '../course/course.interface';
 import { ICategory } from '../category/interface.category';
+import { ICourse } from '../course/course.interface';
 // import { IFileUploade } from '../fileUploade/interface.fileUploade';
 // import { IUser } from '../users/users.interface';
 
@@ -35,7 +35,7 @@ export type IMilestone = {
   category: Types.ObjectId | ICategory | string;
   // sub1_Milestone_category_id: Types.ObjectId;
   status: 'active' | 'deactivate' | 'save';
-  isDelete: boolean;
+  isDelete: string;
   milestone_number?: number;
   favorite: 'yes' | 'no';
   demo_video?: Record<string, string>;
