@@ -13,17 +13,7 @@ import { Lesson } from './lesson.model';
 
 const { ObjectId } = mongoose.Types;
 const createLessonByDb = async (payload: ILesson): Promise<ILesson> => {
-  const result = (await Lesson.create(payload)).populate([
-    {
-      path: 'author',
-      select: {
-        needsPasswordChange: 0,
-        createdAt: 0,
-        updatedAt: 0,
-        __v: 0,
-      },
-    },
-  ]);
+  const result = (await Lesson.create(payload))
   return result;
 };
 

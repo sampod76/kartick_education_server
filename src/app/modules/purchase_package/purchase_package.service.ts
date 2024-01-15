@@ -6,27 +6,27 @@ import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 
 import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
-import ApiError from '../../errors/ApiError';
-import { Package } from './purchase_package.model';
 import { PACKAGE_SEARCHABLE_FIELDS } from './purchase_package.constant';
 import { IPackage, IPackageFilters } from './purchase_package.interface';
+import { Package } from './purchase_package.model';
 
 const { ObjectId } = mongoose.Types;
 const createPackageByDb = async (
   payload: IPackage
 ): Promise<IPackage | null> => {
-  const findPackage = await Package.findOne({
-    title: payload.title,
-    isDelete: false,
-  });
+  // const findPackage = await Package.findOne({
+  //   title: payload.title,
+  //   isDelete: false,
+  // });
 
-  let result;
-  if (findPackage) {
-    throw new ApiError(400, 'This package is already have');
-  } else {
-    result = await Package.create({ ...payload });
-  }
+  // let result;
+  // if (findPackage) {
+  //   throw new ApiError(400, 'This package is already have');
+  // } else {
+  //   result = await Package.create({ ...payload });
+  // }
 
+  const result = await Package.create({ ...payload });
   return result;
 };
 
@@ -37,7 +37,7 @@ const getAllPackageFromDb = async (
 ): Promise<IGenericResponse<IPackage[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-  console.log("🚀 ~ filtersData:", filtersData)
+  console.log('🚀 ~ filtersData:', filtersData);
 
   filtersData.isDelete = filtersData.isDelete
     ? filtersData.isDelete
@@ -76,7 +76,7 @@ const getAllPackageFromDb = async (
       ),
     });
   }
-  console.log("🚀 ~ andConditions:", andConditions)
+  console.log('🚀 ~ andConditions:', andConditions);
 
   //****************search and filters end**********/
 
