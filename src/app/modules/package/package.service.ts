@@ -226,7 +226,8 @@ const deletePackageByIdFromDb = async (
   let result;
   if (query.delete === ENUM_YN.YES) {
     result = await Package.findByIdAndDelete(id);
-  } else {
+  }
+   else {
     result = await Package.findOneAndUpdate(
       { _id: id },
       { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }

@@ -240,9 +240,11 @@ const deleteGlossaryByIdFromDb = async (
   query: IGlossaryFilters
 ): Promise<IGlossary | null> => {
   let result;
+  // result = await Glossary.findByIdAndDelete(id);
   if (query.delete === ENUM_YN.YES) {
     result = await Glossary.findByIdAndDelete(id);
-  } else {
+  }
+   else {
     result = await Glossary.findOneAndUpdate(
      { _id: id },
       { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }

@@ -587,9 +587,11 @@ const deleteCourseByIdFromDb = async (
   query: ICourseFilters
 ): Promise<ICourse | null> => {
   let result;
+  result = await Course.findByIdAndDelete(id);
   if (query.delete === ENUM_YN.YES) {
     result = await Course.findByIdAndDelete(id);
-  } else {
+  } 
+  else {
     result = await Course.findOneAndUpdate(
      { _id: id },
       { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }

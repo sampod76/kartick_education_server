@@ -394,9 +394,11 @@ const deleteModuleByIdFromDb = async (
   query: IModuleFilters
 ): Promise<IModule | null> => {
   let result;
+  // result = await Module.findByIdAndDelete(id);
   if (query.delete === ENUM_YN.YES) {
     result = await Module.findByIdAndDelete(id);
-  } else {
+  } 
+  else {
     result = await Module.findOneAndUpdate(
       { _id: id },
       { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
