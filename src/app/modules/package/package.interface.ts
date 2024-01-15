@@ -6,13 +6,13 @@ export type IPackageFilters = {
   searchTerm?: string;
   status?: string;
   select?: string;
-  //
-  category?: string;
-  course?: string;
+
+  membershipUid?: string;
+  type?: string;
   //
   delete?: 'yes' | 'no';
   // other query parameters
-  user?: string;
+
   isDelete?: string;
 };
 

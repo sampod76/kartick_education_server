@@ -8,7 +8,7 @@ import sendResponse from '../../share/sendResponse';
 import { IPackage } from './package.interface';
 import { PackageService } from './package.service';
 
-import { QUIZ_SUBMIT_FILTERABLE_FIELDS } from './package.constant';
+import { PACKAGE_FILTERABLE_FIELDS } from './package.constant';
 
 // import { z } from 'zod'
 const createPackage = catchAsync(async (req: Request, res: Response) => {
@@ -29,7 +29,7 @@ const getAllPackage = catchAsync(async (req: Request, res: Response) => {
   // console.log(req.query);
   const queryObject = req.query;
 
-  const filters = pick(queryObject, QUIZ_SUBMIT_FILTERABLE_FIELDS);
+  const filters = pick(queryObject, PACKAGE_FILTERABLE_FIELDS);
 
   //****************pagination start************ */
 

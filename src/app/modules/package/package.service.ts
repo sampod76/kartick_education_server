@@ -7,7 +7,7 @@ import { IPaginationOption } from '../../interface/pagination';
 
 import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import ApiError from '../../errors/ApiError';
-import { QUIZ_SUBMIT_SEARCHABLE_FIELDS } from './package.constant';
+import { PACKAGE_SEARCHABLE_FIELDS } from './package.constant';
 import { IPackage, IPackageFilters } from './package.interface';
 import { Package } from './package.model';
 
@@ -37,6 +37,8 @@ const getAllPackageFromDb = async (
 ): Promise<IGenericResponse<IPackage[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
+  console.log("🚀 ~ filtersData:", filtersData)
+
   filtersData.isDelete = filtersData.isDelete
     ? filtersData.isDelete
     : ENUM_YN.NO;
@@ -54,7 +56,7 @@ const getAllPackageFromDb = async (
   const andConditions = [];
   if (searchTerm) {
     andConditions.push({
-      $or: QUIZ_SUBMIT_SEARCHABLE_FIELDS.map(field =>
+      $or: PACKAGE_SEARCHABLE_FIELDS.map(field =>
         //search array value
         field === 'tags'
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
@@ -68,22 +70,13 @@ const getAllPackageFromDb = async (
   if (Object.keys(filtersData).length) {
     andConditions.push({
       $and: Object.entries(filtersData).map(([field, value]) =>
-        field === 'category'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'course'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'milestone'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'module'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'lesson'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'quiz'
-          ? { [field]: new Types.ObjectId(value) }
+        field === 'membershipUid'
+          ? { ['membership.uid']: value }
           : { [field]: value }
       ),
     });
   }
+  console.log("🚀 ~ andConditions:", andConditions)
 
   //****************search and filters end**********/
 
@@ -102,12 +95,12 @@ const getAllPackageFromDb = async (
   const whereConditions =
     andConditions.length > 0 ? { $and: andConditions } : {};
 
-  
   const result = await Package.find(whereConditions)
     .sort(sortConditions)
     .skip(Number(skip))
-    .limit(Number(limit)).populate('categories.category') 
- 
+    .limit(Number(limit))
+    .populate('categories.category');
+
   // const pipeline: PipelineStage[] = [
   //   { $match: whereConditions },
   //   { $sort: sortConditions },
@@ -119,7 +112,13 @@ const getAllPackageFromDb = async (
   //   {
   //     $lookup: {
   //       from: 'categories',
-  //       let: { id: '$categories.category' },
+  //       let: {
+  //         id: '$categories.category',
+  //         label: '$categories.label',
+  //         biannual: '$categories.biannual',
+  //         yearly: '$categories.yearly',
+  //         monthly: '$categories.monthly',
+  //       },
   //       pipeline: [
   //         {
   //           $match: {
@@ -127,7 +126,7 @@ const getAllPackageFromDb = async (
   //               $and: [
   //                 { $eq: ['$_id', '$$id'] },
   //                 { $eq: ['$isDelete', ENUM_YN.NO] },
-  //                 { $eq: ['$status', ENUM_STATUS.ACTIVE] },
+  //                 // { $eq: ['$status', ENUM_STATUS.ACTIVE] },
   //               ],
   //             },
   //             // Additional filter conditions for collection2
@@ -136,41 +135,47 @@ const getAllPackageFromDb = async (
   //         // Additional stages for collection2
   //         {
   //           $project: {
-  //             __v: 0,
-  //             isDelete: 0,
+  //             title: 1,
+  //             img: 1,
+  //             label: '$$label',
+  //             biannual: '$$categories.biannual',
+  //             yearly: '$$categories.yearly',
+  //             monthly: '$$categories.monthly',
   //           },
   //         },
   //       ],
   //       as: 'categoriesDetails',
   //     },
   //   },
-  //   // {
-  //   //   $unwind: '$categoriesDetails',
-  //   // },
-  //   // {
-  //   //   $group: {
-  //   //     _id: "$_id",
-  //   //     membership: { $first: "$membership" },
-  //   //     title: { $first: "$title" },
-  //   //     categories: {
-  //   //       $push: {
-  //   //         category: "$categoriesDetails._id",
-  //   //         label: "$categoriesDetails.label"
-  //   //       }
-  //   //     },
-  //   //     date_range: { $first: "$date_range" },
-  //   //     type: { $first: "$type" },
-  //   //     status: { $first: "$status" },
-  //   //     biannual: { $first: "$biannual" },
-  //   //     monthly: { $first: "$monthly" },
-  //   //     yearly: { $first: "$yearly" },
-  //   //     isDelete: { $first: "$isDelete" },
-  //   //     createdAt: { $first: "$createdAt" },
-  //   //     updatedAt: { $first: "$updatedAt" },
-  //   //     __v: { $first: "$__v" },
-  //   //     categoriesDetails: { $push: "$categoriesDetails" }
-  //   //   }
-  //   // }
+  //   {
+  //     $unwind: '$categoriesDetails',
+  //   },
+  //   {
+  //     $group: {
+  //       _id: '$_id',
+  //       membership: { $first: '$membership' },
+  //       title: { $first: '$title' },
+  //       categories: {
+  //         $push: {
+  //           category: '$categoriesDetails',
+  //           label: '$categoriesDetails.label',
+  //           biannual: '$$categoriesDetails.biannual',
+  //           yearly: '$$categoriesDetails.yearly',
+  //           monthly: '$$categoriesDetails.monthly',
+  //         },
+  //       },
+  //       date_range: { $first: '$date_range' },
+  //       type: { $first: '$type' },
+  //       status: { $first: '$status' },
+  //       biannual: { $first: '$biannual' },
+  //       monthly: { $first: '$monthly' },
+  //       yearly: { $first: '$yearly' },
+
+  //       createdAt: { $first: '$createdAt' },
+  //       updatedAt: { $first: '$updatedAt' },
+  //       __v: { $first: '$__v' },
+  //     },
+  //   },
   // ];
 
   // let result = null;
