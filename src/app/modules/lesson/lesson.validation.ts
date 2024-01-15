@@ -6,8 +6,8 @@ const createLessonZodSchema = z.object({
     title: z.string({ required_error: 'title field is required' }),
     imgs: z.array(z.string().url().optional()).optional(),
     videos: z.array(
-      z.object({ platform: z.string().optional(), link: z.string().url() })
-    ),
+      z.object({ platform: z.string().optional(), link: z.string().url().optional() })
+    ).optional(),
     details: z.string().optional(),
     short_description: z.string().optional(),
     author: z.string().optional(),
