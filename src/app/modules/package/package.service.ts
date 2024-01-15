@@ -1,4 +1,4 @@
-import mongoose, { PipelineStage, Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
 import { paginationHelper } from '../../../helper/paginationHelper';
 
@@ -102,49 +102,85 @@ const getAllPackageFromDb = async (
   const whereConditions =
     andConditions.length > 0 ? { $and: andConditions } : {};
 
-  /* 
-  const result = await Milestone.find(whereConditions)
+  
+  const result = await Package.find(whereConditions)
     .sort(sortConditions)
     .skip(Number(skip))
-    .limit(Number(limit)); 
-  */
-  const pipeline: PipelineStage[] = [
-    { $match: whereConditions },
-    { $sort: sortConditions },
-    { $skip: Number(skip) || 0 },
-    { $limit: Number(limit) || 15 },
-    {
-      $lookup: {
-        from: 'categories',
-        let: { id: '$categories.category' },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
-              // Additional filter conditions for collection2
-            },
-          },
-          // Additional stages for collection2
+    .limit(Number(limit)).populate('categories.category') 
+ 
+  // const pipeline: PipelineStage[] = [
+  //   { $match: whereConditions },
+  //   { $sort: sortConditions },
+  //   { $skip: Number(skip) || 0 },
+  //   { $limit: Number(limit) || 15 },
+  //   {
+  //     $unwind: '$categories',
+  //   },
+  //   {
+  //     $lookup: {
+  //       from: 'categories',
+  //       let: { id: '$categories.category' },
+  //       pipeline: [
+  //         {
+  //           $match: {
+  //             $expr: {
+  //               $and: [
+  //                 { $eq: ['$_id', '$$id'] },
+  //                 { $eq: ['$isDelete', ENUM_YN.NO] },
+  //                 { $eq: ['$status', ENUM_STATUS.ACTIVE] },
+  //               ],
+  //             },
+  //             // Additional filter conditions for collection2
+  //           },
+  //         },
+  //         // Additional stages for collection2
+  //         {
+  //           $project: {
+  //             __v: 0,
+  //             isDelete: 0,
+  //           },
+  //         },
+  //       ],
+  //       as: 'categoriesDetails',
+  //     },
+  //   },
+  //   // {
+  //   //   $unwind: '$categoriesDetails',
+  //   // },
+  //   // {
+  //   //   $group: {
+  //   //     _id: "$_id",
+  //   //     membership: { $first: "$membership" },
+  //   //     title: { $first: "$title" },
+  //   //     categories: {
+  //   //       $push: {
+  //   //         category: "$categoriesDetails._id",
+  //   //         label: "$categoriesDetails.label"
+  //   //       }
+  //   //     },
+  //   //     date_range: { $first: "$date_range" },
+  //   //     type: { $first: "$type" },
+  //   //     status: { $first: "$status" },
+  //   //     biannual: { $first: "$biannual" },
+  //   //     monthly: { $first: "$monthly" },
+  //   //     yearly: { $first: "$yearly" },
+  //   //     isDelete: { $first: "$isDelete" },
+  //   //     createdAt: { $first: "$createdAt" },
+  //   //     updatedAt: { $first: "$updatedAt" },
+  //   //     __v: { $first: "$__v" },
+  //   //     categoriesDetails: { $push: "$categoriesDetails" }
+  //   //   }
+  //   // }
+  // ];
 
-          {
-            $project: {
-              __v: 0,
-            },
-          },
-        ],
-        as: 'data_entry_info',
-      },
-    },
-  ];
-
-  let result = null;
-  if (select) {
-    result = await Package.find({})
-      .sort({ title: 1 })
-      .select({ ...projection });
-  } else {
-    result = await Package.aggregate(pipeline);
-  }
+  // let result = null;
+  // if (select) {
+  //   result = await Package.find({})
+  //     .sort({ title: 1 })
+  //     .select({ ...projection });
+  // } else {
+  //   result = await Package.aggregate(pipeline);
+  // }
 
   const total = await Package.countDocuments(whereConditions);
   return {
