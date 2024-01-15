@@ -7,7 +7,6 @@ const milestoneSchema = new Schema<IMilestone, MilestoneModel>(
     title: {
       type: String,
       trim: true,
-      required: true,
       index: true,
     },
     imgs: [{

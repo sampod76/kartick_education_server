@@ -5,17 +5,16 @@ import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 
 import { ENUM_STATUS } from '../../../enums/globalEnums';
-import ApiError from '../../errors/ApiError';
 import { CATEGORY_SEARCHABLE_FIELDS } from './consent.category';
 import { ICategory, ICategoryFilters } from './interface.category';
 import { Category } from './model.category';
 import { categoryPipeline } from './pipeline/categoryChildren';
 
 const createCategoryByDb = async (payload: ICategory): Promise<ICategory> => {
-  const find = await Category.findOne({ title: payload.title });
-  if (find) {
-    throw new ApiError(400, 'This Category All Ready Exist');
-  }
+  // const find = await Category.findOne({ title: payload.title, isDelete: true });
+  // if (find) {
+  //   throw new ApiError(400, 'This Category All Ready Exist');
+  // }
   const result = await Category.create(payload);
   return result;
 };
@@ -27,7 +26,9 @@ const getAllCategoryFromDb = async (
 ): Promise<IGenericResponse<ICategory[]>> => {
   //****************search and filters start************/
   const { searchTerm, ...filtersData } = filters;
-   filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
+  filtersData.status = filtersData.status
+    ? filtersData.status
+    : ENUM_STATUS.ACTIVE;
   const andConditions = [];
   if (searchTerm) {
     andConditions.push({
@@ -130,7 +131,9 @@ const getAllCategoryChildrenTitleFromDb = async (
 ): Promise<IGenericResponse<ICategory[]>> => {
   //****************search and filters start************/
   const { searchTerm, children, ...filtersData } = filters;
-   filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
+  filtersData.status = filtersData.status
+    ? filtersData.status
+    : ENUM_STATUS.ACTIVE;
   const andConditions = [];
   if (searchTerm) {
     andConditions.push({

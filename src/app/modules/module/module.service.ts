@@ -13,17 +13,7 @@ import { Module } from './module.model';
 
 const { ObjectId } = mongoose.Types;
 const createModuleByDb = async (payload: IModule): Promise<IModule> => {
-  const result = (await Module.create(payload)).populate([
-    {
-      path: 'author',
-      select: {
-        needsPasswordChange: 0,
-        createdAt: 0,
-        updatedAt: 0,
-        __v: 0,
-      },
-    },
-  ]);
+  const result = await Module.create(payload);
   return result;
 };
 
@@ -404,11 +394,13 @@ const deleteModuleByIdFromDb = async (
   query: IModuleFilters
 ): Promise<IModule | null> => {
   let result;
+  // result = await Module.findByIdAndDelete(id);
   if (query.delete === ENUM_YN.YES) {
     result = await Module.findByIdAndDelete(id);
-  } else {
+  } 
+  else {
     result = await Module.findOneAndUpdate(
-     { _id: id },
+      { _id: id },
       { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
     );
   }
