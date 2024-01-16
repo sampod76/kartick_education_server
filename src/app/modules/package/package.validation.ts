@@ -71,25 +71,25 @@ const updatePackageZodSchema = z.object({
       z.object({
         category: z.string(),
         label: z.string().optional(),
-        //! -------if type is multiple select --------
-        biannual: z
-          .object({
-            price: z.number().optional(),
-            each_student_increment: z.number(),
-          })
-          .optional(),
-        monthly: z
-          .object({
-            price: z.number().optional(),
-            each_student_increment: z.number(),
-          })
-          .optional(),
-        yearly: z
-          .object({
-            price: z.number().optional(),
-            each_student_increment: z.number(),
-          })
-          .optional(),
+        // //! -------if type is multiple select --------
+        // biannual: z
+        //   .object({
+        //     price: z.number().optional(),
+        //     each_student_increment: z.number(),
+        //   })
+        //   .optional(),
+        // monthly: z
+        //   .object({
+        //     price: z.number().optional(),
+        //     each_student_increment: z.number(),
+        //   })
+        //   .optional(),
+        // yearly: z
+        //   .object({
+        //     price: z.number().optional(),
+        //     each_student_increment: z.number(),
+        //   })
+        //   .optional(),
       })
     ),
     date_range: z.array(z.string()).optional(),
