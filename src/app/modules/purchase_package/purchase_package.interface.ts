@@ -56,18 +56,21 @@ export type IPurchasePackage = {
   type: 'bundle' | 'select' | 'multiple_select';
   status: 'active' | 'deactivate' | 'save';
   //
-  biannual?: {
-    price: number;
-    each_student_increment: number;
+  purchase_time: {
+    biannual?: {
+      price: number;
+      each_student_increment: number;
+    };
+    monthly?: {
+      price: number;
+      each_student_increment: number;
+    };
+    yearly?: {
+      price: number;
+      each_student_increment: number;
+    };
   };
-  monthly?: {
-    price: number;
-    each_student_increment: number;
-  };
-  yearly?: {
-    price: number;
-    each_student_increment: number;
-  };
+
   isDelete: string;
 };
 

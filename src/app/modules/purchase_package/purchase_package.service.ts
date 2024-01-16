@@ -109,14 +109,14 @@ const getAllPurchasePackageFromDb = async (
     .populate({
       path:"user",
       select:{password:0},
-      populate: {
-        path: 'teacher', 
-        model: 'teachers',
-        populate: {
-            path: 'user',
-            model: 'User'
-        }
-    }
+    //   populate: {
+    //     path: 'teacher', 
+    //     model: 'teachers',
+    //     populate: {
+    //         path: 'user',
+    //         model: 'User'
+    //     }
+    // }
     });
 
   // const pipeline: PipelineStage[] = [

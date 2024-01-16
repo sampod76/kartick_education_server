@@ -1,14 +1,14 @@
 import { Schema, model } from 'mongoose';
+import { STATUS_ARRAY } from '../../../constant/globalConstant';
 import { gender } from './student.constant';
 import { IStudent, StudentModel } from './student.interface';
-import { STATUS_ARRAY } from '../../../constant/globalConstant';
 
 export const StudentSchema = new Schema<IStudent, StudentModel>(
   {
     name: {
       type: {
         firstName: {
-          type: String, 
+          type: String,
         },
         lastName: {
           type: String,
@@ -22,6 +22,9 @@ export const StudentSchema = new Schema<IStudent, StudentModel>(
       enum: gender,
     },
     dateOfBirth: {
+      type: String,
+    },
+    userId: {
       type: String,
     },
 
@@ -39,7 +42,7 @@ export const StudentSchema = new Schema<IStudent, StudentModel>(
       enum: STATUS_ARRAY,
       default: 'active',
     },
-   address: {
+    address: {
       type: String,
     },
 

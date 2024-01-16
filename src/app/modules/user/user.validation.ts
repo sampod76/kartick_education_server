@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { gender } from '../student/student.constant';
 
-const SignUpZodSchema = z.object({
+const createStudentZodSchema = z.object({
   body: z.object({
     password: z.string(),
     student: z.object({
@@ -13,6 +13,7 @@ const SignUpZodSchema = z.object({
           required_error: 'Last name is required',
         }),
       }),
+   
       gender: z.enum([...gender] as [string, ...string[]], {
         required_error: 'Gender is required',
       }),
@@ -97,7 +98,6 @@ const createSellerZodSchema = z.object({
 const createTrainerZodSchema = z.object({
   body: z.object({
     password: z.string().optional(),
-
     trainer: z.object({
       name: z
         .object({
@@ -117,7 +117,7 @@ const createTrainerZodSchema = z.object({
 });
 
 export const UserValidation = {
-  SignUpZodSchema,
+ createStudentZodSchema,
   createModeratorZodSchema,
   createAdminZodSchema,
   createSellerZodSchema,

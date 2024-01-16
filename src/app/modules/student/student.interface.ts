@@ -17,6 +17,7 @@ export type IStudent = {
   address?: string;
   status: string;
   img?: string;
+  userId?: string;
 };
 
 

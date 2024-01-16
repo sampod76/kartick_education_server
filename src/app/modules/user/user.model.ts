@@ -9,13 +9,16 @@ const userSchema = new Schema<IUser, UserModel>(
   {
     email: {
       type: String,
-      required: true,
+      // required: true,
       index: true,
       //unique: true,
     },
     role: {
       type: String,
       required: true,
+    },
+    userId:{
+      type: String,
     },
     password: {
       type: String,

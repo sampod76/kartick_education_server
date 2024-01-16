@@ -31,6 +31,7 @@ export type IUser = {
   status: IStatus;
   blockingTimeout?: number;
   //
+  userId?: string;
   admin?: Types.ObjectId | IAdmin;
   student?: Types.ObjectId | IStudent;
   trainer?: Types.ObjectId | ITrainer;

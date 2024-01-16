@@ -105,6 +105,7 @@ const createSeller: RequestHandler = catchAsync(
     });
   }
 );
+
 const createTrainer: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const { trainer, ...userData } = req.body;

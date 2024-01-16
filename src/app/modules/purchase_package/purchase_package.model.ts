@@ -19,7 +19,7 @@ const PurchasePackageSchema = new Schema<
       uid: String,
     },
     title: String,
-    date_range: [String],
+
     categories: [
       {
         category: { type: Schema.Types.ObjectId, ref: 'Category' }, // Assuming 'Category' is the name of your category model
@@ -52,15 +52,8 @@ const PurchasePackageSchema = new Schema<
       type: String,
       enum: PURCHASE_PACKAGE_TYPES_ARRAY,
     },
-    biannual: {
-      price: Number,
-      each_student_increment: Number,
-    },
-    monthly: {
-      price: Number,
-      each_student_increment: Number,
-    },
-    yearly: {
+    purchase_time: {
+      label: String, //example:biannual,monthly,yearly
       price: Number,
       each_student_increment: Number,
     },

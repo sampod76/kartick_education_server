@@ -29,5 +29,15 @@ export default {
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
   },
+  payment_url: {
+    stripe_success_url:
+      process.env.NODE_ENV === 'development'
+        ? process.env.STRIPE_SUCCESS_URL_LOCAL
+        : process.env.STRIPE_SUCCESS_URL,
+    stripe_cancel_url:
+      process.env.NODE_ENV === 'development'
+        ? process.env.STRIPE_CANCEL_URL_LOCAL
+        : process.env.STRIPE_CANCEL_URL,
+  },
   // cloudinary_api_secret:process.env.cloudinary_api_secret
 };

@@ -480,7 +480,7 @@ const deleteQuizByIdFromDb = async (
   } else {
     result = await Quiz.findOneAndUpdate(
      { _id: id },
-      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
+     { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
     );
   }
   return result;
