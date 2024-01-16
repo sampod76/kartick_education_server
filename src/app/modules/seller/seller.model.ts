@@ -16,6 +16,9 @@ const SellerSchema = new Schema<ISeller, SellerModel>(
       },
       required: true,
     },
+    userId:{
+      type: String,
+    },
     dateOfBirth: {
       type: String,
     },
@@ -45,10 +48,10 @@ const SellerSchema = new Schema<ISeller, SellerModel>(
     details: {
       type: String,
     },
-isDelete: {
+    isDelete: {
       type: String,
-      enum:["yes", "no"],
-      default: 'yes',
+      enum: ['yes', 'no'],
+      default: 'no',
     },
   },
   {

@@ -39,7 +39,7 @@ const glossarySchema = new Schema<IGlossary, GlossaryModel>(
 isDelete: {
       type: String,
       enum:["yes", "no"],
-      default: 'yes',
+      default: 'no',
     },
     demo_video: {
       type: Object,

@@ -69,6 +69,7 @@ const quizSchema = new Schema<IQuiz, QuizModel>(
       default: {},
     },
     tags: [String],
+    isDelete: { type: String, default: 'no' },
   },
   {
     timestamps: true,

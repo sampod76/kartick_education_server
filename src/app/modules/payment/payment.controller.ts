@@ -1,126 +1,101 @@
-// /* eslint-disable @typescript-eslint/no-unused-vars */
-// import { Request, Response } from 'express';
-// import httpStatus from 'http-status';
-// import { Types } from 'mongoose';
-// import paypal, { Payment } from 'paypal-rest-sdk';
-// import Stripe from 'stripe';
-// import { decrypt, encrypt } from '../../../helper/encryptionJwt';
-// import ApiError from '../../errors/ApiError';
-// import { IEncodedPaymentData } from '../../interface/encrypt';
-// import catchAsync from '../../share/catchAsync';
-// import { GeneralUser } from '../generalUser/model.GeneralUser';
-// import { Purchased_courses } from '../purchased_courses/purchased_courses.model';
-// // import { v4 as uuidv4 } from 'uuid';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Request, Response } from 'express';
+import paypal from 'paypal-rest-sdk';
+import Stripe from 'stripe';
+import ApiError from '../../errors/ApiError';
+import catchAsync from '../../share/catchAsync';
+import config from '../../../config';
+// import { v4 as uuidv4 } from 'uuid';
 
-// // import { errorLogger, logger } from '../../share/logger';
-// paypal.configure({
-//   mode: 'sandbox',
-//   client_id: process.env.PAYPLE_CLIENT_ID as string,
-//   client_secret: process.env.PAYPLE_SECRET_KEY as string,
-// });
+// import { errorLogger, logger } from '../../share/logger';
+paypal.configure({
+  mode: 'sandbox',
+  client_id: process.env.PAYPLE_CLIENT_ID as string,
+  client_secret: process.env.PAYPLE_SECRET_KEY as string,
+});
 
-// // import { z } from 'zod'
-// import path from 'path';
-// import { Purchased_coursesService } from '../purchased_courses/purchased_courses.service';
-// const createPaymentStripe = catchAsync(async (req: Request, res: Response) => {
-//   const stripe = new Stripe(process.env.STRIPE_SK as string, {
-//     apiVersion: '2022-11-15',
-//     typescript: true,
-//   });
-//   const { paymentAmount: price, course_id } = req.body;
-//   const amount: number = parseFloat(price) * 100;
+// import { z } from 'zod'
 
-//   const result = await GeneralUser.findById(req?.user?._id);
-//   const courseIdExaite = result?.purchase_courses?.find(
-//     value => value?.course?.toString() === course_id
-//   );
+const createPaymentStripe = catchAsync(async (req: Request, res: Response) => {
+  const stripe = new Stripe(process.env.STRIPE_SK as string, {
+    apiVersion: '2023-10-16',
+    typescript: true,
+  });
+  const { products } = req.body;
 
-//   if (courseIdExaite) {
-//     return res.status(404).send({
-//       success: false,
-//       statusCode: 404,
-//       message: 'You are already purchased course!!😭😭',
-//     });
-//   }
+  const lineItems = products.map((product: any) => ({
+    price_data: {
+      currency: 'usd',
+      product_data: {
+        name: product.name,
+        images: [product.img],
+      },
+      unit_amount: Math.round(Number(product.price) * 100),
+    },
+    quantity: product.quantity || 1,
+  }));
 
-//   const paymentIntent: Stripe.PaymentIntent =
-//     await stripe.paymentIntents.create({
-//       amount,
-//       currency: 'USD',
-//       payment_method_types: ['card'],
-      
-//     });
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items: lineItems,
+    mode: 'payment',
+    success_url: config.payment_url.stripe_success_url,
+    cancel_url: config.payment_url.stripe_cancel_url,
+  });
+  if (session?.id) {
+    res.status(200).send({
+      success: true,
+      statusCode: 200,
+      message: 'successfull get secret',
+      data: { id: session?.id },
+    });
+  } else {
+    throw new ApiError(404, 'Payment failed');
+  }
+});
 
-//   if (paymentIntent.client_secret) {
-//     res.status(200).send({
-//       success: true,
-//       statusCode: 200,
-//       message: 'successfull get secret',
-//       data: { clientSecret: paymentIntent.client_secret },
-//     });
-//   } else {
-//     throw new ApiError(404, 'Payment faild');
-//   }
-// });
+const createPaymentStripeAdvanceForNative = catchAsync(
+  async (req: Request, res: Response) => {
+    const { paymentAmount: price, course_id } = req.body;
+    const amount: number = parseFloat(price) * 100;
+    const stripe = new Stripe(process.env.STRIPE_SK as string, {
+      apiVersion: '2023-10-16',
+      typescript: true,
+    });
 
-// const createPaymentStripeAdvanceForNative = catchAsync(
-//   async (req: Request, res: Response) => {
-//     const { paymentAmount: price, course_id } = req.body;
-//     const amount: number = parseFloat(price) * 100;
+    // Use an existing Customer ID if this is a returning customer.
+    const customer = await stripe.customers.create();
+    const ephemeralKey = await stripe.ephemeralKeys.create(
+      { customer: customer.id },
+      { apiVersion: '2022-11-15' }
+    );
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount,
+      currency: 'USD',
+      customer: customer.id,
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
 
-//     //********** */ You are already purchased course!!*******
-//     const result = await GeneralUser.findById(req?.user?._id);
-//     const courseIdExaite = result?.purchase_courses?.find(
-//       value => value?.course?.toString() === course_id
-//     );
-//     if (courseIdExaite) {
-//       return res.status(404).send({
-//         success: false,
-//         statusCode: 404,
-//         message: 'You are already purchased course!!😭😭',
-//       });
-//     }
-//     //********** */ You are already purchased course!!*******
-
-//     const stripe = new Stripe(process.env.STRIPE_SK as string, {
-//       apiVersion: '2022-11-15',
-//       typescript: true,
-//     });
-
-//     // Use an existing Customer ID if this is a returning customer.
-//     const customer = await stripe.customers.create();
-//     const ephemeralKey = await stripe.ephemeralKeys.create(
-//       { customer: customer.id },
-//       { apiVersion: '2022-11-15' }
-//     );
-//     const paymentIntent = await stripe.paymentIntents.create({
-//       amount: amount,
-//       currency: 'USD',
-//       customer: customer.id,
-//       automatic_payment_methods: {
-//         enabled: true,
-//       },
-      
-//     });
-
-//     if (paymentIntent.client_secret) {
-//       return res.status(200).send({
-//         success: true,
-//         statusCode: 200,
-//         message: 'successfull get secret',
-//         data: {
-//           // paymentIntent: paymentIntent.client_secret,
-//           clientSecret: paymentIntent.client_secret,
-//           ephemeralKey: ephemeralKey.secret,
-//           customer: customer.id,
-//           publishableKey: process.env.STRIPE_PK,
-//         },
-//       });
-//     } else {
-//       throw new ApiError(404, 'Payment faild');
-//     }
-//   }
-// );
+    if (paymentIntent.client_secret) {
+      return res.status(200).send({
+        success: true,
+        statusCode: 200,
+        message: 'successful get secret',
+        data: {
+          // paymentIntent: paymentIntent.client_secret,
+          clientSecret: paymentIntent.client_secret,
+          ephemeralKey: ephemeralKey.secret,
+          customer: customer.id,
+          publishableKey: process.env.STRIPE_PK,
+        },
+      });
+    } else {
+      throw new ApiError(404, 'Payment failed');
+    }
+  }
+);
 
 // // payple intergrate
 // const createPaymentPayple = catchAsync(async (req: Request, res: Response) => {
@@ -214,7 +189,7 @@
 //     throw new ApiError(httpStatus.UNAUTHORIZED, 'unauthorized access !!');
 //   }
 //   const data = decrypt(app);
-  
+
 //   const execute_payment_json = {
 //     payer_id: payerId,
 //     transactions: [
@@ -240,7 +215,7 @@
 //     });
 //     console.log(payment);
 
-//     /* 
+//     /*
 //     {
 //       id: 'PAYID-MS2BCPA4BT713665C9605913',
 //       intent: 'sale',
@@ -280,7 +255,7 @@
 //       httpStatusCode: 200
 //     }
 //      */
-    
+
 //     // if payment status not approved then throw error
 //     if (!(payment?.state === 'approved')) {
 //       return res.sendFile(
@@ -355,10 +330,10 @@
 //   return res.sendFile(path.join(__dirname, '../../../views/cancle.html'));
 // });
 
-// export const createPaymentController = {
-//   createPaymentStripe,
-//   createPaymentStripeAdvanceForNative,
-//   createPaymentPayple,
-//   chackPayplePayment,
-//   canclePayplePayment,
-// };
+export const createPaymentController = {
+  createPaymentStripe,
+  createPaymentStripeAdvanceForNative,
+  //   createPaymentPayple,
+  //   chackPayplePayment,
+  //   canclePayplePayment,
+};

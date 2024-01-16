@@ -14,19 +14,19 @@ const quizSubmitSchema = new Schema<IPackage, PackageModel>(
       {
         category: { type: Schema.Types.ObjectId, ref: 'Category' },
         label: { type: String },
-        //!----------- if type is multiple_select ----------
-        biannual: {
-          price: { type: Number },
-          each_student_increment: { type: Number },
-        },
-        monthly: {
-          price: { type: Number },
-          each_student_increment: { type: Number },
-        },
-        yearly: {
-          price: { type: Number },
-          each_student_increment: { type: Number },
-        },
+        // //!----------- if type is multiple_select ----------
+        // biannual: {
+        //   price: { type: Number },
+        //   each_student_increment: { type: Number },
+        // },
+        // monthly: {
+        //   price: { type: Number },
+        //   each_student_increment: { type: Number },
+        // },
+        // yearly: {
+        //   price: { type: Number },
+        //   each_student_increment: { type: Number },
+        // },
         //!---------------------------------------------------
       },
     ],

@@ -40,7 +40,7 @@ const AdminSchema = new Schema<IAdmin, AdminModel>(
 isDelete: {
       type: String,
       enum:["yes", "no"],
-      default: 'yes',
+      default: 'no',
     },
     img: {
       type: String,

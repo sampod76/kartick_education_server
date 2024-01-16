@@ -10,6 +10,7 @@ export type ISeller = {
   gender: 'male' | 'female';
   dateOfBirth: string;
   email: string;
+  userId?: string;
   phoneNumber: string;
   bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
   address: string;

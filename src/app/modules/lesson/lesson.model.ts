@@ -52,7 +52,7 @@ const lessonSchema = new Schema<ILesson, LessonModel>(
 isDelete: {
       type: String,
       enum:["yes", "no"],
-      default: 'yes',
+      default: 'no',
     },
     lesson_number: {
       type: Number,

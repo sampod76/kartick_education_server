@@ -17,6 +17,9 @@ const TrainerSchema = new Schema<ITrainer, TrainerModel>(
       },
       required: true,
     },
+    userId:{
+      type: String,
+    },
     dateOfBirth: {
       type: String,
     },

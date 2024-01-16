@@ -6,15 +6,19 @@ import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 
 import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
-import { PACKAGE_SEARCHABLE_FIELDS } from './purchase_package.constant';
-import { IPackage, IPackageFilters } from './purchase_package.interface';
-import { Package } from './purchase_package.model';
+import ApiError from '../../errors/ApiError';
+import { PURCHASE_PACKAGE_SEARCHABLE_FIELDS } from './purchase_package.constant';
+import {
+  IPurchasePackage,
+  IPurchasePackageFilters,
+} from './purchase_package.interface';
+import { PurchasePackage } from './purchase_package.model';
 
 const { ObjectId } = mongoose.Types;
-const createPackageByDb = async (
-  payload: IPackage
-): Promise<IPackage | null> => {
-  // const findPackage = await Package.findOne({
+const createPurchasePackageByDb = async (
+  payload: IPurchasePackage
+): Promise<IPurchasePackage | null> => {
+  // const findPackage = await PurchasePackage.findOne({
   //   title: payload.title,
   //   isDelete: false,
   // });
@@ -23,18 +27,18 @@ const createPackageByDb = async (
   // if (findPackage) {
   //   throw new ApiError(400, 'This package is already have');
   // } else {
-  //   result = await Package.create({ ...payload });
+  //   result = await PurchasePackage.create({ ...payload });
   // }
 
-  const result = await Package.create({ ...payload });
+  const result = await PurchasePackage.create({ ...payload });
   return result;
 };
 
 //getAllQuizFromDb
-const getAllPackageFromDb = async (
-  filters: IPackageFilters,
+const getAllPurchasePackageFromDb = async (
+  filters: IPurchasePackageFilters,
   paginationOptions: IPaginationOption
-): Promise<IGenericResponse<IPackage[]>> => {
+): Promise<IGenericResponse<IPurchasePackage[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
   console.log('🚀 ~ filtersData:', filtersData);
@@ -56,7 +60,7 @@ const getAllPackageFromDb = async (
   const andConditions = [];
   if (searchTerm) {
     andConditions.push({
-      $or: PACKAGE_SEARCHABLE_FIELDS.map(field =>
+      $or: PURCHASE_PACKAGE_SEARCHABLE_FIELDS.map(field =>
         //search array value
         field === 'tags'
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
@@ -72,6 +76,8 @@ const getAllPackageFromDb = async (
       $and: Object.entries(filtersData).map(([field, value]) =>
         field === 'membershipUid'
           ? { ['membership.uid']: value }
+          : field === 'package'
+          ? { [field]: new Types.ObjectId(value) }
           : { [field]: value }
       ),
     });
@@ -95,11 +101,23 @@ const getAllPackageFromDb = async (
   const whereConditions =
     andConditions.length > 0 ? { $and: andConditions } : {};
 
-  const result = await Package.find(whereConditions)
+  const result = await PurchasePackage.find(whereConditions)
     .sort(sortConditions)
     .skip(Number(skip))
     .limit(Number(limit))
-    .populate('categories.category');
+    .populate('categories.category')
+    .populate({
+      path:"user",
+      select:{password:0},
+    //   populate: {
+    //     path: 'teacher', 
+    //     model: 'teachers',
+    //     populate: {
+    //         path: 'user',
+    //         model: 'User'
+    //     }
+    // }
+    });
 
   // const pipeline: PipelineStage[] = [
   //   { $match: whereConditions },
@@ -180,14 +198,14 @@ const getAllPackageFromDb = async (
 
   // let result = null;
   // if (select) {
-  //   result = await Package.find({})
+  //   result = await PurchasePackage.find({})
   //     .sort({ title: 1 })
   //     .select({ ...projection });
   // } else {
-  //   result = await Package.aggregate(pipeline);
+  //   result = await PurchasePackage.aggregate(pipeline);
   // }
 
-  const total = await Package.countDocuments(whereConditions);
+  const total = await PurchasePackage.countDocuments(whereConditions);
   return {
     meta: {
       page,
@@ -199,36 +217,49 @@ const getAllPackageFromDb = async (
 };
 
 // get single e form db
-const getPackageVerifyFromDb = async (
+const getPurchasePackageVerifyFromDb = async (
   id: string,
   user: any
-): Promise<IPackage[] | null> => {
-  const findSubmitQuiz = await Package.find({
+): Promise<IPurchasePackage[] | null> => {
+  const findSubmitQuiz = await PurchasePackage.find({
     quiz: new Types.ObjectId(id as string),
     user: new Types.ObjectId(user.id as string),
-  }).populate('singleQuiz');
+  });
 
   return findSubmitQuiz;
 };
-const getPackageSingelFromDb = async (id: string): Promise<IPackage | null> => {
-  const result = await Package.aggregate([
+const getPurchasePackageSingelFromDb = async (
+  id: string
+): Promise<IPurchasePackage | null> => {
+  const result = await PurchasePackage.aggregate([
     { $match: { _id: new ObjectId(id) } },
   ]);
 
   return result[0];
 };
-
-// delete e form db
-const deletePackageByIdFromDb = async (
+const updatePurchasePackageFromDb = async (
   id: string,
-  query: IPackageFilters
-): Promise<IPackage | null> => {
+  payload: Partial<IPurchasePackage>
+): Promise<IPurchasePackage | null> => {
+  const result = await PurchasePackage.findOneAndUpdate({ _id: id }, payload, {
+    new: true,
+    runValidators: true,
+  });
+  if (!result) {
+    throw new ApiError(500, 'Module update fail!!😪😭😰');
+  }
+  return result;
+};
+// delete e form db
+const deletePurchasePackageByIdFromDb = async (
+  id: string,
+  query: IPurchasePackageFilters
+): Promise<IPurchasePackage | null> => {
   let result;
   if (query.delete === ENUM_YN.YES) {
-    result = await Package.findByIdAndDelete(id);
-  } 
-  else {
-    result = await Package.findOneAndUpdate(
+    result = await PurchasePackage.findByIdAndDelete(id);
+  } else {
+    result = await PurchasePackage.findOneAndUpdate(
       { _id: id },
       { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
     );
@@ -236,10 +267,11 @@ const deletePackageByIdFromDb = async (
   return result;
 };
 
-export const PackageService = {
-  createPackageByDb,
-  getAllPackageFromDb,
-  getPackageSingelFromDb,
-  deletePackageByIdFromDb,
-  getPackageVerifyFromDb,
+export const PurchasePackageService = {
+  createPurchasePackageByDb,
+  getAllPurchasePackageFromDb,
+  getPurchasePackageSingelFromDb,
+  deletePurchasePackageByIdFromDb,
+  getPurchasePackageVerifyFromDb,
+  updatePurchasePackageFromDb,
 };

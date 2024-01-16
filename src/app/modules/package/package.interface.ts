@@ -29,18 +29,18 @@ export type IPackage = {
     label?: string;
 
     //
-    biannual?: {
-      price: number;
-      each_student_increment?: number;
-    };
-    monthly?: {
-      price: number;
-      each_student_increment?: number;
-    };
-    yearly?: {
-      price: number;
-      each_student_increment?: number;
-    };
+    // biannual?: {
+    //   price: number;
+    //   each_student_increment?: number;
+    // };
+    // monthly?: {
+    //   price: number;
+    //   each_student_increment?: number;
+    // };
+    // yearly?: {
+    //   price: number;
+    //   each_student_increment?: number;
+    // };
   }[];
   date_range?: string[];
   type: 'bundle' | 'select' | 'multiple_select';

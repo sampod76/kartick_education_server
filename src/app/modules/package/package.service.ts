@@ -37,7 +37,7 @@ const getAllPackageFromDb = async (
 ): Promise<IGenericResponse<IPackage[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-  console.log("🚀 ~ filtersData:", filtersData)
+  console.log('🚀 ~ filtersData:', filtersData);
 
   filtersData.isDelete = filtersData.isDelete
     ? filtersData.isDelete
@@ -76,7 +76,7 @@ const getAllPackageFromDb = async (
       ),
     });
   }
-  console.log("🚀 ~ andConditions:", andConditions)
+  console.log('🚀 ~ andConditions:', andConditions);
 
   //****************search and filters end**********/
 
@@ -217,6 +217,20 @@ const getPackageSingelFromDb = async (id: string): Promise<IPackage | null> => {
 
   return result[0];
 };
+// update e form db
+const updatePackageFromDb = async (
+  id: string,
+  payload: Partial<IPackage>
+): Promise<IPackage | null> => {
+  const result = await Package.findOneAndUpdate({ _id: id }, payload, {
+    new: true,
+    runValidators: true,
+  });
+  if (!result) {
+    throw new ApiError(500, 'Module update fail!!😪😭😰');
+  }
+  return result;
+};
 
 // delete e form db
 const deletePackageByIdFromDb = async (
@@ -226,8 +240,7 @@ const deletePackageByIdFromDb = async (
   let result;
   if (query.delete === ENUM_YN.YES) {
     result = await Package.findByIdAndDelete(id);
-  }
-   else {
+  } else {
     result = await Package.findOneAndUpdate(
       { _id: id },
       { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
@@ -241,5 +254,6 @@ export const PackageService = {
   getAllPackageFromDb,
   getPackageSingelFromDb,
   deletePackageByIdFromDb,
+  updatePackageFromDb,
   getPackageVerifyFromDb,
 };

@@ -12,7 +12,7 @@ export type ITrainer = {
   dateOfBirth: string;
   email: string;
   phoneNumber: string;
- 
+  userId?: string;
   address?: string;
   img?: string;
   details?: string;

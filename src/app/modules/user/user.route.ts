@@ -32,7 +32,12 @@ router
 
 router.post(
   '/create-student',
-  validateRequestZod(UserValidation.SignUpZodSchema),
+  validateRequestZod(UserValidation.createStudentZodSchema),
+  UserController.createStudent
+);
+router.post(
+  '/create-student-author',
+  validateRequestZod(UserValidation.createStudentZodSchema),
   UserController.createStudent
 );
 

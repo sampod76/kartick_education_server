@@ -7,7 +7,7 @@ import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 import { IAdmin } from '../admin/admin.interface';
 import { Admin } from '../admin/admin.model';
-
+import ShortUniqueId from 'short-unique-id';
 import { ENUM_STATUS } from '../../../enums/globalEnums';
 import { ENUM_USER_ROLE } from '../../../enums/users';
 import { ISeller } from '../seller/seller.interface';
@@ -268,6 +268,71 @@ const createStudentService = async (
 
   return newUserAllData;
 };
+
+const createStudentByOtherMamberService = async (
+  student: IStudent,
+  user: IUser
+): Promise<IUser | null> => {
+  // default password
+  if (!user.password) {
+    user.password = config.default_student_pass as string;
+  }
+  const uid = new ShortUniqueId({ length: 8 });
+  user.userId = `S-${uid.rnd()}`;
+  student.userId = `S-${uid.rnd()}`;
+  // const exist = await User.isUserExistMethod(user.email);
+  // if (exist) {
+  //   throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
+  // }
+  // set role
+  user.role = ENUM_USER_ROLE.STUDENT;
+
+  let newUserAllData = null;
+  const newStudent = await Student.create(student);
+  if (newStudent) {
+    user.student = newStudent?._id;
+    newUserAllData = await User.create(user);
+  } else {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    await Student.findByIdAndDelete(newStudent._id);
+    throw new ApiError(404, 'Admin create failed');
+  }
+  // const session = await mongoose.startSession();
+  // try {
+  //   session.startTransaction();
+
+  //   //array
+  //   const newStudent = await Student.create([student], { session });
+
+  //   if (!newStudent.length) {
+  //     throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create student');
+  //   }
+  //   //set student -->  _id into user.student
+  //   user.student = newStudent[0]._id;
+
+  //   const newUser = await User.create([user], { session });
+
+  //   if (!newUser.length) {
+  //     throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create user');
+  //   }
+  //   newUserAllData = newUser[0];
+
+  //   await session.commitTransaction();
+  //   await session.endSession();
+  // } catch (error) {
+  //   await session.abortTransaction();
+  //   await session.endSession();
+  //   throw error;
+  // }
+
+  // if (newUserAllData) {
+  //   newUserAllData = await User.findOne({ id: newUserAllData.id });
+  // }
+
+  return newUserAllData;
+};
+
 const createTrainerService = async (
   trainer: ITrainer,
   user: IUser
@@ -280,6 +345,9 @@ const createTrainerService = async (
   if (exist) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
   }
+  const uid = new ShortUniqueId({ length: 8 });
+  user.userId = `T-${uid.rnd()}`;
+  trainer.userId = `T-${uid.rnd()}`;
   // set role
   user.role = ENUM_USER_ROLE.TRAINER;
 
@@ -337,7 +405,9 @@ const createSellerService = async (
   }
   // set role
   user.role = ENUM_USER_ROLE.SELLER;
-
+  const uid = new ShortUniqueId({ length: 8 });
+  user.userId = `T-${uid.rnd()}`;
+  seller.userId = `T-${uid.rnd()}`;
   let newUserAllData = null;
   const newSeller = await Seller.create(seller);
   if (newSeller) {
@@ -392,4 +462,5 @@ export const UserService = {
   getAllUsers,
   getSingleUsers,
   deleteSingleUsersFormDb,
+  createStudentByOtherMamberService
 };

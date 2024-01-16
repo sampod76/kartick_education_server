@@ -27,6 +27,10 @@ router
   .delete(
     authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
     PackageController.deletePackage
+  )
+  .patch(
+    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+    PackageController.updatePackage
   );
 
 export const PackageRoute = router;
