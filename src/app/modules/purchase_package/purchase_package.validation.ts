@@ -1,123 +1,184 @@
 import { z } from 'zod';
-import { PACKAGE_TYPES_ARRAY } from './purchase_package.constant';
+import { PURCHASE_PACKAGE_TYPES_ARRAY } from './purchase_package.constant';
 
-const createPackageZodSchema = z.object({
+const createPurchasePackageZodSchema = z.object({
   body: z.object({
+    //
+    package: z.string(),
+    expiry_date: z.string(),
+    total_purchase_student: z.number(),
+    remaining_purchase_student: z.number(),
+    students: z.array(z.string()),
+    user:z.string(),
+    //
     membership: z.object({
       title: z.string(),
       uid: z.string().optional(),
     }),
-    title: z.string({ required_error: 'package name is required' }),
-    img: z.string().optional(),
+    title: z.string(),
+    date_range: z.array(z.string()),
     categories: z.array(
       z.object({
-        category: z.string(),
+        categories: z.array(
+          z.object({
+            category: z.string(),
+            label: z.string().optional(),
+            //! -------if type is multiple select --------
+            biannual: z
+              .object({
+                price: z.number().optional(),
+                each_student_increment: z.number(),
+              })
+              .optional(),
+            monthly: z
+              .object({
+                price: z.number().optional(),
+                each_student_increment: z.number(),
+              })
+              .optional(),
+            yearly: z
+              .object({
+                price: z.number().optional(),
+                each_student_increment: z.number(),
+              })
+              .optional(),
+          })
+        ),
         label: z.string().optional(),
-        //! -------if type is multiple select --------
         biannual: z
           .object({
-            price: z.number().optional(),
-            each_student_increment: z.number(),
+            price: z.number(),
+            each_student_increment: z.number().optional(),
           })
           .optional(),
         monthly: z
           .object({
-            price: z.number().optional(),
-            each_student_increment: z.number(),
+            price: z.number(),
+            each_student_increment: z.number().optional(),
           })
           .optional(),
         yearly: z
           .object({
-            price: z.number().optional(),
-            each_student_increment: z.number(),
+            price: z.number(),
+            each_student_increment: z.number().optional(),
           })
           .optional(),
       })
     ),
-    date_range: z.array(z.string()).optional(),
-    type: z.enum([...PACKAGE_TYPES_ARRAY] as [string, ...string[]]),
-    status: z.enum(['active', 'deactivate', 'save']).optional(),
+
+    type: z.enum([...PURCHASE_PACKAGE_TYPES_ARRAY] as [string, ...string[]]),
+    status: z.enum(['active', 'deactivate', 'save']),
     biannual: z
       .object({
         price: z.number(),
-        each_student_increment: z.number(),
+        each_student_increment: z.number().optional(),
       })
       .optional(),
     monthly: z
       .object({
         price: z.number(),
-        each_student_increment: z.number(),
+        each_student_increment: z.number().optional(),
       })
       .optional(),
     yearly: z
       .object({
         price: z.number(),
-        each_student_increment: z.number(),
+        each_student_increment: z.number().optional(),
       })
       .optional(),
-    isDelete: z.string().optional(),
+    isDelete: z.enum(['yes', 'no']).optional(),
   }),
 });
 
-const updatePackageZodSchema = z.object({
+const updatePurchasePackageZodSchema = z.object({
   body: z.object({
+    //
+    package: z.string(),
+    expiry_date: z.string(),
+    total_purchase_student: z.number(),
+    remaining_purchase_student: z.number(),
+    students: z.array(z.string()),
+    //
     membership: z.object({
-      title: z.string().optional(),
+      title: z.string(),
       uid: z.string().optional(),
     }),
-    title: z.string().optional(),
-    img: z.string().optional(),
+    title: z.string(),
+    date_range: z.array(z.string()),
     categories: z.array(
       z.object({
-        category: z.string(),
+        categories: z.array(
+          z.object({
+            category: z.string(),
+            label: z.string().optional(),
+            //! -------if type is multiple select --------
+            biannual: z
+              .object({
+                price: z.number().optional(),
+                each_student_increment: z.number(),
+              })
+              .optional(),
+            monthly: z
+              .object({
+                price: z.number().optional(),
+                each_student_increment: z.number(),
+              })
+              .optional(),
+            yearly: z
+              .object({
+                price: z.number().optional(),
+                each_student_increment: z.number(),
+              })
+              .optional(),
+          })
+        ),
         label: z.string().optional(),
-        //! -------if type is multiple select --------
         biannual: z
           .object({
-            price: z.number().optional(),
-            each_student_increment: z.number(),
+            price: z.number(),
+            each_student_increment: z.number().optional(),
           })
           .optional(),
         monthly: z
           .object({
-            price: z.number().optional(),
-            each_student_increment: z.number(),
+            price: z.number(),
+            each_student_increment: z.number().optional(),
           })
           .optional(),
         yearly: z
           .object({
-            price: z.number().optional(),
-            each_student_increment: z.number(),
+            price: z.number(),
+            each_student_increment: z.number().optional(),
           })
           .optional(),
       })
     ),
-    date_range: z.array(z.string()).optional(),
-    type: z.enum([...PACKAGE_TYPES_ARRAY] as [string, ...string[]]).optional(),
+
+    type: z.enum(['bundle', 'select', 'multiple_select']).optional(),
     status: z.enum(['active', 'deactivate', 'save']).optional(),
     biannual: z
       .object({
         price: z.number().optional(),
-        each_student_increament: z.number().optional(),
+        each_student_increment: z.number().optional(),
       })
       .optional(),
     monthly: z
       .object({
         price: z.number().optional(),
-        each_student_increament: z.number().optional(),
+        each_student_increment: z.number().optional(),
       })
       .optional(),
     yearly: z
       .object({
         price: z.number().optional(),
-        each_student_increament: z.number().optional(),
+        each_student_increment: z.number().optional(),
       })
       .optional(),
-    isDelete: z.string().optional(),
+    isDelete: z.enum(['yes', 'no']).optional(),
   }),
 });
 
-export const PackageValidation = {
-  createPackageZodSchema,
-  updatePackageZodSchema,
+export const PurchasePackageValidation = {
+  createPurchasePackageZodSchema,
+  updatePurchasePackageZodSchema,
 };

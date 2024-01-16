@@ -39,7 +39,7 @@ const ResourceSchema = new Schema<IResource, ResourceModel>(
 isDelete: {
       type: String,
       enum:["yes", "no"],
-      default: 'yes',
+      default: 'no',
     },
     demo_video: {
       type: Object,

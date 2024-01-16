@@ -40,7 +40,7 @@ const milestoneSchema = new Schema<IMilestone, MilestoneModel>(
 isDelete: {
       type: String,
       enum:["yes", "no"],
-      default: 'yes',
+      default: 'no',
     },
     milestone_number: {
       type: Number,

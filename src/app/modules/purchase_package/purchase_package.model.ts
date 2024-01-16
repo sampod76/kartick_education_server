@@ -1,57 +1,72 @@
 import { Schema, model } from 'mongoose';
-import { PACKAGE_TYPES_ARRAY } from './purchase_package.constant';
-import { IPackage, PackageModel } from './purchase_package.interface';
+import { PURCHASE_PACKAGE_TYPES_ARRAY } from './purchase_package.constant';
+import {
+  IPurchasePackage,
+  PurchasePackageModel,
+} from './purchase_package.interface';
 
-const quizSubmitSchema = new Schema<IPackage, PackageModel>(
+const PurchasePackageSchema = new Schema<
+  IPurchasePackage,
+  PurchasePackageModel
+>(
   {
-    membership: {
-      title: { type: String, required: true },
-      uid: { type: String },
+    package: {
+      type: Schema.Types.ObjectId,
+      ref: 'Package',
     },
-    title: { type: String, required: true },
-    img: { type: String },
+    membership: {
+      title: String,
+      uid: String,
+    },
+    title: String,
+    date_range: [String],
     categories: [
       {
-        category: { type: Schema.Types.ObjectId, ref: 'Category' },
-        label: { type: String },
-        //!----------- if type is multiple_select ----------
+        category: { type: Schema.Types.ObjectId, ref: 'Category' }, // Assuming 'Category' is the name of your category model
+        label: String,
         biannual: {
-          price: { type: Number },
-          each_student_increment: { type: Number },
+          price: Number,
+          each_student_increment: Number,
         },
         monthly: {
-          price: { type: Number },
-          each_student_increment: { type: Number },
+          price: Number,
+          each_student_increment: Number,
         },
         yearly: {
-          price: { type: Number },
-          each_student_increment: { type: Number },
+          price: Number,
+          each_student_increment: Number,
         },
-        //!---------------------------------------------------
       },
     ],
-    date_range: [{ type: Date }],
+    //
+    expiry_date: String,
+    total_purchase_student: Number,
+    remaining_purchase_student: Number,
+    students: [String],
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    //
     type: {
       type: String,
-      enum: PACKAGE_TYPES_ARRAY,
-      required: true,
+      enum: PURCHASE_PACKAGE_TYPES_ARRAY,
+    },
+    biannual: {
+      price: Number,
+      each_student_increment: Number,
+    },
+    monthly: {
+      price: Number,
+      each_student_increment: Number,
+    },
+    yearly: {
+      price: Number,
+      each_student_increment: Number,
     },
     status: {
       type: String,
       enum: ['active', 'deactivate', 'save'],
-      default: 'active',
-    },
-    biannual: {
-      price: { type: Number },
-      each_student_increment: { type: Number },
-    },
-    monthly: {
-      price: { type: Number },
-      each_student_increment: { type: Number },
-    },
-    yearly: {
-      price: { type: Number },
-      each_student_increment: { type: Number },
     },
     isDelete: { type: String, default: 'no' },
   },
@@ -64,7 +79,7 @@ const quizSubmitSchema = new Schema<IPackage, PackageModel>(
   }
 );
 
-export const Package = model<IPackage, PackageModel>(
-  'Package',
-  quizSubmitSchema
+export const PurchasePackage = model<IPurchasePackage, PurchasePackageModel>(
+  'PurchasePackage',
+  PurchasePackageSchema
 );

@@ -47,7 +47,7 @@ const moduleSchema = new Schema<IModule,ModuleModel>(
 isDelete: {
       type: String,
       enum:["yes", "no"],
-      default: 'yes',
+      default: 'no',
     },
     module_number: {
       type: Number,

@@ -62,7 +62,7 @@ const userSchema = new Schema<IUser, UserModel>(
     isDelete: {
       type: String,
       enum:["yes", "no"],
-      default: 'yes',
+      default: 'no',
     },
   },
   {

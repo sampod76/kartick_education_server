@@ -61,7 +61,7 @@ const courseSchema = new Schema<ICourse, CourseModel>(
 isDelete: {
       type: String,
       enum:["yes", "no"],
-      default: 'yes',
+      default: 'no',
     },
     demo_video: {
       type: Object,

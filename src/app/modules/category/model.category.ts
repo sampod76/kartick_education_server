@@ -22,7 +22,7 @@ const CategorySchema = new Schema<ICategory, CategoryModel>(
 isDelete: {
       type: String,
       enum:["yes", "no"],
-      default: 'yes',
+      default: 'no',
     },
   },
   {

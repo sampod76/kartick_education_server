@@ -98,19 +98,19 @@ const updatePackageZodSchema = z.object({
     biannual: z
       .object({
         price: z.number().optional(),
-        each_student_increament: z.number().optional(),
+        each_student_increment: z.number().optional(),
       })
       .optional(),
     monthly: z
       .object({
         price: z.number().optional(),
-        each_student_increament: z.number().optional(),
+        each_student_increment: z.number().optional(),
       })
       .optional(),
     yearly: z
       .object({
         price: z.number().optional(),
-        each_student_increament: z.number().optional(),
+        each_student_increment: z.number().optional(),
       })
       .optional(),
     isDelete: z.string().optional(),
