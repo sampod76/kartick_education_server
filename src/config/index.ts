@@ -24,6 +24,7 @@ export default {
     expires_in: process.env.JWT_EXPIRES_IN,
     refresh_expires_in: process.env.JWT_REFRESH_EXPIRES_IN,
   },
+  encryptCrypto: process.env.ENCRYPTION_SECRET,
   cloudinary: {
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -38,6 +39,10 @@ export default {
       process.env.NODE_ENV === 'development'
         ? process.env.STRIPE_CANCEL_URL_LOCAL
         : process.env.STRIPE_CANCEL_URL,
+  },
+  paypal: {
+    client: process.env.PAYPLE_CLIENT_ID,
+    secret: process.env.PAYPLE_SECRET_KEY,
   },
   // cloudinary_api_secret:process.env.cloudinary_api_secret
 };

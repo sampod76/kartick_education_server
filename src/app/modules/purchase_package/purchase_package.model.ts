@@ -24,18 +24,18 @@ const PurchasePackageSchema = new Schema<
       {
         category: { type: Schema.Types.ObjectId, ref: 'Category' }, // Assuming 'Category' is the name of your category model
         label: String,
-        biannual: {
-          price: Number,
-          each_student_increment: Number,
-        },
-        monthly: {
-          price: Number,
-          each_student_increment: Number,
-        },
-        yearly: {
-          price: Number,
-          each_student_increment: Number,
-        },
+        // biannual: {
+        //   price: Number,
+        //   each_student_increment: Number,
+        // },
+        // monthly: {
+        //   price: Number,
+        //   each_student_increment: Number,
+        // },
+        // yearly: {
+        //   price: Number,
+        //   each_student_increment: Number,
+        // },
       },
     ],
     //
@@ -43,6 +43,20 @@ const PurchasePackageSchema = new Schema<
     total_purchase_student: Number,
     remaining_purchase_student: Number,
     students: [String],
+
+    //------------ for  PendingPurchasePackage  ------------
+    payment: {
+      transactionId: String,
+      platform: String,
+      record: { type: Schema.Types.ObjectId, ref: 'PendingPurchasePackage' },
+    },
+    paymentStatus: {
+      type: String, // approved, pending,rejected,
+      enum: ['approved', 'pending', 'rejected'],
+      default: 'pending',
+    },
+    //------------end --------------------------------------
+
     user: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -52,7 +66,7 @@ const PurchasePackageSchema = new Schema<
       type: String,
       enum: PURCHASE_PACKAGE_TYPES_ARRAY,
     },
-    purchase_time: {
+    purchase: {
       label: String, //example:biannual,monthly,yearly
       price: Number,
       each_student_increment: Number,
@@ -69,10 +83,15 @@ const PurchasePackageSchema = new Schema<
     toJSON: {
       virtuals: true,
     },
-  }
+  },
 );
 
 export const PurchasePackage = model<IPurchasePackage, PurchasePackageModel>(
   'PurchasePackage',
-  PurchasePackageSchema
+  PurchasePackageSchema,
 );
+
+export const PendingPurchasePackage = model<
+  IPurchasePackage,
+  PurchasePackageModel
+>('PendingPurchasePackage', PurchasePackageSchema);

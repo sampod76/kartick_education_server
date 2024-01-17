@@ -37,7 +37,7 @@ const getAllPackage = catchAsync(async (req: Request, res: Response) => {
 
   const result = await PackageService.getAllPackageFromDb(
     filters,
-    paginationOptions
+    paginationOptions,
   );
 
   sendResponse<IPackage[]>(res, {

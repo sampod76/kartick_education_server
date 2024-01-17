@@ -5,8 +5,8 @@ import { PAGINATION_FIELDS } from '../../../constant/pagination';
 import catchAsync from '../../share/catchAsync';
 import pick from '../../share/pick';
 import sendResponse from '../../share/sendResponse';
-import { PurchasePackageService } from './purchase_package.service';
 import { IPurchasePackage } from './purchase_package.interface';
+import { PurchasePackageService } from './purchase_package.service';
 
 import { PURCHASE_PACKAGE_FILTERABLE_FIELDS } from './purchase_package.constant';
 
@@ -47,6 +47,7 @@ const getAllPackagePurchase = catchAsync(async (req: Request, res: Response) => 
     meta: result.meta,
     data: result.data,
   });
+ 
   // next();
 });
 

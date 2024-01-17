@@ -1,17 +1,30 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Request, Response } from 'express';
-import paypal from 'paypal-rest-sdk';
+import httpStatus from 'http-status';
+import paypal, { Payment } from 'paypal-rest-sdk';
 import Stripe from 'stripe';
+import config from '../../../config';
+import {
+  decryptCryptoData,
+  encryptCryptoData,
+} from '../../../utils/cryptoEncryptDecrypt';
 import ApiError from '../../errors/ApiError';
 import catchAsync from '../../share/catchAsync';
-import config from '../../../config';
+import sendResponse from '../../share/sendResponse';
+import { Package } from '../package/package.model';
+import {
+  PendingPurchasePackage,
+  PurchasePackage,
+} from '../purchase_package/purchase_package.model';
+
 // import { v4 as uuidv4 } from 'uuid';
 
 // import { errorLogger, logger } from '../../share/logger';
 paypal.configure({
   mode: 'sandbox',
-  client_id: process.env.PAYPLE_CLIENT_ID as string,
-  client_secret: process.env.PAYPLE_SECRET_KEY as string,
+  client_id: config.paypal.client as string,
+  client_secret:
+    config.paypal.secret as string,
 });
 
 // import { z } from 'zod'
@@ -67,7 +80,7 @@ const createPaymentStripeAdvanceForNative = catchAsync(
     const customer = await stripe.customers.create();
     const ephemeralKey = await stripe.ephemeralKeys.create(
       { customer: customer.id },
-      { apiVersion: '2022-11-15' }
+      { apiVersion: '2022-11-15' },
     );
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount,
@@ -94,246 +107,233 @@ const createPaymentStripeAdvanceForNative = catchAsync(
     } else {
       throw new ApiError(404, 'Payment failed');
     }
-  }
+  },
 );
 
 // // payple intergrate
-// const createPaymentPayple = catchAsync(async (req: Request, res: Response) => {
-//   const { amount, item_list, description } = req.body;
+const createPaymentPayple = catchAsync(async (req: Request, res: Response) => {
+  const { amount, item_list, description, data: categoryData } = req.body;
+  //
+  const item = item_list.items[0];
+  const price = parseFloat(item.price);
+  // Convert the price to a string with exactly 2 decimal places
+  const formattedPrice = price.toFixed(2);
+  // Update the item's price with the formatted value
+  item.price = formattedPrice;
+  //
+  const findPriducts = await Package.findById(item.sku);
 
-//   // const itemSkus = new Set(item_list?.items?.map((item: any) => item?.sku));
-//   const item = new Types.ObjectId(item_list?.items[0]?.sku);
-//   const findByCourse = await Purchased_courses.findOne({
-//     userId: new Types.ObjectId(req?.user?._id),
-//     course: new Types.ObjectId(item),
-//   });
+  const createPackge = await PurchasePackage.create({
+    ...categoryData,
+    paymentStatus: 'pending',
+  });
+  if (!createPackge._id) {
+    throw new ApiError(400, 'Something is wrong with purchase');
+  }
+  const data: any = {
+    // id: createPackge?._id,
+  };
 
-//   if (findByCourse) {
-//     return res.status(404).send({
-//       success: false,
-//       statusCode: 404,
-//       message: 'You are already purchased course!!😭😭',
-//     });
-//   }
+  const encryptData = encryptCryptoData(data, config.encryptCrypto as string);
 
-//   const data: IEncodedPaymentData = {
-//     userId: req?.user?._id,
-//     course_id: item.toString(),
-//     userName: req?.user?.name || '',
-//     email: req?.user?.email || '',
-//     phone: req?.user?.phone || '',
-//     amount: {
-//       currency: amount?.currency || 'USD',
-//       total: amount?.total,
-//     },
-//   };
+  const payment: Payment = {
+    intent: 'sale',
+    payer: {
+      payment_method: 'paypal',
+    },
+    redirect_urls: {
+      return_url: `${config.payment_url.stripe_success_url}?app=${encryptData}`,
+      // return_url: `${process.env.LOCALHOST_SERVER_SIDE}/api/v1/payment/success?app=${encriptData}`,
+      cancel_url: `${config.payment_url.stripe_cancel_url}`,
+    },
+    transactions: [
+      {
+        item_list,
+        amount: {
+          currency: 'USD',
+          total: formattedPrice,
+        },
+        description: description || '',
+      },
+    ],
+  };
 
-//   const encryptData = encrypt(data);
+  paypal.payment.create(payment, (error: any, payment: any) => {
+    if (error) {
+      console.log(error, 'ddd');
+      // errorLogger.error(error)
+      return res.status(404).send({
+        success: false,
+        statusCode: 404,
+        message: error,
+      });
+    } else {
+      for (let i = 0; i < payment.links.length; i++) {
+        if (payment.links[i].rel === 'approval_url') {
+          res.status(200).send({
+            success: true,
+            message: `Successfully Paypal payment instant`,
+            data: {
+              url: payment.links[i].href,
+            },
+          });
+        }
+      }
+    }
+  });
+});
 
-//   const payment: Payment = {
-//     intent: 'sale',
-//     payer: {
-//       payment_method: 'paypal',
-//     },
-//     redirect_urls: {
-//       return_url: `${process.env.REAL_HOST_SERVER_SIDE}/api/v1/payment/success?app=${encryptData}`,
-//       // return_url: `${process.env.LOCALHOST_SERVER_SIDE}/api/v1/payment/success?app=${encriptData}`,
-//       cancel_url: `${process.env.REAL_HOST_SERVER_SIDE}/api/v1/payment/cancel`,
-//     },
-//     transactions: [
-//       {
-//         item_list,
-//         amount: {
-//           currency: 'USD',
-//           total: String(amount?.total),
-//         },
-//         description: description,
-//       },
-//     ],
-//   };
+const chackPayplePayment = catchAsync(async (req: Request, res: Response) => {
+  const payerId = req.query.PayerID;
+  const paymentId = req.query.paymentId;
+  const app = req.query.app;
+  if (
+    typeof payerId !== 'string' ||
+    typeof paymentId !== 'string' ||
+    typeof app !== 'string'
+  ) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'unauthorized access !!');
+  }
+  const data = decryptCryptoData(app, config.encryptCrypto as string);
 
-//   paypal.payment.create(payment, (error: any, payment: any) => {
-//     if (error) {
-//       console.log(error);
-//       // errorLogger.error(error)
-//       return res.status(404).send({
-//         success: false,
-//         statusCode: 404,
-//         message: 'Paypal payment fail !!!',
-//       });
-//     } else {
-//       for (let i = 0; i < payment.links.length; i++) {
-//         if (payment.links[i].rel === 'approval_url') {
-//           res.status(200).send({
-//             success: true,
-//             message: `Successfully Paypal payment instant`,
-//             data: {
-//               url: payment.links[i].href,
-//             },
-//           });
-//         }
-//       }
-//     }
-//   });
-// });
+  const execute_payment_json = {
+    payer_id: payerId,
+    transactions: [
+      {
+        amount: data?.amount,
+      },
+    ],
+  };
 
-// const chackPayplePayment = catchAsync(async (req: Request, res: Response) => {
-//   const payerId = req.query.PayerID;
-//   const paymentId = req.query.paymentId;
-//   const app = req.query.app;
-//   if (
-//     typeof payerId !== 'string' ||
-//     typeof paymentId !== 'string' ||
-//     typeof app !== 'string'
-//   ) {
-//     throw new ApiError(httpStatus.UNAUTHORIZED, 'unauthorized access !!');
-//   }
-//   const data = decrypt(app);
+  try {
+    const payment: Payment = await new Promise((resolve, reject) => {
+      paypal.payment.execute(
+        paymentId,
+        execute_payment_json,
+        function (error, payment) {
+          if (error) {
+            reject(new ApiError(500, 'Payment is denied'));
+          } else {
+            resolve(payment);
+          }
+        },
+      );
+    });
+    console.log(payment);
 
-//   const execute_payment_json = {
-//     payer_id: payerId,
-//     transactions: [
-//       {
-//         amount: data?.amount,
-//       },
-//     ],
-//   };
+    /*
+    {
+      id: 'PAYID-MS2BCPA4BT713665C9605913',
+      intent: 'sale',
+      state: 'approved',
+      cart: '0N1193480W3023509',
+      payer: {
+        payment_method: 'paypal',
+        status: 'VERIFIED',
+        payer_info: {
+          email: 'sb-4jbgp26719602@personal.example.com',
+          first_name: 'John',
+          last_name: 'Doe',
+          payer_id: 'L3CREV92USD28',
+          shipping_address: [Object],
+          country_code: 'US'
+        }
+      },
+      transactions: [
+        {
+          amount: [Object],
+          payee: [Object],
+          description: 'Payment for order #12345',
+          item_list: [Object],
+          related_resources: [Array]
+        }
+      ],
+      failed_transactions: [],
+      create_time: '2023-07-16T15:48:12Z',
+      update_time: '2023-07-16T15:54:15Z',
+      links: [
+        {
+          href: 'https://api.sandbox.paypal.com/v1/payments/payment/PAYID-MS2BCPA4BT713665C9605913',
+          rel: 'self',
+          method: 'GET'
+        }
+      ],
+      httpStatusCode: 200
+    }
+     */
 
-//   try {
-//     const payment: Payment = await new Promise((resolve, reject) => {
-//       paypal.payment.execute(
-//         paymentId,
-//         execute_payment_json,
-//         function (error, payment) {
-//           if (error) {
-//             reject(new ApiError(500, 'Payment is denied'));
-//           } else {
-//             resolve(payment);
-//           }
-//         }
-//       );
-//     });
-//     console.log(payment);
+    // if payment status not approved then throw error
+    // if (!(payment?.state === 'approved')) {
+    //   return res.sendFile(
+    //     path.join(path.join(__dirname, '../../../views/sumthingWrong.html'))
+    //   );
+    // }
+    if (!(payment?.state === 'approved')) {
+      throw new ApiError(404, 'Payment not approved');
+    }
 
-//     /*
-//     {
-//       id: 'PAYID-MS2BCPA4BT713665C9605913',
-//       intent: 'sale',
-//       state: 'approved',
-//       cart: '0N1193480W3023509',
-//       payer: {
-//         payment_method: 'paypal',
-//         status: 'VERIFIED',
-//         payer_info: {
-//           email: 'sb-4jbgp26719602@personal.example.com',
-//           first_name: 'John',
-//           last_name: 'Doe',
-//           payer_id: 'L3CREV92USD28',
-//           shipping_address: [Object],
-//           country_code: 'US'
-//         }
-//       },
-//       transactions: [
-//         {
-//           amount: [Object],
-//           payee: [Object],
-//           description: 'Payment for order #12345',
-//           item_list: [Object],
-//           related_resources: [Array]
-//         }
-//       ],
-//       failed_transactions: [],
-//       create_time: '2023-07-16T15:48:12Z',
-//       update_time: '2023-07-16T15:54:15Z',
-//       links: [
-//         {
-//           href: 'https://api.sandbox.paypal.com/v1/payments/payment/PAYID-MS2BCPA4BT713665C9605913',
-//           rel: 'self',
-//           method: 'GET'
-//         }
-//       ],
-//       httpStatusCode: 200
-//     }
-//      */
+    const find = await PendingPurchasePackage.findOne({
+      'payment.transactionId': paymentId,
+      paymentStatus: { $or: ['approved', 'rejected'] },
+    });
 
-//     // if payment status not approved then throw error
-//     if (!(payment?.state === 'approved')) {
-//       return res.sendFile(
-//         path.join(path.join(__dirname, '../../../views/sumthingWrong.html'))
-//       );
-//     }
+    if (!find?._id) {
+      const result = await PendingPurchasePackage.findOneAndUpdate(
+        { _id: data.id },
+        {
+          payment: { transactionId: paymentId, platform: 'paypal' },
+          paymentStatus: 'approved',
+        },
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
+      if (result?._id) {
+        const { payment, ...allData } = result;
+        payment.record = result._id;
+        const accepted = await PurchasePackage.create({ ...result, payment });
+        return sendResponse<any>(res, {
+          success: true,
+          message: 'Payment success!',
+          data: accepted,
+        });
+      }
 
-//     const find = await Purchased_courses.findOne({
-//       transactionID: paymentId,
-//     });
+      // return res.status(200).json({
+      //   success: true,
+      //   message: 'Payment success!',
+      //   payment,
+      // });
+    } else {
+      throw new ApiError(404, 'Payment is not success');
+      // return res.send({
+      //   success: false,
+      //   message: 'You are allrady purchess course',
+      // });
+    }
+  } catch (error: any) {
+    console.log(333);
+    throw new ApiError(404, error?.message || 'Payment is not success');
+    // return res.status(500).json({
+    //   success: false,
+    //   message: 'An error occurred during payment execution.',
+    // });
+  }
+});
 
-//     if (!find?._id) {
-//       const result = await Purchased_coursesService.createPurchased_coursesByDb(
-//         {
-//           userId: data.userId,
-//           course: data.course_id,
-//           userName: data?.userName,
-//           email: data?.email,
-//           phone: data?.phone,
-//           transactionID: paymentId,
-//         },
-//         data.userId
-//       );
-
-//       if (!result?.userId) {
-//         console.log(result, '312');
-//         return res.sendFile(
-//           path.join(path.join(__dirname, '../../../views/sumthingWrong.html'))
-//         );
-//         // return res.status(400).json({
-//         //   success: false,
-//         //   message: 'Payment failed!',
-//         // });
-//       } else {
-//         return res.sendFile(
-//           path.join(__dirname, '../../../views/success.html')
-//         );
-//       }
-
-//       // return res.status(200).json({
-//       //   success: true,
-//       //   message: 'Payment success!',
-//       //   payment,
-//       // });
-//     } else {
-//       console.log(323);
-//       return res.sendFile(
-//         path.join(path.join(__dirname, '../../../views/allredybuye.html'))
-//       );
-//       // return res.send({
-//       //   success: false,
-//       //   message: 'You are allrady purchess course',
-//       // });
-//     }
-//   } catch (error) {
-//     console.log(333);
-//     return res.sendFile(
-//       path.join(path.join(__dirname, '../../../views/sumthingWrong.html'))
-//     );
-//     // return res.status(500).json({
-//     //   success: false,
-//     //   message: 'An error occurred during payment execution.',
-//     // });
-//   }
-// });
-
-// const canclePayplePayment = catchAsync(async (req: Request, res: Response) => {
-//   // return res.status(400).json({
-//   //   success: false,
-//   //   message: 'cancle your payment request',
-//   // });
-//   return res.sendFile(path.join(__dirname, '../../../views/cancle.html'));
-// });
+const canclePayplePayment = catchAsync(async (req: Request, res: Response) => {
+  // return res.status(400).json({
+  //   success: false,
+  //   message: 'cancle your payment request',
+  // });
+  // return res.sendFile(path.join(__dirname, '../../../views/cancle.html'));
+});
 
 export const createPaymentController = {
   createPaymentStripe,
   createPaymentStripeAdvanceForNative,
-  //   createPaymentPayple,
-  //   chackPayplePayment,
-  //   canclePayplePayment,
+  createPaymentPayple,
+  chackPayplePayment,
+  canclePayplePayment,
 };

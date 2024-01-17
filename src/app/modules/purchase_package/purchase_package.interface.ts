@@ -27,8 +27,17 @@ export type IPurchasePackage = {
   expiry_date: string;
   total_purchase_student: number;
   remaining_purchase_student: number;
+  total_price: number;
   students: string[];
   user: Types.ObjectId | IUser | string;
+  //
+  payment: {
+    transactionId?: string;
+    platform?: string;
+    //IPurchasePackage as a sem IPaddingPurchasePackage
+    record?: Types.ObjectId | IPurchasePackage | string;
+  };
+  paymentStatus?: 'approved' | 'pending' | 'rejected';
   //
   membership: { title: string; uid?: string };
   title: string;
@@ -37,26 +46,27 @@ export type IPurchasePackage = {
     category: Types.ObjectId | ICategory | string;
     label?: string;
     //
-    biannual?: {
-      price: number;
-      each_student_increment?: number;
-    };
-    monthly?: {
-      price: number;
-      each_student_increment?: number;
-    };
-    yearly?: {
-      price: number;
-      each_student_increment?: number;
-    };
+    // biannual?: {
+    //   price: number;
+    //   each_student_increment?: number;
+    // };
+    // monthly?: {
+    //   price: number;
+    //   each_student_increment?: number;
+    // };
+    // yearly?: {
+    //   price: number;
+    //   each_student_increment?: number;
+    // };
     //
   }[];
 
   //
   type: 'bundle' | 'select' | 'multiple_select';
   status: 'active' | 'deactivate' | 'save';
+ 
   //
-  purchase_time: {
+  purchase: {
     biannual?: {
       price: number;
       each_student_increment: number;

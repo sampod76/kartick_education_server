@@ -1,5 +1,7 @@
 import express from 'express';
 
+import { ENUM_USER_ROLE } from '../../../enums/users';
+import authMiddleware from '../../middlewares/authMiddleware';
 import validateRequestZod from '../../middlewares/validateRequestZod';
 import { createPaymentController } from './payment.controller';
 import { PaymentValidation } from './payment.validation';
@@ -9,9 +11,8 @@ const router = express.Router();
 router
   .route('/stripe/create-payment-intent')
   .post(
-   
-    validateRequestZod(PaymentValidation.createPaymentZodSchema),
-    createPaymentController.createPaymentStripe
+    validateRequestZod(PaymentValidation.createPaymentStripeZodSchema),
+    createPaymentController.createPaymentStripe,
   );
 // stripe
 // router
@@ -23,15 +24,19 @@ router
 //   );
 
 // ! ------------- paypal --start--------
-// router
-//   .route('/paypal')
-//   .post(
-//     authMiddleware(ENUM_USER_ROLE.SELLER,ENUM_USER_ROLE.STUDENT),
-//     validateRequestZod(PaymentValidation.createPaypleZodSchema),
-//     createPaymentController.createPaymentPayple
-//   );
+router
+  .route('/paypal')
+  .post(
+    authMiddleware(
+      ENUM_USER_ROLE.SELLER,
+      ENUM_USER_ROLE.STUDENT,
+      ENUM_USER_ROLE.ADMIN,
+    ),
+    validateRequestZod(PaymentValidation.createPaypalZodSchema),
+    createPaymentController.createPaymentPayple,
+  );
 
-// router.route('/success').get(createPaymentController.chackPayplePayment);
-// router.route('/cancle').get(createPaymentController.canclePayplePayment);
+router.route('/success').get(createPaymentController.chackPayplePayment);
+router.route('/cancle').get(createPaymentController.canclePayplePayment);
 
 export const PaymentRoute = router;

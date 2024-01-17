@@ -12,11 +12,14 @@ import {
   IPurchasePackage,
   IPurchasePackageFilters,
 } from './purchase_package.interface';
-import { PurchasePackage } from './purchase_package.model';
+import {
+  PendingPurchasePackage,
+  PurchasePackage,
+} from './purchase_package.model';
 
 const { ObjectId } = mongoose.Types;
 const createPurchasePackageByDb = async (
-  payload: IPurchasePackage
+  payload: IPurchasePackage,
 ): Promise<IPurchasePackage | null> => {
   // const findPackage = await PurchasePackage.findOne({
   //   title: payload.title,
@@ -33,11 +36,19 @@ const createPurchasePackageByDb = async (
   const result = await PurchasePackage.create({ ...payload });
   return result;
 };
+const createPendingPurchasePackageByDb = async (
+  payload: IPurchasePackage,
+): Promise<IPurchasePackage | null> => {
+
+  //all balance cournt in
+  const result = await PendingPurchasePackage.create({ ...payload });
+  return result;
+};
 
 //getAllQuizFromDb
 const getAllPurchasePackageFromDb = async (
   filters: IPurchasePackageFilters,
-  paginationOptions: IPaginationOption
+  paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<IPurchasePackage[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
@@ -66,7 +77,7 @@ const getAllPurchasePackageFromDb = async (
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
           : {
               [field]: new RegExp(searchTerm, 'i'),
-            }
+            },
       ),
     });
   }
@@ -77,8 +88,8 @@ const getAllPurchasePackageFromDb = async (
         field === 'membershipUid'
           ? { ['membership.uid']: value }
           : field === 'package'
-          ? { [field]: new Types.ObjectId(value) }
-          : { [field]: value }
+            ? { [field]: new Types.ObjectId(value) }
+            : { [field]: value },
       ),
     });
   }
@@ -107,16 +118,16 @@ const getAllPurchasePackageFromDb = async (
     .limit(Number(limit))
     .populate('categories.category')
     .populate({
-      path:"user",
-      select:{password:0},
-    //   populate: {
-    //     path: 'teacher', 
-    //     model: 'teachers',
-    //     populate: {
-    //         path: 'user',
-    //         model: 'User'
-    //     }
-    // }
+      path: 'user',
+      select: { password: 0 },
+      //   populate: {
+      //     path: 'teacher',
+      //     model: 'teachers',
+      //     populate: {
+      //         path: 'user',
+      //         model: 'User'
+      //     }
+      // }
     });
 
   // const pipeline: PipelineStage[] = [
@@ -219,7 +230,7 @@ const getAllPurchasePackageFromDb = async (
 // get single e form db
 const getPurchasePackageVerifyFromDb = async (
   id: string,
-  user: any
+  user: any,
 ): Promise<IPurchasePackage[] | null> => {
   const findSubmitQuiz = await PurchasePackage.find({
     quiz: new Types.ObjectId(id as string),
@@ -229,7 +240,7 @@ const getPurchasePackageVerifyFromDb = async (
   return findSubmitQuiz;
 };
 const getPurchasePackageSingelFromDb = async (
-  id: string
+  id: string,
 ): Promise<IPurchasePackage | null> => {
   const result = await PurchasePackage.aggregate([
     { $match: { _id: new ObjectId(id) } },
@@ -239,7 +250,7 @@ const getPurchasePackageSingelFromDb = async (
 };
 const updatePurchasePackageFromDb = async (
   id: string,
-  payload: Partial<IPurchasePackage>
+  payload: Partial<IPurchasePackage>,
 ): Promise<IPurchasePackage | null> => {
   const result = await PurchasePackage.findOneAndUpdate({ _id: id }, payload, {
     new: true,
@@ -253,7 +264,7 @@ const updatePurchasePackageFromDb = async (
 // delete e form db
 const deletePurchasePackageByIdFromDb = async (
   id: string,
-  query: IPurchasePackageFilters
+  query: IPurchasePackageFilters,
 ): Promise<IPurchasePackage | null> => {
   let result;
   if (query.delete === ENUM_YN.YES) {
@@ -261,7 +272,7 @@ const deletePurchasePackageByIdFromDb = async (
   } else {
     result = await PurchasePackage.findOneAndUpdate(
       { _id: id },
-      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
+      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES },
     );
   }
   return result;
@@ -274,4 +285,5 @@ export const PurchasePackageService = {
   deletePurchasePackageByIdFromDb,
   getPurchasePackageVerifyFromDb,
   updatePurchasePackageFromDb,
+  createPendingPurchasePackageByDb,
 };

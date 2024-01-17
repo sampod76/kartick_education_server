@@ -8,6 +8,7 @@ export type IPackageFilters = {
   select?: string;
 
   membershipUid?: string;
+  membershipTitle?: string;
   type?: string;
   //
   delete?: 'yes' | 'no';

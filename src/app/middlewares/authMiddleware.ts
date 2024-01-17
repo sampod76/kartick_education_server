@@ -20,13 +20,17 @@ const authMiddleware =
 
       // verify token only general user
 
-      if (token) {
-        verifiedUser = jwtHelpers.verifyToken(
-          token,
-          config.jwt.secret as Secret
-        );
+      try {
+        if (token) {
+          verifiedUser = jwtHelpers.verifyToken(
+            token,
+            config.jwt.secret as Secret,
+          );
 
-        req.user = verifiedUser;
+          req.user = verifiedUser;
+        }
+      } catch (error) {
+        throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized access');
       }
 
       // role diye guard korar jnno

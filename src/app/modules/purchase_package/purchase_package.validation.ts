@@ -23,25 +23,25 @@ const createPurchasePackageZodSchema = z.object({
           z.object({
             category: z.string(),
             label: z.string().optional(),
-            //! -------if type is multiple select --------
-            biannual: z
-              .object({
-                price: z.number().optional(),
-                each_student_increment: z.number(),
-              })
-              .optional(),
-            monthly: z
-              .object({
-                price: z.number().optional(),
-                each_student_increment: z.number(),
-              })
-              .optional(),
-            yearly: z
-              .object({
-                price: z.number().optional(),
-                each_student_increment: z.number(),
-              })
-              .optional(),
+            // //! -------if type is multiple select --------
+            // biannual: z
+            //   .object({
+            //     price: z.number().optional(),
+            //     each_student_increment: z.number(),
+            //   })
+            //   .optional(),
+            // monthly: z
+            //   .object({
+            //     price: z.number().optional(),
+            //     each_student_increment: z.number(),
+            //   })
+            //   .optional(),
+            // yearly: z
+            //   .object({
+            //     price: z.number().optional(),
+            //     each_student_increment: z.number(),
+            //   })
+            //   .optional(),
           })
         ),
         label: z.string().optional(),
@@ -50,7 +50,7 @@ const createPurchasePackageZodSchema = z.object({
 
     type: z.enum([...PURCHASE_PACKAGE_TYPES_ARRAY] as [string, ...string[]]),
     status: z.enum(['active', 'deactivate', 'save']),
-    purchase_time: z.object({
+    purchase: z.object({
       biannual: z
         .object({
           price: z.number(),
