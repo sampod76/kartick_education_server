@@ -11,6 +11,7 @@ export type IPurchasePackageFilters = {
   package?: string;
   membershipUid?: string;
   type?: string;
+  user?: string;
   //
   delete?: 'yes' | 'no';
   // other query parameters

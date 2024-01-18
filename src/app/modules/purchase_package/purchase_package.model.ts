@@ -24,18 +24,6 @@ const PurchasePackageSchema = new Schema<
       {
         category: { type: Schema.Types.ObjectId, ref: 'Category' }, // Assuming 'Category' is the name of your category model
         label: String,
-        // biannual: {
-        //   price: Number,
-        //   each_student_increment: Number,
-        // },
-        // monthly: {
-        //   price: Number,
-        //   each_student_increment: Number,
-        // },
-        // yearly: {
-        //   price: Number,
-        //   each_student_increment: Number,
-        // },
       },
     ],
     //
@@ -59,7 +47,7 @@ const PurchasePackageSchema = new Schema<
 
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
     },
     //
     type: {

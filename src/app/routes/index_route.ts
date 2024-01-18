@@ -21,6 +21,7 @@ import { ResourceRoute } from '../modules/resource/resource.route';
 import { QuizSubmitRoute } from '../modules/quizSubmit/quizSubmit.route';
 import { PackageRoute } from '../modules/package/package.route';
 import { PaymentRoute } from '../modules/payment/payment.router';
+import { PurchasePackageRoute } from '../modules/purchase_package/purchase_package.route';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -99,6 +100,10 @@ const moduleRoutes = [
   {
     path: '/packages',
     route: PackageRoute,
+  },
+  {
+    path: '/purchase_packages',
+    route: PurchasePackageRoute,
   },
   {
     path: '/payment',

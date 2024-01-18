@@ -14,6 +14,7 @@ import {
 } from './purchase_package.interface';
 import {
   PendingPurchasePackage,
+  // PendingPurchasePackage,
   PurchasePackage,
 } from './purchase_package.model';
 
@@ -41,7 +42,9 @@ const createPendingPurchasePackageByDb = async (
 ): Promise<IPurchasePackage | null> => {
 
   //all balance cournt in
+
   const result = await PendingPurchasePackage.create({ ...payload });
+  // const result =null
   return result;
 };
 
@@ -52,8 +55,6 @@ const getAllPurchasePackageFromDb = async (
 ): Promise<IGenericResponse<IPurchasePackage[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-  console.log('🚀 ~ filtersData:', filtersData);
-
   filtersData.isDelete = filtersData.isDelete
     ? filtersData.isDelete
     : ENUM_YN.NO;
@@ -89,11 +90,13 @@ const getAllPurchasePackageFromDb = async (
           ? { ['membership.uid']: value }
           : field === 'package'
             ? { [field]: new Types.ObjectId(value) }
+          : field === 'user'
+            ? { [field]: new Types.ObjectId(value) }
             : { [field]: value },
       ),
     });
   }
-  console.log('🚀 ~ andConditions:', andConditions);
+  console.log('🚀 ~ andConditions:', filtersData);
 
   //****************search and filters end**********/
 
@@ -117,18 +120,19 @@ const getAllPurchasePackageFromDb = async (
     .skip(Number(skip))
     .limit(Number(limit))
     .populate('categories.category')
-    .populate({
-      path: 'user',
-      select: { password: 0 },
-      //   populate: {
-      //     path: 'teacher',
-      //     model: 'teachers',
-      //     populate: {
-      //         path: 'user',
-      //         model: 'User'
-      //     }
-      // }
-    });
+    .populate("user")
+  //   // .populate({
+  //   //   path: 'user',
+  //   //   select: { password: 0 },
+  //   //   //   populate: {
+  //   //   //     path: 'teacher',
+  //   //   //     model: 'teachers',
+  //   //   //     populate: {
+  //   //   //         path: 'user',
+  //   //   //         model: 'User'
+  //   //   //     }
+  //   //   // }
+  //   // });
 
   // const pipeline: PipelineStage[] = [
   //   { $match: whereConditions },
@@ -143,10 +147,7 @@ const getAllPurchasePackageFromDb = async (
   //       from: 'categories',
   //       let: {
   //         id: '$categories.category',
-  //         label: '$categories.label',
-  //         biannual: '$categories.biannual',
-  //         yearly: '$categories.yearly',
-  //         monthly: '$categories.monthly',
+  //         // label: '$categories.label',
   //       },
   //       pipeline: [
   //         {
@@ -166,10 +167,7 @@ const getAllPurchasePackageFromDb = async (
   //           $project: {
   //             title: 1,
   //             img: 1,
-  //             label: '$$label',
-  //             biannual: '$$categories.biannual',
-  //             yearly: '$$categories.yearly',
-  //             monthly: '$$categories.monthly',
+  //             // label: '$$label',
   //           },
   //         },
   //       ],
@@ -187,22 +185,15 @@ const getAllPurchasePackageFromDb = async (
   //       categories: {
   //         $push: {
   //           category: '$categoriesDetails',
-  //           label: '$categoriesDetails.label',
-  //           biannual: '$$categoriesDetails.biannual',
-  //           yearly: '$$categoriesDetails.yearly',
-  //           monthly: '$$categoriesDetails.monthly',
+  //           // label: '$categoriesDetails.label',
   //         },
   //       },
   //       date_range: { $first: '$date_range' },
   //       type: { $first: '$type' },
   //       status: { $first: '$status' },
-  //       biannual: { $first: '$biannual' },
-  //       monthly: { $first: '$monthly' },
-  //       yearly: { $first: '$yearly' },
-
   //       createdAt: { $first: '$createdAt' },
   //       updatedAt: { $first: '$updatedAt' },
-  //       __v: { $first: '$__v' },
+     
   //     },
   //   },
   // ];
