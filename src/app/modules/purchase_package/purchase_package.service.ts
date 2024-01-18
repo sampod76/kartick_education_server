@@ -40,7 +40,6 @@ const createPurchasePackageByDb = async (
 const createPendingPurchasePackageByDb = async (
   payload: IPurchasePackage,
 ): Promise<IPurchasePackage | null> => {
-
   //all balance cournt in
 
   const result = await PendingPurchasePackage.create({ ...payload });
@@ -90,9 +89,11 @@ const getAllPurchasePackageFromDb = async (
           ? { ['membership.uid']: value }
           : field === 'package'
             ? { [field]: new Types.ObjectId(value) }
-          : field === 'user'
-            ? { [field]: new Types.ObjectId(value) }
-            : { [field]: value },
+            : field === 'user'
+              ? { [field]: new Types.ObjectId(value) }
+              : field === 'category'
+                ? { ['categories.category']: new Types.ObjectId(value) }
+                : { [field]: value },
       ),
     });
   }
@@ -120,7 +121,7 @@ const getAllPurchasePackageFromDb = async (
     .skip(Number(skip))
     .limit(Number(limit))
     .populate('categories.category')
-    .populate("user")
+    .populate('user');
   //   // .populate({
   //   //   path: 'user',
   //   //   select: { password: 0 },
@@ -193,7 +194,7 @@ const getAllPurchasePackageFromDb = async (
   //       status: { $first: '$status' },
   //       createdAt: { $first: '$createdAt' },
   //       updatedAt: { $first: '$updatedAt' },
-     
+
   //     },
   //   },
   // ];
