@@ -7,6 +7,7 @@ export const PACKAGE_FILTERABLE_FIELDS = [
   'course',
   'delete',
   'membershipUid',
+  'membershipTitle',
   'type',
 ];
 export const PACKAGE_TYPES_ARRAY = [

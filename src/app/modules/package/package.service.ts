@@ -13,7 +13,7 @@ import { Package } from './package.model';
 
 const { ObjectId } = mongoose.Types;
 const createPackageByDb = async (
-  payload: IPackage
+  payload: IPackage,
 ): Promise<IPackage | null> => {
   const findPackage = await Package.findOne({
     title: payload.title,
@@ -33,7 +33,7 @@ const createPackageByDb = async (
 //getAllQuizFromDb
 const getAllPackageFromDb = async (
   filters: IPackageFilters,
-  paginationOptions: IPaginationOption
+  paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<IPackage[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
@@ -62,7 +62,7 @@ const getAllPackageFromDb = async (
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
           : {
               [field]: new RegExp(searchTerm, 'i'),
-            }
+            },
       ),
     });
   }
@@ -72,7 +72,9 @@ const getAllPackageFromDb = async (
       $and: Object.entries(filtersData).map(([field, value]) =>
         field === 'membershipUid'
           ? { ['membership.uid']: value }
-          : { [field]: value }
+          : field === 'membershipTitle'
+            ? { ['membership.title']: value }
+            : { [field]: value },
       ),
     });
   }
@@ -201,7 +203,7 @@ const getAllPackageFromDb = async (
 // get single e form db
 const getPackageVerifyFromDb = async (
   id: string,
-  user: any
+  user: any,
 ): Promise<IPackage[] | null> => {
   const findSubmitQuiz = await Package.find({
     quiz: new Types.ObjectId(id as string),
@@ -220,7 +222,7 @@ const getPackageSingelFromDb = async (id: string): Promise<IPackage | null> => {
 // update e form db
 const updatePackageFromDb = async (
   id: string,
-  payload: Partial<IPackage>
+  payload: Partial<IPackage>,
 ): Promise<IPackage | null> => {
   const result = await Package.findOneAndUpdate({ _id: id }, payload, {
     new: true,
@@ -235,7 +237,7 @@ const updatePackageFromDb = async (
 // delete e form db
 const deletePackageByIdFromDb = async (
   id: string,
-  query: IPackageFilters
+  query: IPackageFilters,
 ): Promise<IPackage | null> => {
   let result;
   if (query.delete === ENUM_YN.YES) {
@@ -243,7 +245,7 @@ const deletePackageByIdFromDb = async (
   } else {
     result = await Package.findOneAndUpdate(
       { _id: id },
-      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
+      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES },
     );
   }
   return result;

@@ -18,7 +18,7 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   const { email, password } = payload;
 
   const isUserExist = await User.isUserExistMethod(email);
-  console.log(isUserExist);
+
   if (!isUserExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist');
   }
@@ -40,7 +40,7 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   } else if (isUserExist.status === ENUM_STATUS.BLOCK) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
-      `Your account is blocked ${isUserExist?.blockingTimeout}`
+      `Your account is blocked ${isUserExist?.blockingTimeout}`,
     );
   }
 
@@ -57,13 +57,13 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   const accessToken = jwtHelpers.createToken(
     { email: existEmail, role, id: _id },
     config.jwt.secret as Secret,
-    config.jwt.expires_in as string
+    config.jwt.expires_in as string,
   );
 
   const refreshToken = jwtHelpers.createToken(
     { email: existEmail, role, id: _id },
     config.jwt.refresh_secret as Secret,
-    config.jwt.refresh_expires_in as string
+    config.jwt.refresh_expires_in as string,
   );
 
   return {
@@ -79,7 +79,7 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
   try {
     verifiedToken = jwtHelpers.verifyToken(
       token,
-      config.jwt.refresh_secret as Secret
+      config.jwt.refresh_secret as Secret,
     );
   } catch (err) {
     throw new ApiError(httpStatus.FORBIDDEN, 'Invalid Refresh Token');
@@ -99,7 +99,7 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
   } else if (isUserExist.status === ENUM_STATUS.BLOCK) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
-      `Your account is blocked ${isUserExist?.blockingTimeout}`
+      `Your account is blocked ${isUserExist?.blockingTimeout}`,
     );
   }
 
@@ -110,7 +110,7 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
       id: isUserExist._id,
     },
     config.jwt.secret as Secret,
-    config.jwt.expires_in as string
+    config.jwt.expires_in as string,
   );
 
   return {
@@ -120,7 +120,7 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
 
 const changePassword = async (
   user: JwtPayload | null,
-  payload: IChangePassword
+  payload: IChangePassword,
 ): Promise<void> => {
   const { oldPassword, newPassword } = payload;
 
@@ -129,7 +129,7 @@ const changePassword = async (
 
   //alternative way
   const isUserExist = await User.findOne({ email: user?.email }).select(
-    '+password'
+    '+password',
   );
 
   if (!isUserExist) {
@@ -148,7 +148,7 @@ const changePassword = async (
   } else if (isUserExist.status === ENUM_STATUS.BLOCK) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
-      `Your account is blocked ${isUserExist?.blockingTimeout}`
+      `Your account is blocked ${isUserExist?.blockingTimeout}`,
     );
   }
   // // hash password before saving
@@ -200,7 +200,7 @@ const forgotPass = async (payload: { id: string }) => {
   const passResetToken = await jwtHelpers.createResetToken(
     { email: profile.email },
     config.jwt.secret as string,
-    '50m'
+    '50m',
   );
 
   const resetLink: string = config.resetlink + `token=${passResetToken}`;
@@ -214,7 +214,7 @@ const forgotPass = async (payload: { id: string }) => {
         <p>Your password reset link: <a href=${resetLink}>Click Here</a></p>
         <p>Thank you</p>
       </div>
-  `
+  `,
   );
 
   // return {
@@ -224,7 +224,7 @@ const forgotPass = async (payload: { id: string }) => {
 
 const resetPassword = async (
   payload: { id: string; newPassword: string },
-  token: string
+  token: string,
 ) => {
   const { id, newPassword } = payload;
   const user = await User.findById({ _id: id }, { _id: 1 });
@@ -235,17 +235,18 @@ const resetPassword = async (
 
   const isVarified = await jwtHelpers.verifyToken(
     token,
-    config.jwt.secret as string
+    config.jwt.secret as string,
   );
   console.log(isVarified);
 
   const password = await bcrypt.hash(
     newPassword,
-    Number(config.bycrypt_salt_rounds)
+    Number(config.bycrypt_salt_rounds),
   );
 
   await User.updateOne({ id }, { password });
 };
+
 
 export const AuthService = {
   loginUser,
@@ -253,4 +254,5 @@ export const AuthService = {
   changePassword,
   forgotPass,
   resetPassword,
+
 };

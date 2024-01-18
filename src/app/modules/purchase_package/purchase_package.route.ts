@@ -43,4 +43,4 @@ router
     PurchasePackageController.updatePurchasePackage
   );
 
-export const PackageRoute = router;
+export const PurchasePackageRoute = router;

@@ -120,6 +120,11 @@ const test = async () => {
   // Promise.all(promess).then(values => {
   //   console.log(values);
   // });
+
+  // const result = encryptCryptoData({id:"sdfjksdjfkl"},config.encryptCrypto as string)
+  // const getData = "U2FsdGVkX19dOA/shL0SLR2JyDtmLpQJy88CwzgKP18YXxHGl5lrNcVpYOzLeI6ITy/cWRTBrTK0V6PkGhbl1Ik fBtfhZUFBsLHrZmvFNuC4OpxwvY79/xToKurgOskLiz7aazvvxeghiVMtnRfEw==".split(" ").join("+")
+  // const verify = decryptCryptoData(getData,config.encryptCrypto as string)
+  // console.log(verify);
 };
 test();
 

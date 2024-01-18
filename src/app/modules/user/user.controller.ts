@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { RequestHandler } from 'express-serve-static-core';
 import httpStatus from 'http-status';
 
 import { PAGINATION_FIELDS } from '../../../constant/pagination';
@@ -10,7 +9,7 @@ import { userFilterableFields } from './user.constant';
 import { IUser } from './user.interface';
 import { UserService } from './user.service';
 
-const getUsers: RequestHandler = catchAsync(
+const getUsers = catchAsync(
   async (req: Request, res: Response) => {
     const filters = pick(req.query, userFilterableFields);
     const paginationOptions = pick(req.query, PAGINATION_FIELDS);
@@ -24,7 +23,7 @@ const getUsers: RequestHandler = catchAsync(
     });
   }
 );
-const getSingleUser: RequestHandler = catchAsync(
+const getSingleUser = catchAsync(
   async (req: Request, res: Response) => {
     const result = await UserService.getSingleUsers(req.params.id);
 
@@ -36,7 +35,7 @@ const getSingleUser: RequestHandler = catchAsync(
     });
   }
 );
-const deleteSingleUser: RequestHandler = catchAsync(
+const deleteSingleUser = catchAsync(
   async (req: Request, res: Response) => {
     const filters = pick(req.query, userFilterableFields);
     const result = await UserService.deleteSingleUsersFormDb(req.params.id, filters);
@@ -49,7 +48,7 @@ const deleteSingleUser: RequestHandler = catchAsync(
     });
   }
 );
-const createStudent: RequestHandler = catchAsync(
+const createStudent = catchAsync(
   async (req: Request, res: Response) => {
     const { student, ...userData } = req.body;
     userData.email = student?.email;
@@ -64,7 +63,7 @@ const createStudent: RequestHandler = catchAsync(
   }
 );
 
-const createModerator: RequestHandler = catchAsync(
+const createModerator = catchAsync(
   async (req: Request, res: Response) => {
     const { moderator, ...userData } = req.body;
     userData.email = moderator?.email;
@@ -79,7 +78,7 @@ const createModerator: RequestHandler = catchAsync(
   }
 );
 
-const createAdmin: RequestHandler = catchAsync(
+const createAdmin = catchAsync(
   async (req: Request, res: Response) => {
     const { admin, ...userData } = req.body;
     userData.email = admin?.email;
@@ -92,7 +91,7 @@ const createAdmin: RequestHandler = catchAsync(
     });
   }
 );
-const createSeller: RequestHandler = catchAsync(
+const createSeller = catchAsync(
   async (req: Request, res: Response) => {
     const { seller, ...userData } = req.body;
     userData.email = seller?.email;
@@ -106,7 +105,7 @@ const createSeller: RequestHandler = catchAsync(
   }
 );
 
-const createTrainer: RequestHandler = catchAsync(
+const createTrainer = catchAsync(
   async (req: Request, res: Response) => {
     const { trainer, ...userData } = req.body;
     userData.email = trainer?.email;

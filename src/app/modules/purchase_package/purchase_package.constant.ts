@@ -8,7 +8,8 @@ export const PURCHASE_PACKAGE_FILTERABLE_FIELDS = [
   'delete',
   'membershipUid',
   'type',
-  'package'
+  'package',
+  'user'
 ];
 export const PURCHASE_PACKAGE_TYPES_ARRAY = [
   'bundle',

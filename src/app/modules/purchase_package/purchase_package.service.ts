@@ -12,11 +12,15 @@ import {
   IPurchasePackage,
   IPurchasePackageFilters,
 } from './purchase_package.interface';
-import { PurchasePackage } from './purchase_package.model';
+import {
+  PendingPurchasePackage,
+  // PendingPurchasePackage,
+  PurchasePackage,
+} from './purchase_package.model';
 
 const { ObjectId } = mongoose.Types;
 const createPurchasePackageByDb = async (
-  payload: IPurchasePackage
+  payload: IPurchasePackage,
 ): Promise<IPurchasePackage | null> => {
   // const findPackage = await PurchasePackage.findOne({
   //   title: payload.title,
@@ -33,16 +37,23 @@ const createPurchasePackageByDb = async (
   const result = await PurchasePackage.create({ ...payload });
   return result;
 };
+const createPendingPurchasePackageByDb = async (
+  payload: IPurchasePackage,
+): Promise<IPurchasePackage | null> => {
+  //all balance cournt in
+
+  const result = await PendingPurchasePackage.create({ ...payload });
+  // const result =null
+  return result;
+};
 
 //getAllQuizFromDb
 const getAllPurchasePackageFromDb = async (
   filters: IPurchasePackageFilters,
-  paginationOptions: IPaginationOption
+  paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<IPurchasePackage[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-  console.log('🚀 ~ filtersData:', filtersData);
-
   filtersData.isDelete = filtersData.isDelete
     ? filtersData.isDelete
     : ENUM_YN.NO;
@@ -66,7 +77,7 @@ const getAllPurchasePackageFromDb = async (
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
           : {
               [field]: new RegExp(searchTerm, 'i'),
-            }
+            },
       ),
     });
   }
@@ -77,12 +88,16 @@ const getAllPurchasePackageFromDb = async (
         field === 'membershipUid'
           ? { ['membership.uid']: value }
           : field === 'package'
-          ? { [field]: new Types.ObjectId(value) }
-          : { [field]: value }
+            ? { [field]: new Types.ObjectId(value) }
+            : field === 'user'
+              ? { [field]: new Types.ObjectId(value) }
+              : field === 'category'
+                ? { ['categories.category']: new Types.ObjectId(value) }
+                : { [field]: value },
       ),
     });
   }
-  console.log('🚀 ~ andConditions:', andConditions);
+  console.log('🚀 ~ andConditions:', filtersData);
 
   //****************search and filters end**********/
 
@@ -106,18 +121,19 @@ const getAllPurchasePackageFromDb = async (
     .skip(Number(skip))
     .limit(Number(limit))
     .populate('categories.category')
-    .populate({
-      path:"user",
-      select:{password:0},
-    //   populate: {
-    //     path: 'teacher', 
-    //     model: 'teachers',
-    //     populate: {
-    //         path: 'user',
-    //         model: 'User'
-    //     }
-    // }
-    });
+    .populate('user');
+  //   // .populate({
+  //   //   path: 'user',
+  //   //   select: { password: 0 },
+  //   //   //   populate: {
+  //   //   //     path: 'teacher',
+  //   //   //     model: 'teachers',
+  //   //   //     populate: {
+  //   //   //         path: 'user',
+  //   //   //         model: 'User'
+  //   //   //     }
+  //   //   // }
+  //   // });
 
   // const pipeline: PipelineStage[] = [
   //   { $match: whereConditions },
@@ -132,10 +148,7 @@ const getAllPurchasePackageFromDb = async (
   //       from: 'categories',
   //       let: {
   //         id: '$categories.category',
-  //         label: '$categories.label',
-  //         biannual: '$categories.biannual',
-  //         yearly: '$categories.yearly',
-  //         monthly: '$categories.monthly',
+  //         // label: '$categories.label',
   //       },
   //       pipeline: [
   //         {
@@ -155,10 +168,7 @@ const getAllPurchasePackageFromDb = async (
   //           $project: {
   //             title: 1,
   //             img: 1,
-  //             label: '$$label',
-  //             biannual: '$$categories.biannual',
-  //             yearly: '$$categories.yearly',
-  //             monthly: '$$categories.monthly',
+  //             // label: '$$label',
   //           },
   //         },
   //       ],
@@ -176,22 +186,15 @@ const getAllPurchasePackageFromDb = async (
   //       categories: {
   //         $push: {
   //           category: '$categoriesDetails',
-  //           label: '$categoriesDetails.label',
-  //           biannual: '$$categoriesDetails.biannual',
-  //           yearly: '$$categoriesDetails.yearly',
-  //           monthly: '$$categoriesDetails.monthly',
+  //           // label: '$categoriesDetails.label',
   //         },
   //       },
   //       date_range: { $first: '$date_range' },
   //       type: { $first: '$type' },
   //       status: { $first: '$status' },
-  //       biannual: { $first: '$biannual' },
-  //       monthly: { $first: '$monthly' },
-  //       yearly: { $first: '$yearly' },
-
   //       createdAt: { $first: '$createdAt' },
   //       updatedAt: { $first: '$updatedAt' },
-  //       __v: { $first: '$__v' },
+
   //     },
   //   },
   // ];
@@ -219,7 +222,7 @@ const getAllPurchasePackageFromDb = async (
 // get single e form db
 const getPurchasePackageVerifyFromDb = async (
   id: string,
-  user: any
+  user: any,
 ): Promise<IPurchasePackage[] | null> => {
   const findSubmitQuiz = await PurchasePackage.find({
     quiz: new Types.ObjectId(id as string),
@@ -229,7 +232,7 @@ const getPurchasePackageVerifyFromDb = async (
   return findSubmitQuiz;
 };
 const getPurchasePackageSingelFromDb = async (
-  id: string
+  id: string,
 ): Promise<IPurchasePackage | null> => {
   const result = await PurchasePackage.aggregate([
     { $match: { _id: new ObjectId(id) } },
@@ -239,7 +242,7 @@ const getPurchasePackageSingelFromDb = async (
 };
 const updatePurchasePackageFromDb = async (
   id: string,
-  payload: Partial<IPurchasePackage>
+  payload: Partial<IPurchasePackage>,
 ): Promise<IPurchasePackage | null> => {
   const result = await PurchasePackage.findOneAndUpdate({ _id: id }, payload, {
     new: true,
@@ -253,7 +256,7 @@ const updatePurchasePackageFromDb = async (
 // delete e form db
 const deletePurchasePackageByIdFromDb = async (
   id: string,
-  query: IPurchasePackageFilters
+  query: IPurchasePackageFilters,
 ): Promise<IPurchasePackage | null> => {
   let result;
   if (query.delete === ENUM_YN.YES) {
@@ -261,7 +264,7 @@ const deletePurchasePackageByIdFromDb = async (
   } else {
     result = await PurchasePackage.findOneAndUpdate(
       { _id: id },
-      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
+      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES },
     );
   }
   return result;
@@ -274,4 +277,5 @@ export const PurchasePackageService = {
   deletePurchasePackageByIdFromDb,
   getPurchasePackageVerifyFromDb,
   updatePurchasePackageFromDb,
+  createPendingPurchasePackageByDb,
 };
