@@ -74,6 +74,7 @@ const PurchasePackageSchema = new Schema<
     status: {
       type: String,
       enum: ['active', 'deactivate', 'save'],
+      default: 'active',
     },
     isDelete: { type: String, default: 'no' },
   },

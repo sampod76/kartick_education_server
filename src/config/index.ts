@@ -39,6 +39,14 @@ export default {
       process.env.NODE_ENV === 'development'
         ? process.env.STRIPE_CANCEL_URL_LOCAL
         : process.env.STRIPE_CANCEL_URL,
+    paypal_success_url:
+      process.env.NODE_ENV === 'development'
+        ? process.env.PAYPAL_SUCCESS_URL_LOCAL
+        : process.env.PAYPAL_SUCCESS_URL,
+    paypal_cancel_url:
+      process.env.NODE_ENV === 'development'
+        ? process.env.PAYPAL_CANCEL_URL_LOCAL
+        : process.env.PAYPAL_CANCEL_URL,
   },
   paypal: {
     client: process.env.PAYPLE_CLIENT_ID,

@@ -31,7 +31,7 @@ router.post(
   AuthController.changePassword
 );
 
-router.post(
+router.get(
   '/profile',
   authMiddleware(
     ENUM_USER_ROLE.ADMIN,
@@ -39,7 +39,7 @@ router.post(
     ENUM_USER_ROLE.STUDENT,
     ENUM_USER_ROLE.SELLER
   ),
-  AuthController.changePassword
+  AuthController.profile
 );
 // router.post(
 //   '/forgot-password',

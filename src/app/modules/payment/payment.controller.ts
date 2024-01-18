@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import axios from 'axios';
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import paypal, { Payment } from 'paypal-rest-sdk';
@@ -21,10 +22,9 @@ import {
 
 // import { errorLogger, logger } from '../../share/logger';
 paypal.configure({
-  mode: 'sandbox',
+  mode: 'sandbox', //  mode:"live"
   client_id: config.paypal.client as string,
-  client_secret:
-    config.paypal.secret as string,
+  client_secret: config.paypal.secret as string,
 });
 
 // import { z } from 'zod'
@@ -113,17 +113,19 @@ const createPaymentStripeAdvanceForNative = catchAsync(
 // // payple intergrate
 const createPaymentPayple = catchAsync(async (req: Request, res: Response) => {
   const { amount, item_list, description, data: categoryData } = req.body;
-  //
+  //! ------- price configuration ------
   const item = item_list.items[0];
   const price = parseFloat(item.price);
   // Convert the price to a string with exactly 2 decimal places
   const formattedPrice = price.toFixed(2);
   // Update the item's price with the formatted value
   item.price = formattedPrice;
-  //
+  console.log('🚀 ~ createPaymentPayple ~ item:', item);
+  //! ------- price configuration end ------
+  categoryData.user = categoryData.user || req?.user?.id;
   const findPriducts = await Package.findById(item.sku);
 
-  const createPackge = await PurchasePackage.create({
+  const createPackge = await PendingPurchasePackage.create({
     ...categoryData,
     paymentStatus: 'pending',
   });
@@ -131,7 +133,9 @@ const createPaymentPayple = catchAsync(async (req: Request, res: Response) => {
     throw new ApiError(400, 'Something is wrong with purchase');
   }
   const data: any = {
-    // id: createPackge?._id,
+    id: createPackge?._id,
+    amount: amount,
+    platform: 'paypal',
   };
 
   const encryptData = encryptCryptoData(data, config.encryptCrypto as string);
@@ -142,9 +146,11 @@ const createPaymentPayple = catchAsync(async (req: Request, res: Response) => {
       payment_method: 'paypal',
     },
     redirect_urls: {
-      return_url: `${config.payment_url.stripe_success_url}?app=${encryptData}`,
+      // http://localhost:3000/payment/paypal/success?app=U2FsdGVkX1/W0OEYqkDDooRyGcj23kavmEj7xiedIVIWPAGID8IG1ZaQiYlkUBkTWbXF0CMarK9yjqgXRB7wL0QIfFYyfdgt4FIZNPB8Dcy84ZY+NRGtWx3nkosUhbHXnxHxot79HolUb/a12AAKdQ==&paymentId=PAYID-MWUGVTY45C10167TA709600D&token=EC-0FV098435R815293J&PayerID=L3CREV92USD28
+      // this url to get -->paymentId  , PayerID
+      return_url: `${config.payment_url.paypal_success_url}?app=${encryptData}`,
       // return_url: `${process.env.LOCALHOST_SERVER_SIDE}/api/v1/payment/success?app=${encriptData}`,
-      cancel_url: `${config.payment_url.stripe_cancel_url}`,
+      cancel_url: `${config.payment_url.paypal_cancel_url}`,
     },
     transactions: [
       {
@@ -183,10 +189,13 @@ const createPaymentPayple = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const chackPayplePayment = catchAsync(async (req: Request, res: Response) => {
+const checkPaypalPayment = catchAsync(async (req: Request, res: Response) => {
+  // http://localhost:3000/payment/paypal/success?app=U2FsdGVkX1/W0OEYqkDDooRyGcj23kavmEj7xiedIVIWPAGID8IG1ZaQiYlkUBkTWbXF0CMarK9yjqgXRB7wL0QIfFYyfdgt4FIZNPB8Dcy84ZY+NRGtWx3nkosUhbHXnxHxot79HolUb/a12AAKdQ==&paymentId=PAYID-MWUGVTY45C10167TA709600D&token=EC-0FV098435R815293J&PayerID=L3CREV92USD28
+  // this url to get -->paymentId  , PayerID
   const payerId = req.query.PayerID;
   const paymentId = req.query.paymentId;
   const app = req.query.app;
+  console.log('🚀 ~ checkPaypalPayment ~ app:', app, payerId, paymentId);
   if (
     typeof payerId !== 'string' ||
     typeof paymentId !== 'string' ||
@@ -194,87 +203,36 @@ const chackPayplePayment = catchAsync(async (req: Request, res: Response) => {
   ) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'unauthorized access !!');
   }
-  const data = decryptCryptoData(app, config.encryptCrypto as string);
-
-  const execute_payment_json = {
-    payer_id: payerId,
-    transactions: [
-      {
-        amount: data?.amount,
-      },
-    ],
-  };
+  const data = decryptCryptoData(
+    // because some time whitespace code
+    // 'U2FsdGVkX19dOA/shL0SLR2JyDtmLpQJy88CwzgKP18YXxHGl5lrNcVpYOzLeI6ITy/cWRTBrTK0V6PkGhbl1Ik fBtfhZUFBsLHrZmvFNuC4OpxwvY79/xToKurgOskLiz7aazvvxeghiVMtnRfEw=='
+    app.split(' ').join('+'),
+    config.encryptCrypto as string,
+  );
+  console.log('🚀 ~ checkPaypalPayment ~ data:', data);
 
   try {
-    const payment: Payment = await new Promise((resolve, reject) => {
-      paypal.payment.execute(
-        paymentId,
-        execute_payment_json,
-        function (error, payment) {
-          if (error) {
-            reject(new ApiError(500, 'Payment is denied'));
-          } else {
-            resolve(payment);
-          }
-        },
-      );
-    });
-    console.log(payment);
+    // Set up the request headers for authentication
+    const authHeader = {
+      Authorization: `Basic ${Buffer.from(`${config.paypal.client as string}:${config.paypal.secret as string}`).toString('base64')}`,
+      'Content-Type': 'application/json',
+    };
 
-    /*
-    {
-      id: 'PAYID-MS2BCPA4BT713665C9605913',
-      intent: 'sale',
-      state: 'approved',
-      cart: '0N1193480W3023509',
-      payer: {
-        payment_method: 'paypal',
-        status: 'VERIFIED',
-        payer_info: {
-          email: 'sb-4jbgp26719602@personal.example.com',
-          first_name: 'John',
-          last_name: 'Doe',
-          payer_id: 'L3CREV92USD28',
-          shipping_address: [Object],
-          country_code: 'US'
-        }
-      },
-      transactions: [
-        {
-          amount: [Object],
-          payee: [Object],
-          description: 'Payment for order #12345',
-          item_list: [Object],
-          related_resources: [Array]
-        }
-      ],
-      failed_transactions: [],
-      create_time: '2023-07-16T15:48:12Z',
-      update_time: '2023-07-16T15:54:15Z',
-      links: [
-        {
-          href: 'https://api.sandbox.paypal.com/v1/payments/payment/PAYID-MS2BCPA4BT713665C9605913',
-          rel: 'self',
-          method: 'GET'
-        }
-      ],
-      httpStatusCode: 200
-    }
-     */
+    // Make a request to PayPal to execute the payment
 
-    // if payment status not approved then throw error
-    // if (!(payment?.state === 'approved')) {
-    //   return res.sendFile(
-    //     path.join(path.join(__dirname, '../../../views/sumthingWrong.html'))
-    //   );
-    // }
-    if (!(payment?.state === 'approved')) {
+    const responsData = await axios.post(
+      'https://api.sandbox.paypal.com/v1/payments/payment/' +
+        paymentId +
+        '/execute',
+      { payer_id: payerId },
+      { headers: authHeader },
+    );
+    if (responsData?.data?.state !== 'approved') {
       throw new ApiError(404, 'Payment not approved');
     }
-
     const find = await PendingPurchasePackage.findOne({
       'payment.transactionId': paymentId,
-      paymentStatus: { $or: ['approved', 'rejected'] },
+      paymentStatus: { $in: ['approved', 'rejected'] },
     });
 
     if (!find?._id) {
@@ -289,15 +247,24 @@ const chackPayplePayment = catchAsync(async (req: Request, res: Response) => {
           runValidators: true,
         },
       );
+
       if (result?._id) {
-        const { payment, ...allData } = result;
-        payment.record = result._id;
-        const accepted = await PurchasePackage.create({ ...result, payment });
+        const { payment, _id, ...calldata } = result;
+        payment.record = result?._id;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        console.log(calldata?._doc);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        const accepted = await PurchasePackage.create(calldata?._doc);
+
         return sendResponse<any>(res, {
           success: true,
           message: 'Payment success!',
           data: accepted,
         });
+      } else {
+        throw new ApiError(404, 'Payment is not success 264');
       }
 
       // return res.status(200).json({
@@ -313,7 +280,6 @@ const chackPayplePayment = catchAsync(async (req: Request, res: Response) => {
       // });
     }
   } catch (error: any) {
-    console.log(333);
     throw new ApiError(404, error?.message || 'Payment is not success');
     // return res.status(500).json({
     //   success: false,
@@ -322,7 +288,7 @@ const chackPayplePayment = catchAsync(async (req: Request, res: Response) => {
   }
 });
 
-const canclePayplePayment = catchAsync(async (req: Request, res: Response) => {
+const cancelPaypalPayment = catchAsync(async (req: Request, res: Response) => {
   // return res.status(400).json({
   //   success: false,
   //   message: 'cancle your payment request',
@@ -334,6 +300,6 @@ export const createPaymentController = {
   createPaymentStripe,
   createPaymentStripeAdvanceForNative,
   createPaymentPayple,
-  chackPayplePayment,
-  canclePayplePayment,
+  checkPaypalPayment,
+  cancelPaypalPayment,
 };

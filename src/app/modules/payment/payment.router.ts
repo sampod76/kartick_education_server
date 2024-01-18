@@ -36,7 +36,7 @@ router
     createPaymentController.createPaymentPayple,
   );
 
-router.route('/success').get(createPaymentController.chackPayplePayment);
-router.route('/cancle').get(createPaymentController.canclePayplePayment);
+router.route('/paypal/check').get(createPaymentController.checkPaypalPayment);
+router.route('/cancel').get(createPaymentController.cancelPaypalPayment);
 
 export const PaymentRoute = router;
