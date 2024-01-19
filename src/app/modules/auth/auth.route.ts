@@ -30,6 +30,11 @@ router.post(
   ),
   AuthController.changePassword
 );
+router.post(
+  '/reset-password',
+  validateRequestZod(AuthValidation.changePasswordZodSchema),
+  AuthController.resetPassword
+);
 
 router.get(
   '/profile',
@@ -41,10 +46,12 @@ router.get(
   ),
   AuthController.profile
 );
-// router.post(
-//   '/forgot-password',
-//   AuthController.forgotPass
-// );
+
+router.post(
+  '/forgot-password',
+  validateRequestZod(AuthValidation.forgotPassword),
+  AuthController.forgotPass
+);
 
 // router.post(
 //   '/reset-password',

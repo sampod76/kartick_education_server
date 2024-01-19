@@ -30,8 +30,17 @@ const changePasswordZodSchema = z.object({
   }),
 });
 
+const forgotPassword = z.object({
+  body: z.object({
+    email: z.string({
+      required_error: 'email is required ',
+    }),
+  }),
+});
+
 export const AuthValidation = {
   loginZodSchema,
   refreshTokenZodSchema,
   changePasswordZodSchema,
+  forgotPassword,
 };
