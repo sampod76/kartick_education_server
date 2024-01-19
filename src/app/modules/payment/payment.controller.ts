@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 import axios from 'axios';
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
@@ -113,17 +115,41 @@ const createPaymentStripeAdvanceForNative = catchAsync(
 // // payple intergrate
 const createPaymentPayple = catchAsync(async (req: Request, res: Response) => {
   const { amount, item_list, description, data: categoryData } = req.body;
+
+  const findPackage = (await Package.findById(categoryData?.package)) as any;
+
+  const packageToCategories = findPackage?.categories?.map(
+    (singleObject: any) => singleObject.category?.toString(),
+  );
+
+  if (!packageToCategories || !findPackage) {
+    throw new ApiError(404, 'Do not found package category');
+  }
+  const allExist = categoryData.categories.every((singleObject: any) =>
+    packageToCategories.includes(singleObject.category),
+  );
+
+  if (!allExist) {
+    throw new ApiError(404, 'This is not approved');
+  }
+  const newPrice =
+    (findPackage[categoryData?.purchase?.label].price +
+      findPackage[categoryData?.purchase?.label].each_student_increment *
+        categoryData?.total_purchase_student) *
+    (findPackage?.type === 'multiple_select'
+      ? categoryData?.categories?.length
+      : 1);
+
   //! ------- price configuration ------
   const item = item_list.items[0];
-  const price = parseFloat(item.price);
+  const price = parseFloat(String(newPrice));
   // Convert the price to a string with exactly 2 decimal places
   const formattedPrice = price.toFixed(2);
   // Update the item's price with the formatted value
   item.price = formattedPrice;
-  console.log('🚀 ~ createPaymentPayple ~ item:', item);
+ 
   //! ------- price configuration end ------
   categoryData.user = categoryData.user || req?.user?.id;
-  const findPriducts = await Package.findById(item.sku);
 
   const createPackge = await PendingPurchasePackage.create({
     ...categoryData,
@@ -134,7 +160,7 @@ const createPaymentPayple = catchAsync(async (req: Request, res: Response) => {
   }
   const data: any = {
     id: createPackge?._id,
-    amount: amount,
+    amount: { total: newPrice, currency: "USD" },
     platform: 'paypal',
   };
 
@@ -195,7 +221,7 @@ const checkPaypalPayment = catchAsync(async (req: Request, res: Response) => {
   const payerId = req.query.PayerID;
   const paymentId = req.query.paymentId;
   const app = req.query.app;
-  console.log('🚀 ~ checkPaypalPayment ~ app:', app, payerId, paymentId);
+
   if (
     typeof payerId !== 'string' ||
     typeof paymentId !== 'string' ||
@@ -209,7 +235,7 @@ const checkPaypalPayment = catchAsync(async (req: Request, res: Response) => {
     app.split(' ').join('+'),
     config.encryptCrypto as string,
   );
-  console.log('🚀 ~ checkPaypalPayment ~ data:', data);
+
 
   try {
     // Set up the request headers for authentication
@@ -251,9 +277,8 @@ const checkPaypalPayment = catchAsync(async (req: Request, res: Response) => {
       if (result?._id) {
         const { payment, _id, ...calldata } = result;
         payment.record = result?._id;
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-ignore
-        console.log(calldata?._doc);
+       
+    
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore
         const accepted = await PurchasePackage.create(calldata?._doc);

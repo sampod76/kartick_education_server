@@ -50,7 +50,7 @@ const createPaypalZodSchema = z.object({
           z.object({
             name: z.string(),
             sku: z.string().optional(),
-            price: z.string(),
+            price: z.string().optional(),
             currency: z.string().optional(),
             quantity: z.number().optional(),
           }),
@@ -59,8 +59,8 @@ const createPaypalZodSchema = z.object({
       .optional(),
     amount: z.object({
       currency: z.string().optional(),
-      total: z.string({ required_error: 'amount is required' }),
-    }),
+      total: z.string({ required_error: 'amount is required' }).optional(),
+    }).optional(),
     description: z.string().optional(),
     //for
     data: productData,

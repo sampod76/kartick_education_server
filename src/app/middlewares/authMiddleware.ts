@@ -30,12 +30,12 @@ const authMiddleware =
           req.user = verifiedUser;
         }
       } catch (error) {
-        throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized access');
+        throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden access');
       }
 
       // role diye guard korar jnno
       if (requiredRoles.length && !requiredRoles.includes(verifiedUser?.role)) {
-        throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden access');
+        throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized access');
       }
 
       //chack token user

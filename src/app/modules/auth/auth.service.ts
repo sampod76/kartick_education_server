@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import httpStatus from 'http-status';
 import { JwtPayload, Secret } from 'jsonwebtoken';
 import config from '../../../config';
-import { ENUM_STATUS } from '../../../enums/globalEnums';
+import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import { jwtHelpers } from '../../../helper/jwtHelpers';
 import ApiError from '../../errors/ApiError';
 import { User } from '../user/user.model';
@@ -85,11 +85,11 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
     throw new ApiError(httpStatus.FORBIDDEN, 'Invalid Refresh Token');
   }
 
-  const { email } = verifiedToken;
+  const { id } = verifiedToken;
 
   // console.log(verifiedToken,"email..........");
 
-  const isUserExist: any = await User.isUserExistMethod(email);
+  const isUserExist = await User.findById(id);
   if (!isUserExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist');
   }
@@ -101,6 +101,8 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
       httpStatus.NOT_FOUND,
       `Your account is blocked ${isUserExist?.blockingTimeout}`,
     );
+  } else if (isUserExist.isDelete === ENUM_YN.YES) {
+    throw new ApiError(httpStatus.NOT_FOUND, `Your account is delete`);
   }
 
   const newAccessToken = jwtHelpers.createToken(
@@ -247,12 +249,10 @@ const resetPassword = async (
   await User.updateOne({ id }, { password });
 };
 
-
 export const AuthService = {
   loginUser,
   refreshToken,
   changePassword,
   forgotPass,
   resetPassword,
-
 };
