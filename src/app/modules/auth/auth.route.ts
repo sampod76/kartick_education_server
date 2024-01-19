@@ -41,6 +41,7 @@ router.get(
   ),
   AuthController.profile
 );
+
 router.post(
   '/forgot-password',
   validateRequestZod(AuthValidation.forgotPassword),
