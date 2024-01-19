@@ -41,10 +41,11 @@ router.get(
   ),
   AuthController.profile
 );
-// router.post(
-//   '/forgot-password',
-//   AuthController.forgotPass
-// );
+router.post(
+  '/forgot-password',
+  validateRequestZod(AuthValidation.forgotPassword),
+  AuthController.forgotPass
+);
 
 // router.post(
 //   '/reset-password',

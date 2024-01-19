@@ -92,6 +92,7 @@ const changePassword = catchAsync(async (req: Request, res: Response) => {
 });
 
 const forgotPass = catchAsync(async (req: Request, res: Response) => {
+  
   await AuthService.forgotPass(req.body);
 
   sendResponse(res, {
