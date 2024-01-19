@@ -17,7 +17,7 @@ export default {
   bycrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS,
   imgbb_key: process.env.IMGBB_KEY,
   crypto_key: process.env.ENCRYPTION_SECRET,
-  resetlink: 'http://localhost:3000/login/forgetPass?',
+  resetlink: 'http://localhost:3000/login/forgetPass/reset/',
   jwt: {
     secret: process.env.JWT_SECRET,
     refresh_secret: process.env.JWT_REFRESH_SECRET,
