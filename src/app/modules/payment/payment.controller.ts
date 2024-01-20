@@ -3,7 +3,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 import axios from 'axios';
 import { Request, Response } from 'express';
-import httpStatus from 'http-status';
 import paypal, { Payment } from 'paypal-rest-sdk';
 import Stripe from 'stripe';
 import config from '../../../config';
@@ -227,7 +226,7 @@ const checkPaypalPayment = catchAsync(async (req: Request, res: Response) => {
     typeof paymentId !== 'string' ||
     typeof app !== 'string'
   ) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'unauthorized access !!');
+    throw new ApiError(400, 'Forbidden access !!');
   }
   const data = decryptCryptoData(
     // because some time whitespace code
@@ -254,7 +253,7 @@ const checkPaypalPayment = catchAsync(async (req: Request, res: Response) => {
       { headers: authHeader },
     );
     if (responsData?.data?.state !== 'approved') {
-      throw new ApiError(404, 'Payment not approved');
+      throw new ApiError(400, 'Payment not approved');
     }
     const find = await PendingPurchasePackage.findOne({
       'payment.transactionId': paymentId,
@@ -278,7 +277,6 @@ const checkPaypalPayment = catchAsync(async (req: Request, res: Response) => {
         const { payment, _id, ...calldata } = result;
         payment.record = result?._id;
        
-    
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore
         const accepted = await PurchasePackage.create(calldata?._doc);
@@ -289,7 +287,7 @@ const checkPaypalPayment = catchAsync(async (req: Request, res: Response) => {
           data: accepted,
         });
       } else {
-        throw new ApiError(404, 'Payment is not success 264');
+        throw new ApiError(400, 'Payment is not success 264');
       }
 
       // return res.status(200).json({
@@ -298,14 +296,14 @@ const checkPaypalPayment = catchAsync(async (req: Request, res: Response) => {
       //   payment,
       // });
     } else {
-      throw new ApiError(404, 'Payment is not success');
+      throw new ApiError(400, 'Payment is not success');
       // return res.send({
       //   success: false,
       //   message: 'You are allrady purchess course',
       // });
     }
   } catch (error: any) {
-    throw new ApiError(404, error?.message || 'Payment is not success');
+    throw new ApiError(400, error?.message || 'Payment is not success');
     // return res.status(500).json({
     //   success: false,
     //   message: 'An error occurred during payment execution.',
