@@ -16,7 +16,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     secure: false,
     httpOnly: true,
     // when my site is same url example: frontend ->sampodnath.com , backend ->sampodnath-api.com. then sameSite lagba na, when frontend ->sampodnath.com , but backend api.sampodnath.com then  sameSite: 'none',
-    sameSite: 'none', // or remove this line for testing
+    // or remove this line for testing
     maxAge: 31536000000,
     // maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'),
   };

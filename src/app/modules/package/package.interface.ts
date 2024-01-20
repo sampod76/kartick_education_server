@@ -26,6 +26,7 @@ export type IPackage = {
   title: string;
   img?: string;
   categories: {
+    _id: any;
     category: Types.ObjectId | ICategory | string;
     label?: string;
 
