@@ -81,6 +81,16 @@ const updatePackage = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const increaseStudentPackage = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await PackageService.increaseStudentPackageFromDb(id, req.body);
+  sendResponse<IPackage>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'successfull get  Package',
+    data: result,
+  });
+});
 
 const deletePackage = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -100,4 +110,5 @@ export const PackageController = {
   deletePackage,
   updatePackage,
   getVerifyPackage,
+  increaseStudentPackage
 };

@@ -22,6 +22,7 @@ export type IUserFilters = {
   multipleRole?: string;
   status?: IStatus;
   isDelete?: string;
+  author?: string;
 };
 
 export type IUser = {
@@ -41,19 +42,19 @@ export type IUser = {
   superAdmin?: Types.ObjectId | IAdmin;
   teacher?: Types.ObjectId | IAdmin;
   //
-  author: Types.ObjectId; // this is author mines which person create this account--> this is IUser
-  isDelete:string;
+  author: Types.ObjectId | IUser; // this is author mines which person create this account--> this is IUser
+  isDelete: string;
 };
 
 // export type UserModel = Model<IUser, Record<string, unknown>>;
 export type UserModel = {
   isUserExistMethod(
-    email: string
+    email: string,
   ): Promise<
     Pick<IUser, 'email' | 'password' | 'role' | 'status' | 'blockingTimeout'>
   >;
   isPasswordMatchMethod(
     oldPassword: string,
-    newPassword: string
+    newPassword: string,
   ): Promise<boolean | null>;
 } & Model<IUser>;

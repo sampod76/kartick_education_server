@@ -20,13 +20,16 @@ const createModuleByDb = async (payload: IModule): Promise<IModule> => {
 //getAllModuleFromDb
 const getAllModuleFromDb = async (
   filters: IModuleFilters,
-  paginationOptions: IPaginationOption
+  paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<IModule[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
   filtersData.status = filtersData.status
     ? filtersData.status
     : ENUM_STATUS.ACTIVE;
+  filtersData.isDelete = filtersData.isDelete
+    ? filtersData.isDelete
+    : ENUM_YN.NO;
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -46,7 +49,7 @@ const getAllModuleFromDb = async (
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
           : {
               [field]: new RegExp(searchTerm, 'i'),
-            }
+            },
       ),
     });
   }
@@ -57,10 +60,10 @@ const getAllModuleFromDb = async (
         field === 'category'
           ? { [field]: new Types.ObjectId(value) }
           : field === 'course'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'milestone'
-          ? { [field]: new Types.ObjectId(value) }
-          : { [field]: value }
+            ? { [field]: new Types.ObjectId(value) }
+            : field === 'milestone'
+              ? { [field]: new Types.ObjectId(value) }
+              : { [field]: value },
       ),
     });
   }
@@ -100,7 +103,12 @@ const getAllModuleFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [
+                  { $eq: ['$_id', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -163,7 +171,7 @@ const getAllModuleFromDb = async (
 // get single e form db
 const getSingleModuleFromDb = async (
   id: string,
-  query: IModuleFilters
+  query: IModuleFilters,
 ): Promise<IModule | null> => {
   let result;
   if (query['lesson_quiz'] === ENUM_YN.YES) {
@@ -177,7 +185,12 @@ const getSingleModuleFromDb = async (
           pipeline: [
             {
               $match: {
-                $expr: { $eq: ['$module', '$$id'] },
+                $expr: {
+                  $and: [
+                    { $eq: ['$module', '$$id'] },
+                    { $eq: ['$isDelete', ENUM_YN.NO] },
+                  ],
+                },
                 // Additional filter conditions for collection2
               },
             },
@@ -200,7 +213,12 @@ const getSingleModuleFromDb = async (
           pipeline: [
             {
               $match: {
-                $expr: { $eq: ['$module', '$$id'] },
+                $expr: {
+                  $and: [
+                    { $eq: ['$module', '$$id'] },
+                    { $eq: ['$isDelete', ENUM_YN.NO] },
+                  ],
+                },
                 // Additional filter conditions for collection2
               },
             },
@@ -228,7 +246,12 @@ const getSingleModuleFromDb = async (
           pipeline: [
             {
               $match: {
-                $expr: { $eq: ['$_id', '$$id'] },
+                $expr: {
+                  $and: [
+                    { $eq: ['$_id', '$$id'] },
+                    { $eq: ['$isDelete', ENUM_YN.NO] },
+                  ],
+                },
                 // Additional filter conditions for collection2
               },
             },
@@ -240,7 +263,12 @@ const getSingleModuleFromDb = async (
                 pipeline: [
                   {
                     $match: {
-                      $expr: { $eq: ['$_id', '$$id'] },
+                      $expr: {
+                        $and: [
+                          { $eq: ['$_id', '$$id'] },
+                          { $eq: ['$isDelete', ENUM_YN.NO] },
+                        ],
+                      },
                       // Additional filter conditions for collection2
                     },
                   },
@@ -252,7 +280,12 @@ const getSingleModuleFromDb = async (
                       pipeline: [
                         {
                           $match: {
-                            $expr: { $eq: ['$_id', '$$id'] },
+                            $expr: {
+                              $and: [
+                                { $eq: ['$_id', '$$id'] },
+                                { $eq: ['$isDelete', ENUM_YN.NO] },
+                              ],
+                            },
                             // Additional filter conditions for collection2
                           },
                         },
@@ -366,7 +399,7 @@ const getSingleModuleFromDb = async (
 // update e form db
 const updateModuleFromDb = async (
   id: string,
-  payload: Partial<IModule>
+  payload: Partial<IModule>,
 ): Promise<IModule | null> => {
   const { demo_video, ...otherData } = payload;
   const updateData = { ...otherData };
@@ -391,17 +424,16 @@ const updateModuleFromDb = async (
 // delete e form db
 const deleteModuleByIdFromDb = async (
   id: string,
-  query: IModuleFilters
+  query: IModuleFilters,
 ): Promise<IModule | null> => {
   let result;
   // result = await Module.findByIdAndDelete(id);
   if (query.delete === ENUM_YN.YES) {
     result = await Module.findByIdAndDelete(id);
-  } 
-  else {
+  } else {
     result = await Module.findOneAndUpdate(
       { _id: id },
-      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
+      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES },
     );
   }
   return result;

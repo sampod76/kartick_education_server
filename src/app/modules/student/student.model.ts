@@ -31,7 +31,7 @@ export const StudentSchema = new Schema<IStudent, StudentModel>(
     email: {
       type: String,
       //unique: true,
-      required: true,
+      // required: true,
     },
     phoneNumber: {
       type: String,
@@ -45,7 +45,10 @@ export const StudentSchema = new Schema<IStudent, StudentModel>(
     address: {
       type: String,
     },
-
+    author: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
     img: {
       type: String,
       // required: true,

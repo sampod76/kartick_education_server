@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import mongoose, { SortOrder } from 'mongoose';
+import mongoose, { SortOrder, Types } from 'mongoose';
 
 import httpStatus from 'http-status';
 
@@ -15,7 +15,7 @@ import { Student } from './student.model';
 
 const getAllStudents = async (
   filters: IStudentFilters,
-  paginationOptions: IPaginationOption
+  paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<IStudent[]>> => {
   const { searchTerm, ...filtersData } = filters;
 
@@ -37,9 +37,11 @@ const getAllStudents = async (
 
   if (Object.keys(filtersData).length) {
     andConditions.push({
-      $and: Object.entries(filtersData).map(([field, value]) => ({
-        [field]: value,
-      })),
+      $and: Object.entries(filtersData).map(([field, value]) => 
+        field === 'author'
+          ? { [field]: new Types.ObjectId(value) }
+          : { [field]: value }
+    ),
     });
   }
 
@@ -75,7 +77,7 @@ const getSingleStudent = async (id: string): Promise<IStudent | null> => {
 
 const updateStudent = async (
   id: string,
-  payload: Partial<IStudent>
+  payload: Partial<IStudent>,
 ): Promise<IStudent | null> => {
   const isExist = await Student.findById({ _id: id });
   if (!isExist) {
@@ -93,15 +95,19 @@ const updateStudent = async (
     });
   }
 
-  const result = await Student.findOneAndUpdate({ _id:id }, updatedStudentData, {
-    new: true,
-  });
+  const result = await Student.findOneAndUpdate(
+    { _id: id },
+    updatedStudentData,
+    {
+      new: true,
+    },
+  );
   return result;
 };
 
 const deleteStudent = async (
   id: string,
-  filter: IStudentFilters
+  filter: IStudentFilters,
 ): Promise<IStudent | null> => {
   // check if the faculty is exist
 
@@ -132,7 +138,7 @@ const deleteStudent = async (
       const student = await Student.findOneAndUpdate(
         { _id: id },
         { status: ENUM_STATUS.DEACTIVATE },
-        { session }
+        { session },
       );
 
       if (student) {
@@ -142,7 +148,7 @@ const deleteStudent = async (
       await User.findOneAndUpdate(
         { email: isExist.email },
         { status: ENUM_STATUS.DEACTIVATE },
-        { session }
+        { session },
       );
       session.commitTransaction();
       session.endSession();

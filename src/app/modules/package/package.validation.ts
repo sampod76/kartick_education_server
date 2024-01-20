@@ -116,8 +116,14 @@ const updatePackageZodSchema = z.object({
     isDelete: z.string().optional(),
   }),
 });
+const increaseStudentPackageZodSchema = z.object({
+  body: z.object({
+    studentId:z.string(),
+  }),
+});
 
 export const PackageValidation = {
   createPackageZodSchema,
   updatePackageZodSchema,
+  increaseStudentPackageZodSchema
 };

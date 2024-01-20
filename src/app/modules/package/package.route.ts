@@ -15,10 +15,10 @@ router
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
-      ENUM_USER_ROLE.STUDENT
+      ENUM_USER_ROLE.STUDENT,
     ),
     validateRequestZod(PackageValidation.createPackageZodSchema),
-    PackageController.createPackage
+    PackageController.createPackage,
   );
 
 router
@@ -26,11 +26,18 @@ router
   .get(PackageController.getSinglePackage)
   .delete(
     authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-    PackageController.deletePackage
+    PackageController.deletePackage,
   )
   .patch(
     authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-    PackageController.updatePackage
+    PackageController.updatePackage,
+  );
+
+router
+  .route('/increment/:id')
+  .patch(
+    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+    PackageController.increaseStudentPackage,
   );
 
 export const PackageRoute = router;

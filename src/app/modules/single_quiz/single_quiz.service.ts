@@ -115,11 +115,11 @@ const getAllSingleQuizFromDb = async (
           // Additional stages for collection2
           // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
 
-          // {
-          //   $project: {
-          //     __v: 0,
-          //   },
-          // },
+          {
+            $project: {
+              __v: 0,
+            },
+          },
         ],
         as: 'moduleDetails',
       },
@@ -247,6 +247,43 @@ const getSingleSingleQuizFromDb = async (
       $unwind: '$module',
     },
 
+    //------------ quiz pipelines --------------------------------
+    {
+      $lookup: {
+        from: 'quizzes',
+        let: { id: '$quiz' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$_id', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+        ],
+        as: 'quizDetails',
+      },
+    },
+
+    {
+      $project: { quiz: 0 },
+    },
+    {
+      $addFields: {
+        quiz: {
+          $cond: {
+            if: { $eq: [{ $size: '$quizDetails' }, 0] },
+            then: [{}],
+            else: '$quizDetails',
+          },
+        },
+      },
+    },
+    {
+      $project: { quizDetails: 0 },
+    },
+    {
+      $unwind: '$quiz',
+    },
     //------------ quiz pipelines --------------------------------
     {
       $lookup: {

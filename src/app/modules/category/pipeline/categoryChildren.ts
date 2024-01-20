@@ -1,5 +1,5 @@
 import { PipelineStage } from 'mongoose';
-import { ENUM_STATUS } from '../../../../enums/globalEnums';
+import { ENUM_YN } from '../../../../enums/globalEnums';
 
 export type IMilestonePipeline = {
   whereConditions: any;
@@ -23,7 +23,8 @@ const all = ({ whereConditions, sortConditions }: IMilestonePipeline) => {
               $expr: {
                 $and: [
                   { $eq: ['$category', '$$id'] },
-                  { $eq: ['$status', ENUM_STATUS.ACTIVE] },
+
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
                 ], // The condition to match the fields
               },
             },
@@ -40,7 +41,7 @@ const all = ({ whereConditions, sortConditions }: IMilestonePipeline) => {
                     $expr: {
                       $and: [
                         { $eq: ['$course', '$$id'] },
-                        { $eq: ['$status', ENUM_STATUS.ACTIVE] },
+                        { $eq: ['$isDelete', ENUM_YN.NO] },
                       ], // The condition to match the fields
                     },
                   },
@@ -57,7 +58,7 @@ const all = ({ whereConditions, sortConditions }: IMilestonePipeline) => {
                           $expr: {
                             $and: [
                               { $eq: ['$milestone', '$$id'] },
-                              { $eq: ['$status', ENUM_STATUS.ACTIVE] },
+                              { $eq: ['$isDelete', ENUM_YN.NO] },
                             ], // The condition to match the fields
                           },
                         },
@@ -74,7 +75,7 @@ const all = ({ whereConditions, sortConditions }: IMilestonePipeline) => {
                                 $expr: {
                                   $and: [
                                     { $eq: ['$module', '$$id'] },
-                                    { $eq: ['$status', ENUM_STATUS.ACTIVE] },
+                                    { $eq: ['$isDelete', ENUM_YN.NO] },
                                   ], // The condition to match the fields
                                 },
                               },
@@ -91,12 +92,7 @@ const all = ({ whereConditions, sortConditions }: IMilestonePipeline) => {
                                       $expr: {
                                         $and: [
                                           { $eq: ['$lesson', '$$id'] },
-                                          {
-                                            $eq: [
-                                              '$status',
-                                              ENUM_STATUS.ACTIVE,
-                                            ],
-                                          },
+                                          { $eq: ['$isDelete', ENUM_YN.NO] },
                                         ], // The condition to match the fields
                                       },
                                     },
@@ -186,7 +182,7 @@ const categoryCourseMilestonModuleLesson = ({
               $expr: {
                 $and: [
                   { $eq: ['$category', '$$id'] },
-                  { $eq: ['$status', ENUM_STATUS.ACTIVE] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
                 ], // The condition to match the fields
               },
             },
@@ -203,7 +199,7 @@ const categoryCourseMilestonModuleLesson = ({
                     $expr: {
                       $and: [
                         { $eq: ['$course', '$$id'] },
-                        { $eq: ['$status', ENUM_STATUS.ACTIVE] },
+                        { $eq: ['$isDelete', ENUM_YN.NO] },
                       ], // The condition to match the fields
                     },
                   },
@@ -220,7 +216,7 @@ const categoryCourseMilestonModuleLesson = ({
                           $expr: {
                             $and: [
                               { $eq: ['$milestone', '$$id'] },
-                              { $eq: ['$status', ENUM_STATUS.ACTIVE] },
+                              { $eq: ['$isDelete', ENUM_YN.NO] },
                             ], // The condition to match the fields
                           },
                         },
@@ -237,7 +233,7 @@ const categoryCourseMilestonModuleLesson = ({
                                 $expr: {
                                   $and: [
                                     { $eq: ['$module', '$$id'] },
-                                    { $eq: ['$status', ENUM_STATUS.ACTIVE] },
+                                    { $eq: ['$isDelete', ENUM_YN.NO] },
                                   ], // The condition to match the fields
                                 },
                               },
@@ -316,7 +312,7 @@ const categoryCourseMilestonModule = ({
               $expr: {
                 $and: [
                   { $eq: ['$category', '$$id'] },
-                  { $eq: ['$status', ENUM_STATUS.ACTIVE] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
                 ], // The condition to match the fields
               },
             },
@@ -333,7 +329,7 @@ const categoryCourseMilestonModule = ({
                     $expr: {
                       $and: [
                         { $eq: ['$course', '$$id'] },
-                        { $eq: ['$status', ENUM_STATUS.ACTIVE] },
+                        { $eq: ['$isDelete', ENUM_YN.NO] },
                       ], // The condition to match the fields
                     },
                   },
@@ -350,7 +346,7 @@ const categoryCourseMilestonModule = ({
                           $expr: {
                             $and: [
                               { $eq: ['$milestone', '$$id'] },
-                              { $eq: ['$status', ENUM_STATUS.ACTIVE] },
+                              { $eq: ['$isDelete', ENUM_YN.NO] },
                             ], // The condition to match the fields
                           },
                         },
@@ -419,7 +415,7 @@ const categoryCourseMileston = ({
               $expr: {
                 $and: [
                   { $eq: ['$category', '$$id'] },
-                  { $eq: ['$status', ENUM_STATUS.ACTIVE] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
                 ], // The condition to match the fields
               },
             },
@@ -436,7 +432,7 @@ const categoryCourseMileston = ({
                     $expr: {
                       $and: [
                         { $eq: ['$course', '$$id'] },
-                        { $eq: ['$status', ENUM_STATUS.ACTIVE] },
+                        { $eq: ['$isDelete', ENUM_YN.NO] },
                       ], // The condition to match the fields
                     },
                   },
@@ -491,7 +487,7 @@ const categoryCourse = ({
               $expr: {
                 $and: [
                   { $eq: ['$category', '$$id'] },
-                  { $eq: ['$status', ENUM_STATUS.ACTIVE] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
                 ], // The condition to match the fields
               },
             },
@@ -520,5 +516,5 @@ export const categoryPipeline = {
   categoryCourse,
   categoryCourseMileston,
   categoryCourseMilestonModule,
-  categoryCourseMilestonModuleLesson
+  categoryCourseMilestonModuleLesson,
 };
