@@ -1,7 +1,7 @@
 import { IGenericErrorMessage } from './error';
 
 export type IGenericResponse<T> = {
-  length: any;
+  // length: any;
   meta: {
     page: number;
     limit: number;
