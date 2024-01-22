@@ -5,10 +5,10 @@ import { PAGINATION_FIELDS } from '../../../constant/pagination';
 import catchAsync from '../../share/catchAsync';
 import pick from '../../share/pick';
 import sendResponse from '../../share/sendResponse';
-import { IStudentPurchasePackageCourse } from './studentPurchaseCourseBuy.interface';
-import { StudentPurchasePackageCourseService } from './studentPurchaseCourseBuy.service';
+import { IStudentPurchasePackageCourse } from './interface.studentPurchaseCourseBuy';
+import { StudentPurchasePackageCourseService } from './service.studentPurchaseCourseBuy';
 
-import { student_purchase_course_FILTERABLE_FIELDS } from './studentPurchaseCourseBuy.constant';
+import { student_purchase_course_FILTERABLE_FIELDS } from './constant.studentPurchaseCourseBuy';
 
 // import { z } from 'zod'
 const createStudentPurchasePackageCourse = catchAsync(

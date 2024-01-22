@@ -65,7 +65,7 @@ const userSchema = new Schema<IUser, UserModel>(
     },
     author: {
       type: Schema.Types.ObjectId,
-      // ref: 'User',
+      ref: 'User',
     },
     isDelete: {
       type: String,
@@ -88,7 +88,6 @@ userSchema.statics.isUserExistMethod = async function (
     { email },
     { id: 1, email: 1, password: 1, role: 1 },
   );
-
   return user;
 };
 

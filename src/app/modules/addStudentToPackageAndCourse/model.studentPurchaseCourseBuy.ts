@@ -2,7 +2,7 @@ import { Schema, model } from 'mongoose';
 import {
   IStudentPurchasePackageCourse,
   StudentPurchasePackageCourseModel,
-} from './studentPurchaseCourseBuy.interface';
+} from './interface.studentPurchaseCourseBuy';
 
 const StudentPurchasePackageCourseSchema = new Schema<
   IStudentPurchasePackageCourse,
@@ -13,7 +13,7 @@ const StudentPurchasePackageCourseSchema = new Schema<
       type: Schema.Types.ObjectId,
       ref: 'Course',
     },
-    package: {
+    sellerPackage: {
       type: Schema.Types.ObjectId,
       ref: 'PurchasePackage',
     },
@@ -25,7 +25,6 @@ const StudentPurchasePackageCourseSchema = new Schema<
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-
     status: {
       type: String,
       enum: ['active', 'deactivate', 'save'],

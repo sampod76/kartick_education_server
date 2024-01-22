@@ -8,7 +8,7 @@ export type IStudentPurchasePackageCourseFilters = {
   searchTerm?: string;
   status?: string;
   select?: string;
-  package?: string;
+  sellerPackage?: string;
   user?: string;
   //
   delete?: 'yes' | 'no';
@@ -21,7 +21,7 @@ export type IStudentPurchasePackageCourseSearchableField = {
 
 export type IStudentPurchasePackageCourse = {
   course: Types.ObjectId | ICourse | string;
-  package: Types.ObjectId | IPackage | string;
+  sellerPackage: Types.ObjectId | IPackage | string;
   user: Types.ObjectId | IUser | string;
   author: Types.ObjectId | IUser | string;
   status: 'active' | 'deactivate' | 'save';

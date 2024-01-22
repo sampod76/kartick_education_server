@@ -2,8 +2,8 @@ import express from 'express';
 import { ENUM_USER_ROLE } from '../../../enums/users';
 import authMiddleware from '../../middlewares/authMiddleware';
 import validateRequestZod from '../../middlewares/validateRequestZod';
-import { StudentPurchasePackageCourseController } from './studentPurchaseCourseBuy.controller';
-import { StudentPurchasePackageCourseValidation } from './studentPurchaseCourseBuy.validation';
+import { StudentPurchasePackageCourseController } from './controller.studentPurchaseCourseBuy';
+import { StudentPurchasePackageCourseValidation } from './validation.studentPurchaseCourseBuy';
 
 const router = express.Router();
 

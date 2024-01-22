@@ -22,7 +22,7 @@ import { QuizSubmitRoute } from '../modules/quizSubmit/quizSubmit.route';
 import { PackageRoute } from '../modules/package/package.route';
 import { PaymentRoute } from '../modules/payment/payment.router';
 import { PurchasePackageRoute } from '../modules/purchase_package/purchase_package.route';
-import { StudentPurchasePackageCourseRoute } from '../modules/addStudentToPackageAndCourse/studentPurchaseCourseBuy.route';
+import { StudentPurchasePackageCourseRoute } from '../modules/addStudentToPackageAndCourse/route.studentPurchaseCourseBuy';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 

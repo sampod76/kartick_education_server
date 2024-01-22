@@ -7,12 +7,12 @@ import { IPaginationOption } from '../../interface/pagination';
 
 import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import ApiError from '../../errors/ApiError';
-import { student_purchase_course_SEARCHABLE_FIELDS } from './studentPurchaseCourseBuy.constant';
+import { student_purchase_course_SEARCHABLE_FIELDS } from './constant.studentPurchaseCourseBuy';
 import {
   IStudentPurchasePackageCourse,
   IStudentPurchasePackageCourseFilters,
-} from './studentPurchaseCourseBuy.interface';
-import { StudentPurchasePackageCourse } from './studentPurchaseCourseBuy.model';
+} from './interface.studentPurchaseCourseBuy';
+import { StudentPurchasePackageCourse } from './model.studentPurchaseCourseBuy';
 
 const { ObjectId } = mongoose.Types;
 const createStudentPurchasePackageCourseByDb = async (
@@ -102,7 +102,7 @@ const getAllStudentPurchasePackageCourseFromDb = async (
     .sort(sortConditions)
     .skip(Number(skip))
     .limit(Number(limit))
-    // .populate('user')
+    .populate('user')
     .populate('author')
     .populate('package');
 
