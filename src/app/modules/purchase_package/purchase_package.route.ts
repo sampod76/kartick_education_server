@@ -15,12 +15,12 @@ router
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
-      ENUM_USER_ROLE.STUDENT
+      ENUM_USER_ROLE.STUDENT,
     ),
     validateRequestZod(
-      PurchasePackageValidation.createPurchasePackageZodSchema
+      PurchasePackageValidation.createPurchasePackageZodSchema,
     ),
-    PurchasePackageController.createPurchasePackage
+    PurchasePackageController.createPurchasePackage,
   );
 
 router
@@ -30,17 +30,22 @@ router
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
-      ENUM_USER_ROLE.STUDENT
+      ENUM_USER_ROLE.STUDENT,
+      ENUM_USER_ROLE.SELLER,
     ),
-    PurchasePackageController.getSinglePackagePurchase
+    PurchasePackageController.getSinglePackagePurchase,
   )
   .delete(
     authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-    PurchasePackageController.deletePackagePurchase
+    PurchasePackageController.deletePackagePurchase,
   )
   .patch(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-    PurchasePackageController.updatePurchasePackage
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+    ),
+    PurchasePackageController.updatePurchasePackage,
   );
 
 export const PurchasePackageRoute = router;

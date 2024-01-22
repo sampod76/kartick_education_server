@@ -24,7 +24,7 @@ import { User } from './user.model';
 const getAllUsers = async (
   filters: IUserFilters,
   paginationOptions: IPaginationOption,
-): Promise<IGenericResponse<IUser[]>> => {
+): Promise<IGenericResponse<IUser[] | null>> => {
   const { searchTerm, multipleRole, ...filtersData } = filters;
   filtersData.status = filtersData.status
     ? filtersData.status
@@ -33,7 +33,6 @@ const getAllUsers = async (
     paginationHelper.calculatePagination(paginationOptions);
 
   const andConditions = [];
-
   if (searchTerm || multipleRole) {
     const value: any = [];
     if (!filters.role && multipleRole) {
@@ -58,7 +57,6 @@ const getAllUsers = async (
       $or: value,
     });
   }
-
   if (Object.keys(filtersData).length) {
     andConditions.push({
       $and: Object.entries(filtersData).map(([field, value]) => ({
@@ -66,7 +64,6 @@ const getAllUsers = async (
       })),
     });
   }
-
   const sortConditions: { [key: string]: 1 | -1 } = {};
   if (sortBy && sortOrder) {
     sortConditions[sortBy] = sortOrder === 'asc' ? 1 : -1;
@@ -279,6 +276,7 @@ const createStudentByOtherMemberService = async (
   student: IStudent,
   user: IUser,
 ): Promise<IUser | null> => {
+  console.log('🚀 ~ user:', user);
   // default password
   if (!user.password) {
     user.password = config.default_student_pass as string;

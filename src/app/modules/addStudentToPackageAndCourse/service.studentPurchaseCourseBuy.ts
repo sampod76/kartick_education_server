@@ -40,7 +40,6 @@ const getAllStudentPurchasePackageCourseFromDb = async (
 ): Promise<IGenericResponse<IStudentPurchasePackageCourse[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-  console.log("🚀 ~ filters:", filters)
   filtersData.isDelete = filtersData.isDelete
     ? filtersData.isDelete
     : ENUM_YN.NO;
@@ -108,7 +107,7 @@ const getAllStudentPurchasePackageCourseFromDb = async (
   //   .populate('author')
   //   .populate('sellerPackage')
   //   .populate('course');
-console.log("call");
+  console.log('call');
   const pipeline: PipelineStage[] = [
     { $match: whereConditions },
     { $sort: sortConditions },
@@ -143,6 +142,10 @@ console.log("call");
               as: 'categoriesDetails',
             },
           },
+
+          // {
+          //   $unwind: '$categoriesDetails',
+          // },
           // {
           //   $project: {
           //     title: 1,
@@ -154,6 +157,7 @@ console.log("call");
         as: 'sellerPackageDetails',
       },
     },
+    { $unwind: '$sellerPackageDetails' },
   ];
 
   let result = null;
