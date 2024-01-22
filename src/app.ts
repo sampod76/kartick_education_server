@@ -29,7 +29,7 @@ app.use(
     origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  })
+  }),
 );
 
 // app.use(cors(corsOptions));
@@ -77,19 +77,19 @@ const run: RequestHandler = (req, res, next) => {
 app.use(
   '/images',
   run,
-  express.static(path.join(__dirname, '../../uploadFile/images/'))
+  express.static(path.join(__dirname, '../../uploadFile/images/')),
 );
 
 app.use(
   '/profile',
   run,
-  express.static(path.join(__dirname, '../../uploadFile/profile/'))
+  express.static(path.join(__dirname, '../../uploadFile/profile/')),
 );
 
 app.use(
   '/vedios',
   run,
-  express.static(path.join(__dirname, '../../uploadFile/vedios/'))
+  express.static(path.join(__dirname, '../../uploadFile/vedios/')),
 );
 
 app.set('view engine', 'ejs');
@@ -125,6 +125,7 @@ const test = async () => {
   // const getData = "U2FsdGVkX19dOA/shL0SLR2JyDtmLpQJy88CwzgKP18YXxHGl5lrNcVpYOzLeI6ITy/cWRTBrTK0V6PkGhbl1Ik fBtfhZUFBsLHrZmvFNuC4OpxwvY79/xToKurgOskLiz7aazvvxeghiVMtnRfEw==".split(" ").join("+")
   // const verify = decryptCryptoData(getData,config.encryptCrypto as string)
   // console.log(verify);
+  
 };
 test();
 

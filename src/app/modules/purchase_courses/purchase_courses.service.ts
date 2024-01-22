@@ -7,38 +7,53 @@ import { IPaginationOption } from '../../interface/pagination';
 
 import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import ApiError from '../../errors/ApiError';
-import { PACKAGE_SEARCHABLE_FIELDS } from './package.constant';
-import { IPackage, IPackageFilters } from './package.interface';
-import { Package } from './package.model';
+import { PURCHASE_COURSE_SEARCHABLE_FIELDS } from './purchase_courses.constant';
+import {
+  IPurchaseCourse,
+  IPurchaseCourseFilters,
+} from './purchase_courses.interface';
+import {
+  PendingPurchaseCourse,
+  // PendingPurchaseCourse,
+  PurchaseCourse,
+} from './purchase_courses.model';
 
 const { ObjectId } = mongoose.Types;
-const createPackageByDb = async (
-  payload: IPackage,
-): Promise<IPackage | null> => {
-  const findPackage = await Package.findOne({
-    title: payload.title,
-    isDelete: false,
-  });
+const createPurchaseCourseByDb = async (
+  payload: IPurchaseCourse,
+): Promise<IPurchaseCourse | null> => {
+  // const findCourse = await PurchaseCourse.findOne({
+  //   title: payload.title,
+  //   isDelete: false,
+  // });
 
-  let result;
-  if (findPackage) {
-    throw new ApiError(400, 'This package is already have');
-  } else {
-    result = await Package.create({ ...payload });
-  }
+  // let result;
+  // if (findCourse) {
+  //   throw new ApiError(400, 'This Course is already have');
+  // } else {
+  //   result = await PurchaseCourse.create({ ...payload });
+  // }
 
+  const result = await PurchaseCourse.create({ ...payload });
+  return result;
+};
+const createPendingPurchaseCourseByDb = async (
+  payload: IPurchaseCourse,
+): Promise<IPurchaseCourse | null> => {
+  //all balance cournt in
+
+  const result = await PendingPurchaseCourse.create({ ...payload });
+  // const result =null
   return result;
 };
 
 //getAllQuizFromDb
-const getAllPackageFromDb = async (
-  filters: IPackageFilters,
+const getAllPurchaseCourseFromDb = async (
+  filters: IPurchaseCourseFilters,
   paginationOptions: IPaginationOption,
-): Promise<IGenericResponse<IPackage[]>> => {
+): Promise<IGenericResponse<IPurchaseCourse[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-  console.log('🚀 ~ filtersData:', filtersData);
-
   filtersData.isDelete = filtersData.isDelete
     ? filtersData.isDelete
     : ENUM_YN.NO;
@@ -56,7 +71,7 @@ const getAllPackageFromDb = async (
   const andConditions = [];
   if (searchTerm) {
     andConditions.push({
-      $or: PACKAGE_SEARCHABLE_FIELDS.map(field =>
+      $or: PURCHASE_COURSE_SEARCHABLE_FIELDS.map(field =>
         //search array value
         field === 'tags'
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
@@ -70,14 +85,15 @@ const getAllPackageFromDb = async (
   if (Object.keys(filtersData).length) {
     andConditions.push({
       $and: Object.entries(filtersData).map(([field, value]) =>
-        field === 'membershipUid'
-          ? { ['membership.uid']: value }
-          : field === 'membershipTitle'
-            ? { ['membership.title']: value }
+        field === 'course'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'user'
+            ? { [field]: new Types.ObjectId(value) }
             : { [field]: value },
       ),
     });
   }
+  console.log('🚀 ~ andConditions:', filtersData);
 
   //****************search and filters end**********/
 
@@ -96,11 +112,24 @@ const getAllPackageFromDb = async (
   const whereConditions =
     andConditions.length > 0 ? { $and: andConditions } : {};
 
-  const result = await Package.find(whereConditions)
+  const result = await PurchaseCourse.find(whereConditions)
     .sort(sortConditions)
     .skip(Number(skip))
     .limit(Number(limit))
-    .populate('categories.category');
+    .populate('course')
+    .populate('user');
+  //   // .populate({
+  //   //   path: 'user',
+  //   //   select: { password: 0 },
+  //   //   //   populate: {
+  //   //   //     path: 'teacher',
+  //   //   //     model: 'teachers',
+  //   //   //     populate: {
+  //   //   //         path: 'user',
+  //   //   //         model: 'User'
+  //   //   //     }
+  //   //   // }
+  //   // });
 
   // const pipeline: PipelineStage[] = [
   //   { $match: whereConditions },
@@ -115,10 +144,7 @@ const getAllPackageFromDb = async (
   //       from: 'categories',
   //       let: {
   //         id: '$categories.category',
-  //         label: '$categories.label',
-  //         biannual: '$categories.biannual',
-  //         yearly: '$categories.yearly',
-  //         monthly: '$categories.monthly',
+  //         // label: '$categories.label',
   //       },
   //       pipeline: [
   //         {
@@ -138,10 +164,7 @@ const getAllPackageFromDb = async (
   //           $project: {
   //             title: 1,
   //             img: 1,
-  //             label: '$$label',
-  //             biannual: '$$categories.biannual',
-  //             yearly: '$$categories.yearly',
-  //             monthly: '$$categories.monthly',
+  //             // label: '$$label',
   //           },
   //         },
   //       ],
@@ -159,36 +182,29 @@ const getAllPackageFromDb = async (
   //       categories: {
   //         $push: {
   //           category: '$categoriesDetails',
-  //           label: '$categoriesDetails.label',
-  //           biannual: '$$categoriesDetails.biannual',
-  //           yearly: '$$categoriesDetails.yearly',
-  //           monthly: '$$categoriesDetails.monthly',
+  //           // label: '$categoriesDetails.label',
   //         },
   //       },
   //       date_range: { $first: '$date_range' },
   //       type: { $first: '$type' },
   //       status: { $first: '$status' },
-  //       biannual: { $first: '$biannual' },
-  //       monthly: { $first: '$monthly' },
-  //       yearly: { $first: '$yearly' },
-
   //       createdAt: { $first: '$createdAt' },
   //       updatedAt: { $first: '$updatedAt' },
-  //       __v: { $first: '$__v' },
+
   //     },
   //   },
   // ];
 
   // let result = null;
   // if (select) {
-  //   result = await Package.find({})
+  //   result = await PurchaseCourse.find({})
   //     .sort({ title: 1 })
   //     .select({ ...projection });
   // } else {
-  //   result = await Package.aggregate(pipeline);
+  //   result = await PurchaseCourse.aggregate(pipeline);
   // }
 
-  const total = await Package.countDocuments(whereConditions);
+  const total = await PurchaseCourse.countDocuments(whereConditions);
   return {
     meta: {
       page,
@@ -200,30 +216,31 @@ const getAllPackageFromDb = async (
 };
 
 // get single e form db
-const getPackageVerifyFromDb = async (
+const getPurchaseCourseVerifyFromDb = async (
   id: string,
   user: any,
-): Promise<IPackage[] | null> => {
-  const findSubmitQuiz = await Package.find({
+): Promise<IPurchaseCourse[] | null> => {
+  const findSubmitQuiz = await PurchaseCourse.find({
     quiz: new Types.ObjectId(id as string),
     user: new Types.ObjectId(user.id as string),
-  }).populate('singleQuiz');
+  });
 
   return findSubmitQuiz;
 };
-const getPackageSingelFromDb = async (id: string): Promise<IPackage | null> => {
-  const result = await Package.aggregate([
+const getPurchaseCourseSingelFromDb = async (
+  id: string,
+): Promise<IPurchaseCourse | null> => {
+  const result = await PurchaseCourse.aggregate([
     { $match: { _id: new ObjectId(id) } },
   ]);
 
   return result[0];
 };
-// update e form db
-const updatePackageFromDb = async (
+const updatePurchaseCourseFromDb = async (
   id: string,
-  payload: Partial<IPackage>,
-): Promise<IPackage | null> => {
-  const result = await Package.findOneAndUpdate({ _id: id }, payload, {
+  payload: Partial<IPurchaseCourse>,
+): Promise<IPurchaseCourse | null> => {
+  const result = await PurchaseCourse.findOneAndUpdate({ _id: id }, payload, {
     new: true,
     runValidators: true,
   });
@@ -232,35 +249,16 @@ const updatePackageFromDb = async (
   }
   return result;
 };
-
-const increaseStudentPackageFromDb = async (
-  id: string,
-  payload: Partial<{ studentId: string }>,
-): Promise<IPackage | null> => {
-  const result = await Package.findOneAndUpdate(
-    { _id: id },
-    { $push: { students: payload.studentId } },
-    {
-      new: true,
-      runValidators: true,
-    },
-  );
-  if (!result) {
-    throw new ApiError(500, 'Module update fail!!😪😭😰');
-  }
-  return result;
-};
-
 // delete e form db
-const deletePackageByIdFromDb = async (
+const deletePurchaseCourseByIdFromDb = async (
   id: string,
-  query: IPackageFilters,
-): Promise<IPackage | null> => {
+  query: IPurchaseCourseFilters,
+): Promise<IPurchaseCourse | null> => {
   let result;
   if (query.delete === ENUM_YN.YES) {
-    result = await Package.findByIdAndDelete(id);
+    result = await PurchaseCourse.findByIdAndDelete(id);
   } else {
-    result = await Package.findOneAndUpdate(
+    result = await PurchaseCourse.findOneAndUpdate(
       { _id: id },
       { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES },
     );
@@ -268,12 +266,12 @@ const deletePackageByIdFromDb = async (
   return result;
 };
 
-export const PackageService = {
-  createPackageByDb,
-  getAllPackageFromDb,
-  getPackageSingelFromDb,
-  deletePackageByIdFromDb,
-  updatePackageFromDb,
-  getPackageVerifyFromDb,
-  increaseStudentPackageFromDb
+export const PurchaseCourseService = {
+  createPurchaseCourseByDb,
+  getAllPurchaseCourseFromDb,
+  getPurchaseCourseSingelFromDb,
+  deletePurchaseCourseByIdFromDb,
+  getPurchaseCourseVerifyFromDb,
+  updatePurchaseCourseFromDb,
+  createPendingPurchaseCourseByDb,
 };

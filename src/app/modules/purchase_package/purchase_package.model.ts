@@ -31,7 +31,6 @@ const PurchasePackageSchema = new Schema<
     total_purchase_student: Number,
     remaining_purchase_student: Number,
     students: [String],
-
     //------------ for  PendingPurchasePackage  ------------
     payment: {
       transactionId: String,
@@ -47,7 +46,7 @@ const PurchasePackageSchema = new Schema<
 
     user: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
     },
     //
     type: {
@@ -65,6 +64,7 @@ const PurchasePackageSchema = new Schema<
       default: 'active',
     },
     isDelete: { type: String, default: 'no' },
+    fullPaymentData: { type: Object, default: {} },
   },
   {
     timestamps: true,

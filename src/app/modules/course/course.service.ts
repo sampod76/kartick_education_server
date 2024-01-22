@@ -22,12 +22,14 @@ const createCourseByDb = async (payload: ICourse): Promise<ICourse> => {
 //getAllCourseFromDb
 const getAllCourseFromDb = async (
   filters: ICourseFilters,
-  paginationOptions: IPaginationOption
+  paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<ICourse[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
 
-  filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
+  filtersData.status = filtersData.status
+    ? filtersData.status
+    : ENUM_STATUS.ACTIVE;
 
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
@@ -49,7 +51,7 @@ const getAllCourseFromDb = async (
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
           : {
               [field]: new RegExp(searchTerm, 'i'),
-            }
+            },
       ),
     });
   }
@@ -60,10 +62,10 @@ const getAllCourseFromDb = async (
         field === 'price'
           ? { [field]: { $gte: parseInt(value as string) } }
           : field === 'author'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'category'
-          ? { [field]: new Types.ObjectId(value) }
-          : { [field]: value }
+            ? { [field]: new Types.ObjectId(value) }
+            : field === 'category'
+              ? { [field]: new Types.ObjectId(value) }
+              : { [field]: value },
       ),
     });
   }
@@ -150,7 +152,10 @@ const getAllCourseFromDb = async (
           {
             $match: {
               $expr: {
-                $eq: ['$_id', '$$conditionField'], // The condition to match the fields
+                $and: [
+                  { $eq: ['$_id', '$$conditionField'] }, // The condition to match the fields
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
               },
             },
           },
@@ -212,11 +217,13 @@ const getAllCourseFromDb = async (
 };
 const getAllCourseMilestoneModuleListFromDb = async (
   filters: ICourseFilters,
-  paginationOptions: IPaginationOption
+  paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<ICourse[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-  filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
+  filtersData.status = filtersData.status
+    ? filtersData.status
+    : ENUM_STATUS.ACTIVE;
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -236,7 +243,7 @@ const getAllCourseMilestoneModuleListFromDb = async (
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
           : {
               [field]: new RegExp(searchTerm, 'i'),
-            }
+            },
       ),
     });
   }
@@ -247,10 +254,10 @@ const getAllCourseMilestoneModuleListFromDb = async (
         field === 'price'
           ? { [field]: { $gte: parseInt(value as string) } }
           : field === 'author'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'category'
-          ? { [field]: new Types.ObjectId(value) }
-          : { [field]: value }
+            ? { [field]: new Types.ObjectId(value) }
+            : field === 'category'
+              ? { [field]: new Types.ObjectId(value) }
+              : { [field]: value },
       ),
     });
   }
@@ -559,7 +566,7 @@ const getSingleCourseFromDb = async (id: string): Promise<ICourse | null> => {
 // update e form db
 const updateCourseFromDb = async (
   id: string,
-  payload: Partial<ICourse>
+  payload: Partial<ICourse>,
 ): Promise<ICourse | null> => {
   const { demo_video, ...otherData } = payload;
   const updateData = { ...otherData };
@@ -584,17 +591,16 @@ const updateCourseFromDb = async (
 // delete e form db
 const deleteCourseByIdFromDb = async (
   id: string,
-  query: ICourseFilters
+  query: ICourseFilters,
 ): Promise<ICourse | null> => {
   let result;
   result = await Course.findByIdAndDelete(id);
   if (query.delete === ENUM_YN.YES) {
     result = await Course.findByIdAndDelete(id);
-  } 
-  else {
+  } else {
     result = await Course.findOneAndUpdate(
-     { _id: id },
-      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
+      { _id: id },
+      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES },
     );
   }
   return result;

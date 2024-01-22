@@ -102,7 +102,13 @@ const getAllLessonFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+            
+              $expr: {
+                $and: [
+                  { $eq: ['$_id', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
+              },
               // Additional filter conditions for collection2
             },
           },

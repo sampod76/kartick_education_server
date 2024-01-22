@@ -14,7 +14,7 @@ import { milestonePipeline } from './pipelines/milestonPipeline';
 
 const { ObjectId } = mongoose.Types;
 const createMilestoneByDb = async (
-  payload: IMilestone
+  payload: IMilestone,
 ): Promise<IMilestone> => {
   // const isExists = await Milestone.findOne({
   //   title: new RegExp(payload.title, 'i'),
@@ -29,15 +29,19 @@ const createMilestoneByDb = async (
 //getAllMilestoneFromDb
 const getAllMilestoneFromDb = async (
   filters: IMilestoneFilters,
-  paginationOptions: IPaginationOption
+  paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<IMilestone[]>> => {
   //****************search and filters start************/
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { searchTerm, select, module: isModule, ...filtersData } = filters;
-  console.log('🚀 ~ file: milestone.service.ts:37 ~ filters:', filters);
+
   filtersData.status = filtersData.status
     ? filtersData.status
     : ENUM_STATUS.ACTIVE;
+  filtersData.isDelete = filtersData.isDelete
+    ? filtersData.isDelete
+    : ENUM_YN.NO;
+
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -57,7 +61,7 @@ const getAllMilestoneFromDb = async (
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
           : {
               [field]: new RegExp(searchTerm, 'i'),
-            }
+            },
       ),
     });
   }
@@ -68,8 +72,8 @@ const getAllMilestoneFromDb = async (
         field === 'category'
           ? { [field]: new Types.ObjectId(value) }
           : field === 'course'
-          ? { [field]: new Types.ObjectId(value) }
-          : { [field]: value }
+            ? { [field]: new Types.ObjectId(value) }
+            : { [field]: value },
       ),
     });
   }
@@ -139,7 +143,7 @@ const getAllMilestoneFromDb = async (
 
 // get single e form db
 const getSingleMilestoneFromDb = async (
-  id: string
+  id: string,
 ): Promise<IMilestone | null> => {
   const result = await Milestone.aggregate([
     { $match: { _id: new ObjectId(id) } },
@@ -150,7 +154,12 @@ const getSingleMilestoneFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [
+                  { $eq: ['$_id', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -163,7 +172,12 @@ const getSingleMilestoneFromDb = async (
               pipeline: [
                 {
                   $match: {
-                    $expr: { $eq: ['$_id', '$$id'] },
+                    $expr: {
+                $and: [
+                  { $eq: ['$_id', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
+              },
                     // Additional filter conditions for collection2
                   },
                 },
@@ -220,7 +234,7 @@ const getSingleMilestoneFromDb = async (
 // update e form db
 const updateMilestoneFromDb = async (
   id: string,
-  payload: Partial<IMilestone>
+  payload: Partial<IMilestone>,
 ): Promise<IMilestone | null> => {
   const { demo_video, ...otherData } = payload;
   const updateData = { ...otherData };
@@ -245,7 +259,7 @@ const updateMilestoneFromDb = async (
 // delete e form db
 const deleteMilestoneByIdFromDb = async (
   id: string,
-  query: IMilestoneFilters
+  query: IMilestoneFilters,
 ): Promise<IMilestone | null> => {
   let result;
   if (query.delete === ENUM_YN.YES) {
@@ -255,7 +269,7 @@ const deleteMilestoneByIdFromDb = async (
       { _id: id },
       {
         status: ENUM_STATUS.DEACTIVATE,
-      }
+      },
     );
   }
   return result;

@@ -1,4 +1,5 @@
 import { PipelineStage } from 'mongoose';
+import { ENUM_YN } from '../../../../enums/globalEnums';
 
 export type IMilestonePipeline = {
   whereConditions: any;
@@ -25,7 +26,13 @@ const moduleList = ({
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [
+                  { $eq: ['$_id', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
+              },
+
               // Additional filter conditions for collection2
             },
           },
@@ -72,7 +79,12 @@ const moduleList = ({
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$milestone', '$$id'] },
+              $expr: {
+                $and: [
+                  { $eq: ['$milestone', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -109,7 +121,12 @@ const onlyMilestone = ({
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [
+                  { $eq: ['$_id', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -122,13 +139,18 @@ const onlyMilestone = ({
               pipeline: [
                 {
                   $match: {
-                    $expr: { $eq: ['$_id', '$$id'] },
+                    $expr: {
+                $and: [
+                  { $eq: ['$_id', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
+              },
                     // Additional filter conditions for collection2
                   },
                 },
                 // Additional stages for collection2
                 // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
-      
+
                 {
                   $project: {
                     title: 1,
@@ -169,11 +191,11 @@ const onlyMilestone = ({
     {
       $unwind: '$course',
     },
-
   ];
   return pipeline;
 };
 
 export const milestonePipeline = {
-    moduleList,onlyMilestone
+  moduleList,
+  onlyMilestone,
 };

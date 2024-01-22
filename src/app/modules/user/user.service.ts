@@ -1,15 +1,15 @@
 import httpStatus from 'http-status';
 import { PipelineStage } from 'mongoose';
+import ShortUniqueId from 'short-unique-id';
 import config from '../../../config/index';
+import { ENUM_STATUS } from '../../../enums/globalEnums';
+import { ENUM_USER_ROLE } from '../../../enums/users';
 import { paginationHelper } from '../../../helper/paginationHelper';
 import ApiError from '../../errors/ApiError';
 import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 import { IAdmin } from '../admin/admin.interface';
 import { Admin } from '../admin/admin.model';
-import ShortUniqueId from 'short-unique-id';
-import { ENUM_STATUS } from '../../../enums/globalEnums';
-import { ENUM_USER_ROLE } from '../../../enums/users';
 import { ISeller } from '../seller/seller.interface';
 import { Seller } from '../seller/seller.model';
 import { IStudent } from '../student/student.interface';
@@ -23,7 +23,7 @@ import { User } from './user.model';
 
 const getAllUsers = async (
   filters: IUserFilters,
-  paginationOptions: IPaginationOption
+  paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<IUser[]>> => {
   const { searchTerm, multipleRole, ...filtersData } = filters;
   filtersData.status = filtersData.status
@@ -43,16 +43,20 @@ const getAllUsers = async (
       });
     }
     //! default or condition
-    userSearchableFields.map(field => ({
-      [field]: {
-        $regex: searchTerm,
-        $options: 'i',
-      },
-    })),
-      //! total $or condition
-      andConditions.push({
-        $or: value,
+    if (searchTerm) {
+      userSearchableFields.forEach(field => {
+        value.push({
+          [field]: {
+            $regex: searchTerm,
+            $options: 'i',
+          },
+        });
       });
+    }
+    //! total $or condition
+    andConditions.push({
+      $or: value,
+    });
   }
 
   if (Object.keys(filtersData).length) {
@@ -107,13 +111,13 @@ const getAllUsers = async (
 };
 const getSingleUsers = async (id: string): Promise<IUser | null> => {
   const data = await User.findById(id).populate(
-    'student admin seller trainer superAdmin'
+    'student admin seller trainer superAdmin',
   );
   return data;
 };
 const deleteSingleUsersFormDb = async (
   id: string,
-  query: IUserFilters
+  query: IUserFilters,
 ): Promise<IUser | null> => {
   const isExist = await User.findById(id);
   if (!isExist) {
@@ -148,7 +152,7 @@ const deleteSingleUsersFormDb = async (
 
 const createAdminService = async (
   admin: IAdmin,
-  user: IUser
+  user: IUser,
 ): Promise<IUser | null> => {
   // default password
   if (!user.password) {
@@ -210,7 +214,7 @@ const createAdminService = async (
 };
 const createStudentService = async (
   student: IStudent,
-  user: IUser
+  user: IUser,
 ): Promise<IUser | null> => {
   // default password
   if (!user.password) {
@@ -218,11 +222,13 @@ const createStudentService = async (
   }
   const exist = await User.isUserExistMethod(user.email);
   if (exist) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already exist');
   }
   // set role
   user.role = ENUM_USER_ROLE.STUDENT;
-
+  const uid = new ShortUniqueId({ length: 8 });
+  user.userId = `S-${uid.rnd()}`;
+  student.userId = `S-${uid.rnd()}`;
   let newUserAllData = null;
   const newStudent = await Student.create(student);
   if (newStudent) {
@@ -269,23 +275,27 @@ const createStudentService = async (
   return newUserAllData;
 };
 
-const createStudentByOtherMamberService = async (
+const createStudentByOtherMemberService = async (
   student: IStudent,
-  user: IUser
+  user: IUser,
 ): Promise<IUser | null> => {
   // default password
   if (!user.password) {
     user.password = config.default_student_pass as string;
   }
   const uid = new ShortUniqueId({ length: 8 });
-  user.userId = `S-${uid.rnd()}`;
-  student.userId = `S-${uid.rnd()}`;
+  const userId = student?.userId || `S${uid.rnd()}.`;
+  user.userId = userId;
+  student.userId = userId;
+
   // const exist = await User.isUserExistMethod(user.email);
   // if (exist) {
-  //   throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
+  //   throw new ApiError(httpStatus.BAD_REQUEST, 'Email already exist');
   // }
   // set role
   user.role = ENUM_USER_ROLE.STUDENT;
+  user.email = userId + student?.email;
+  student.email = userId + student?.email;
 
   let newUserAllData = null;
   const newStudent = await Student.create(student);
@@ -296,7 +306,7 @@ const createStudentByOtherMamberService = async (
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     await Student.findByIdAndDelete(newStudent._id);
-    throw new ApiError(404, 'Admin create failed');
+    throw new ApiError(404, 'Student create failed');
   }
   // const session = await mongoose.startSession();
   // try {
@@ -335,7 +345,7 @@ const createStudentByOtherMamberService = async (
 
 const createTrainerService = async (
   trainer: ITrainer,
-  user: IUser
+  user: IUser,
 ): Promise<IUser | null> => {
   // default password
   if (!user.password) {
@@ -393,7 +403,7 @@ const createTrainerService = async (
 };
 const createSellerService = async (
   seller: ISeller,
-  user: IUser
+  user: IUser,
 ): Promise<IUser | null> => {
   // default password
   if (!user.password) {
@@ -401,13 +411,15 @@ const createSellerService = async (
   }
   const exist = await User.isUserExistMethod(user.email);
   if (exist) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already exist');
   }
   // set role
   user.role = ENUM_USER_ROLE.SELLER;
+  //
   const uid = new ShortUniqueId({ length: 8 });
-  user.userId = `T-${uid.rnd()}`;
-  seller.userId = `T-${uid.rnd()}`;
+  user.userId = `T${uid.rnd()}`;
+  seller.userId = `T${uid.rnd()}`;
+  //
   let newUserAllData = null;
   const newSeller = await Seller.create(seller);
   if (newSeller) {
@@ -462,5 +474,5 @@ export const UserService = {
   getAllUsers,
   getSingleUsers,
   deleteSingleUsersFormDb,
-  createStudentByOtherMamberService
+  createStudentByOtherMemberService,
 };

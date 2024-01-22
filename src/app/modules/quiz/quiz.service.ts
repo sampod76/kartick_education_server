@@ -20,13 +20,16 @@ const createQuizByDb = async (payload: IQuiz): Promise<IQuiz> => {
 //getAllQuizFromDb
 const getAllQuizFromDb = async (
   filters: IQuizFilters,
-  paginationOptions: IPaginationOption
+  paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<IQuiz[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
   filtersData.status = filtersData.status
     ? filtersData.status
     : ENUM_STATUS.ACTIVE;
+  filtersData.isDelete = filtersData.isDelete
+    ? filtersData.isDelete
+    : ENUM_YN.NO;
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -46,7 +49,7 @@ const getAllQuizFromDb = async (
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
           : {
               [field]: new RegExp(searchTerm, 'i'),
-            }
+            },
       ),
     });
   }
@@ -57,14 +60,14 @@ const getAllQuizFromDb = async (
         field === 'category'
           ? { [field]: new Types.ObjectId(value) }
           : field === 'course'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'milestone'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'module'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'lesson'
-          ? { [field]: new Types.ObjectId(value) }
-          : { [field]: value }
+            ? { [field]: new Types.ObjectId(value) }
+            : field === 'milestone'
+              ? { [field]: new Types.ObjectId(value) }
+              : field === 'module'
+                ? { [field]: new Types.ObjectId(value) }
+                : field === 'lesson'
+                  ? { [field]: new Types.ObjectId(value) }
+                  : { [field]: value },
       ),
     });
   }
@@ -104,7 +107,12 @@ const getAllQuizFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [
+                  { $eq: ['$_id', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -149,7 +157,12 @@ const getAllQuizFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [
+                  { $eq: ['$_id', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -219,7 +232,12 @@ const getSingleQuizFromDb = async (id: string): Promise<IQuiz | null> => {
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [
+                  { $eq: ['$_id', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -230,7 +248,12 @@ const getSingleQuizFromDb = async (id: string): Promise<IQuiz | null> => {
               pipeline: [
                 {
                   $match: {
-                    $expr: { $eq: ['$_id', '$$id'] },
+                    $expr: {
+                      $and: [
+                        { $eq: ['$_id', '$$id'] },
+                        { $eq: ['$isDelete', ENUM_YN.NO] },
+                      ],
+                    },
                     // Additional filter conditions for collection2
                   },
                 },
@@ -241,7 +264,12 @@ const getSingleQuizFromDb = async (id: string): Promise<IQuiz | null> => {
                     pipeline: [
                       {
                         $match: {
-                          $expr: { $eq: ['$_id', '$$id'] },
+                          $expr: {
+                            $and: [
+                              { $eq: ['$_id', '$$id'] },
+                              { $eq: ['$isDelete', ENUM_YN.NO] },
+                            ],
+                          },
                           // Additional filter conditions for collection2
                         },
                       },
@@ -253,7 +281,12 @@ const getSingleQuizFromDb = async (id: string): Promise<IQuiz | null> => {
                           pipeline: [
                             {
                               $match: {
-                                $expr: { $eq: ['$_id', '$$id'] },
+                                $expr: {
+                                  $and: [
+                                    { $eq: ['$_id', '$$id'] },
+                                    { $eq: ['$isDelete', ENUM_YN.NO] },
+                                  ],
+                                },
                                 // Additional filter conditions for collection2
                               },
                             },
@@ -265,7 +298,12 @@ const getSingleQuizFromDb = async (id: string): Promise<IQuiz | null> => {
                                 pipeline: [
                                   {
                                     $match: {
-                                      $expr: { $eq: ['$_id', '$$id'] },
+                                      $expr: {
+                                        $and: [
+                                          { $eq: ['$_id', '$$id'] },
+                                          { $eq: ['$isDelete', ENUM_YN.NO] },
+                                        ],
+                                      },
                                       // Additional filter conditions for collection2
                                     },
                                   },
@@ -418,7 +456,6 @@ const getSingleQuizFromDb = async (id: string): Promise<IQuiz | null> => {
         as: 'lessonDetails',
       },
     },
-
     {
       $project: { lesson: 0 },
     },
@@ -447,7 +484,7 @@ const getSingleQuizFromDb = async (id: string): Promise<IQuiz | null> => {
 // update e form db
 const updateQuizFromDb = async (
   id: string,
-  payload: Partial<IQuiz>
+  payload: Partial<IQuiz>,
 ): Promise<IQuiz | null> => {
   const { demo_video, ...otherData } = payload;
   const updateData = { ...otherData };
@@ -472,15 +509,15 @@ const updateQuizFromDb = async (
 // delete e form db
 const deleteQuizByIdFromDb = async (
   id: string,
-  query: IQuizFilters
+  query: IQuizFilters,
 ): Promise<IQuiz | null> => {
   let result;
   if (query.delete === ENUM_YN.YES) {
     result = await Quiz.findByIdAndDelete(id);
   } else {
     result = await Quiz.findOneAndUpdate(
-     { _id: id },
-     { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
+      { _id: id },
+      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES },
     );
   }
   return result;
