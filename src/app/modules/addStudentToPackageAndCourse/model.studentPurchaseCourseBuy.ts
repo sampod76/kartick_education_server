@@ -9,10 +9,12 @@ const StudentPurchasePackageCourseSchema = new Schema<
   StudentPurchasePackageCourseModel
 >(
   {
+    // for -c
     course: {
       type: Schema.Types.ObjectId,
       ref: 'Course',
     },
+    //
     sellerPackage: {
       type: Schema.Types.ObjectId,
       ref: 'PurchasePackage',

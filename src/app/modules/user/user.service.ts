@@ -279,20 +279,23 @@ const createStudentByOtherMemberService = async (
   student: IStudent,
   user: IUser,
 ): Promise<IUser | null> => {
-  console.log("🚀 ~ user:", user)
   // default password
   if (!user.password) {
     user.password = config.default_student_pass as string;
   }
   const uid = new ShortUniqueId({ length: 8 });
-  user.userId = `S-${uid.rnd()}`;
-  student.userId = `S-${uid.rnd()}`;
-  const exist = await User.isUserExistMethod(user.email);
-  if (exist) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already exist');
-  }
+  const userId = student?.userId || `S${uid.rnd()}.`;
+  user.userId = userId;
+  student.userId = userId;
+
+  // const exist = await User.isUserExistMethod(user.email);
+  // if (exist) {
+  //   throw new ApiError(httpStatus.BAD_REQUEST, 'Email already exist');
+  // }
   // set role
   user.role = ENUM_USER_ROLE.STUDENT;
+  user.email = userId + student?.email;
+  student.email = userId + student?.email;
 
   let newUserAllData = null;
   const newStudent = await Student.create(student);
@@ -408,13 +411,15 @@ const createSellerService = async (
   }
   const exist = await User.isUserExistMethod(user.email);
   if (exist) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already exist');
   }
   // set role
   user.role = ENUM_USER_ROLE.SELLER;
+  //
   const uid = new ShortUniqueId({ length: 8 });
-  user.userId = `T-${uid.rnd()}`;
-  seller.userId = `T-${uid.rnd()}`;
+  user.userId = `T${uid.rnd()}`;
+  seller.userId = `T${uid.rnd()}`;
+  //
   let newUserAllData = null;
   const newSeller = await Seller.create(seller);
   if (newSeller) {

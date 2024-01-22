@@ -8,6 +8,7 @@ import sendResponse from '../../share/sendResponse';
 import { IStudentPurchasePackageCourse } from './interface.studentPurchaseCourseBuy';
 import { StudentPurchasePackageCourseService } from './service.studentPurchaseCourseBuy';
 
+import { ENUM_USER_ROLE } from '../../../enums/users';
 import { student_purchase_course_FILTERABLE_FIELDS } from './constant.studentPurchaseCourseBuy';
 
 // import { z } from 'zod'
@@ -39,6 +40,10 @@ const getAllStudentPurchasePackageCourse = catchAsync(
       queryObject,
       student_purchase_course_FILTERABLE_FIELDS,
     );
+
+    if (req?.user?.role === ENUM_USER_ROLE.STUDENT) {
+      filters.user = req?.user?.id;
+    }
 
     //****************pagination start************ */
 

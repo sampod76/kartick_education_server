@@ -10,13 +10,18 @@ const router = express.Router();
 router
   .route('/')
   .get(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+      ENUM_USER_ROLE.STUDENT,
+    ),
     StudentPurchasePackageCourseController.getAllStudentPurchasePackageCourse,
   )
   .post(
     authMiddleware(
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
-
       ENUM_USER_ROLE.SELLER,
     ),
     validateRequestZod(

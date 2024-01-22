@@ -65,7 +65,7 @@ export type IPurchasePackage = {
   //
   type: 'bundle' | 'select' | 'multiple_select';
   status: 'active' | 'deactivate' | 'save';
- 
+
   //
   purchase: {
     biannual?: {
@@ -83,6 +83,7 @@ export type IPurchasePackage = {
   };
 
   isDelete: string;
+  fullPaymentData: object;
 };
 
 export type PurchasePackageModel = Model<

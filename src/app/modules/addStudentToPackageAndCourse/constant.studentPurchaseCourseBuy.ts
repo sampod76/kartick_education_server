@@ -9,7 +9,7 @@ export const student_purchase_course_FILTERABLE_FIELDS = [
   'select',
   'course',
   'delete',
-  'package',
+  'sellerPackage',
   'user',
   'author',
 ];

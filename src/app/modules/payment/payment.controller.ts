@@ -248,16 +248,17 @@ const checkPaypalPayment = catchAsync(async (req: Request, res: Response) => {
 
     // Make a request to PayPal to execute the payment
 
-    const responsData = await axios.post(
+    const responseData = await axios.post(
       'https://api.sandbox.paypal.com/v1/payments/payment/' +
         paymentId +
         '/execute',
       { payer_id: payerId },
       { headers: authHeader },
     );
-    if (responsData?.data?.state !== 'approved') {
+    if (responseData?.data?.state !== 'approved') {
       throw new ApiError(400, 'Payment not approved');
     }
+
     const find = await PendingPurchasePackage.findOne({
       'payment.transactionId': paymentId,
       paymentStatus: { $in: ['approved', 'rejected'] },
@@ -269,6 +270,7 @@ const checkPaypalPayment = catchAsync(async (req: Request, res: Response) => {
         {
           payment: { transactionId: paymentId, platform: 'paypal' },
           paymentStatus: 'approved',
+          // fullPaymentData: responseData?.data,
         },
         {
           new: true,

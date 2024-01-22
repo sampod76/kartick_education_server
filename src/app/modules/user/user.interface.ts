@@ -51,7 +51,7 @@ export type UserModel = {
   isUserExistMethod(
     email: string,
   ): Promise<
-    Pick<IUser, 'email' | 'password' | 'role' | 'status' | 'blockingTimeout'>
+    Pick<IUser, 'email' | 'password' | 'role' | 'status' | 'blockingTimeout' |'userId'>
   >;
   isPasswordMatchMethod(
     oldPassword: string,

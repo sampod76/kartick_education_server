@@ -1,4 +1,4 @@
-import mongoose, { Types } from 'mongoose';
+import { PipelineStage, Types } from 'mongoose';
 
 import { paginationHelper } from '../../../helper/paginationHelper';
 
@@ -14,7 +14,6 @@ import {
 } from './interface.studentPurchaseCourseBuy';
 import { StudentPurchasePackageCourse } from './model.studentPurchaseCourseBuy';
 
-const { ObjectId } = mongoose.Types;
 const createStudentPurchasePackageCourseByDb = async (
   payload: IStudentPurchasePackageCourse,
 ): Promise<IStudentPurchasePackageCourse | null> => {
@@ -41,6 +40,7 @@ const getAllStudentPurchasePackageCourseFromDb = async (
 ): Promise<IGenericResponse<IStudentPurchasePackageCourse[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
+  console.log("🚀 ~ filters:", filters)
   filtersData.isDelete = filtersData.isDelete
     ? filtersData.isDelete
     : ENUM_YN.NO;
@@ -74,9 +74,11 @@ const getAllStudentPurchasePackageCourseFromDb = async (
       $and: Object.entries(filtersData).map(([field, value]) =>
         field === 'package'
           ? { [field]: new Types.ObjectId(value) }
-          : field === 'user'
+          : field === 'course'
             ? { [field]: new Types.ObjectId(value) }
-            : { [field]: value },
+            : field === 'user'
+              ? { [field]: new Types.ObjectId(value) }
+              : { [field]: value },
       ),
     });
   }
@@ -98,99 +100,70 @@ const getAllStudentPurchasePackageCourseFromDb = async (
   const whereConditions =
     andConditions.length > 0 ? { $and: andConditions } : {};
 
-  const result = await StudentPurchasePackageCourse.find(whereConditions)
-    .sort(sortConditions)
-    .skip(Number(skip))
-    .limit(Number(limit))
-    .populate('user')
-    .populate('author')
-    .populate('package');
+  // const result = await StudentPurchasePackageCourse.find(whereConditions)
+  //   .sort(sortConditions)
+  //   .skip(Number(skip))
+  //   .limit(Number(limit))
+  //   .populate('user')
+  //   .populate('author')
+  //   .populate('sellerPackage')
+  //   .populate('course');
+console.log("call");
+  const pipeline: PipelineStage[] = [
+    { $match: whereConditions },
+    { $sort: sortConditions },
+    { $skip: Number(skip) || 0 },
+    { $limit: Number(limit) || 15 },
+    {
+      $lookup: {
+        from: 'purchasepackages',
+        let: {
+          id: '$sellerPackage',
+          // label: '$categories.label',
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$_id', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                  // { $gt: ['$expiry_date', new Date()] },
+                ],
+              },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          {
+            $lookup: {
+              from: 'categories',
+              localField: 'categories.category',
+              foreignField: '_id',
+              as: 'categoriesDetails',
+            },
+          },
+          // {
+          //   $project: {
+          //     title: 1,
+          //     img: 1,
+          //     // categories: '$$categories',
+          //   },
+          // },
+        ],
+        as: 'sellerPackageDetails',
+      },
+    },
+  ];
 
-    // .populate({
-    //   path: 'package',
-    //   // select: { password: 0 },
-    //   // populate: {
-    //   //   path: 'categories.category',
-    //   //   // model: 'teachers',
-    //   //   // populate: {
-    //   //   //   path: 'user',
-    //   //   //   model: 'User',
-    //   //   // },
-    //   // },
-    // });
-
-  // const pipeline: PipelineStage[] = [
-  //   { $match: whereConditions },
-  //   { $sort: sortConditions },
-  //   { $skip: Number(skip) || 0 },
-  //   { $limit: Number(limit) || 15 },
-  //   {
-  //     $unwind: '$categories',
-  //   },
-  //   {
-  //     $lookup: {
-  //       from: 'categories',
-  //       let: {
-  //         id: '$categories.category',
-  //         // label: '$categories.label',
-  //       },
-  //       pipeline: [
-  //         {
-  //           $match: {
-  //             $expr: {
-  //               $and: [
-  //                 { $eq: ['$_id', '$$id'] },
-  //                 { $eq: ['$isDelete', ENUM_YN.NO] },
-  //                 // { $eq: ['$status', ENUM_STATUS.ACTIVE] },
-  //               ],
-  //             },
-  //             // Additional filter conditions for collection2
-  //           },
-  //         },
-  //         // Additional stages for collection2
-  //         {
-  //           $project: {
-  //             title: 1,
-  //             img: 1,
-  //             // label: '$$label',
-  //           },
-  //         },
-  //       ],
-  //       as: 'categoriesDetails',
-  //     },
-  //   },
-  //   {
-  //     $unwind: '$categoriesDetails',
-  //   },
-  //   {
-  //     $group: {
-  //       _id: '$_id',
-  //       membership: { $first: '$membership' },
-  //       title: { $first: '$title' },
-  //       categories: {
-  //         $push: {
-  //           category: '$categoriesDetails',
-  //           // label: '$categoriesDetails.label',
-  //         },
-  //       },
-  //       date_range: { $first: '$date_range' },
-  //       type: { $first: '$type' },
-  //       status: { $first: '$status' },
-  //       createdAt: { $first: '$createdAt' },
-  //       updatedAt: { $first: '$updatedAt' },
-
-  //     },
-  //   },
-  // ];
-
-  // let result = null;
-  // if (select) {
-  //   result = await StudentPurchasePackageCourse.find({})
-  //     .sort({ title: 1 })
-  //     .select({ ...projection });
-  // } else {
-  //   result = await StudentPurchasePackageCourse.aggregate(pipeline);
-  // }
+  let result = null;
+  if (select) {
+    result = await StudentPurchasePackageCourse.find({})
+      .sort({ title: 1 })
+      .select({ ...projection });
+  } else {
+    result = await StudentPurchasePackageCourse.aggregate(pipeline);
+  }
 
   const total =
     await StudentPurchasePackageCourse.countDocuments(whereConditions);
@@ -219,11 +192,18 @@ const getStudentPurchasePackageCourseVerifyFromDb = async (
 const getStudentPurchasePackageCourseSingelFromDb = async (
   id: string,
 ): Promise<IStudentPurchasePackageCourse | null> => {
-  const result = await StudentPurchasePackageCourse.aggregate([
-    { $match: { _id: new ObjectId(id) } },
-  ]);
+  // const result = await StudentPurchasePackageCourse.aggregate([
+  //   { $match: { _id: new ObjectId(id) } },
+  // ]);
 
-  return result[0];
+  // return result[0];
+  const result = await StudentPurchasePackageCourse.findById(id)
+    .populate('user')
+    .populate('author')
+    .populate('sellerPackage')
+    .populate('course');
+
+  return result;
 };
 const updateStudentPurchasePackageCourseFromDb = async (
   id: string,
