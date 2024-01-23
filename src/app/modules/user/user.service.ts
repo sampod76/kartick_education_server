@@ -20,6 +20,7 @@ import { userPipeline } from './pipeline/userPipeline';
 import { userSearchableFields } from './user.constant';
 import { IUser, IUserFilters } from './user.interface';
 import { User } from './user.model';
+import { Types } from 'mongoose';
 
 const getAllUsers = async (
   filters: IUserFilters,
@@ -59,9 +60,15 @@ const getAllUsers = async (
   }
   if (Object.keys(filtersData).length) {
     andConditions.push({
-      $and: Object.entries(filtersData).map(([field, value]) => ({
-        [field]: value,
-      })),
+      $and: Object.entries(filtersData).map(([field, value]) =>
+        field === 'author'
+          ? {
+              [field]: new Types.ObjectId(value),
+            }
+          : {
+              [field]: value,
+            },
+      ),
     });
   }
   const sortConditions: { [key: string]: 1 | -1 } = {};
