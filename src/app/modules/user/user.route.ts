@@ -64,7 +64,7 @@ router.post(
 );
 router.post(
   '/create-seller',
-  authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  // authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
   validateRequestZod(UserValidation.createSellerZodSchema),
   UserController.createSeller,
 );
