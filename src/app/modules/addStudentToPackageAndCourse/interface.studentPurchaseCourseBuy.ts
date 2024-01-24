@@ -1,8 +1,8 @@
 import { Model, Types } from 'mongoose';
 
 import { IPackage } from '../package/package.interface';
+import { IPurchaseCourse } from '../purchase_courses/purchase_courses.interface';
 import { IUser } from '../user/user.interface';
-import { ICourse } from '../course/course.interface';
 
 export type IStudentPurchasePackageCourseFilters = {
   searchTerm?: string;
@@ -20,7 +20,7 @@ export type IStudentPurchasePackageCourseSearchableField = {
 };
 
 export type IStudentPurchasePackageCourse = {
-  course: Types.ObjectId | ICourse | string;
+  purchaseCourse: Types.ObjectId | IPurchaseCourse | string;
   sellerPackage: Types.ObjectId | IPackage | string;
   user: Types.ObjectId | IUser | string;
   author: Types.ObjectId | IUser | string;

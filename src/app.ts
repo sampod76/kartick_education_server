@@ -60,8 +60,8 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 paypal.configure({
   mode: 'sandbox',
-  client_id: process.env.PAYPLE_CLIENT_ID as string,
-  client_secret: process.env.PAYPLE_SECRET_KEY as string,
+  client_id: process.env.PAYPAL_CLIENT_ID as string,
+  client_secret: process.env.PAYPAL_SECRET_KEY as string,
 });
 
 const run: RequestHandler = (req, res, next) => {

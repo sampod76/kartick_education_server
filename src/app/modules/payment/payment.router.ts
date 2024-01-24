@@ -33,10 +33,26 @@ router
       ENUM_USER_ROLE.ADMIN,
     ),
     validateRequestZod(PaymentValidation.createPaypalZodSchema),
-    createPaymentController.createPaymentPayple,
+    createPaymentController.createPaymentPaypal,
+  );
+router.route('/paypal/check').get(createPaymentController.checkPaypalPayment);
+
+//
+router
+  .route('/paypal/buy_course')
+  .post(
+    authMiddleware(
+      ENUM_USER_ROLE.SELLER,
+      ENUM_USER_ROLE.STUDENT,
+      ENUM_USER_ROLE.ADMIN,
+    ),
+    validateRequestZod(PaymentValidation.createPaypalByCourseZodSchema),
+    createPaymentController.createPaymentPaypalByCourse,
   );
 
-router.route('/paypal/check').get(createPaymentController.checkPaypalPayment);
+router
+  .route('/paypal/check/buy_course')
+  .get(createPaymentController.checkPaypalPaymentByCourse);
 router.route('/cancel').get(createPaymentController.cancelPaypalPayment);
 
 export const PaymentRoute = router;
