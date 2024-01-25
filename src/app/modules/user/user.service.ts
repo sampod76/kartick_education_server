@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 import { PipelineStage } from 'mongoose';
 import ShortUniqueId from 'short-unique-id';
 import config from '../../../config/index';
-import { ENUM_STATUS } from '../../../enums/globalEnums';
+import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import { ENUM_USER_ROLE } from '../../../enums/users';
 import { paginationHelper } from '../../../helper/paginationHelper';
 import ApiError from '../../errors/ApiError';
@@ -140,15 +140,30 @@ const deleteSingleUsersFormDb = async (
       await Student.findOneAndDelete({ _id: id });
     }
   } else {
-    data = await User.findByIdAndUpdate(id, { status: ENUM_STATUS.DEACTIVATE });
+    data = await User.findByIdAndUpdate(id, {
+      status: ENUM_STATUS.DEACTIVATE,
+      isDelete: ENUM_YN.YES,
+    });
     if (isExist.role === ENUM_USER_ROLE.ADMIN) {
-      await Admin.findByIdAndUpdate(id, { status: ENUM_STATUS.DEACTIVATE });
+      await Admin.findByIdAndUpdate(id, {
+        status: ENUM_STATUS.DEACTIVATE,
+        isDelete: ENUM_YN.YES,
+      });
     } else if (isExist.role === ENUM_USER_ROLE.SELLER) {
-      await Seller.findByIdAndUpdate(id, { status: ENUM_STATUS.DEACTIVATE });
+      await Seller.findByIdAndUpdate(id, {
+        status: ENUM_STATUS.DEACTIVATE,
+        isDelete: ENUM_YN.YES,
+      });
     } else if (isExist.role === ENUM_USER_ROLE.TRAINER) {
-      await Trainer.findByIdAndUpdate(id, { status: ENUM_STATUS.DEACTIVATE });
+      await Trainer.findByIdAndUpdate(id, {
+        status: ENUM_STATUS.DEACTIVATE,
+        isDelete: ENUM_YN.YES,
+      });
     } else if (isExist.role === ENUM_USER_ROLE.STUDENT) {
-      await Student.findByIdAndUpdate(id, { status: ENUM_STATUS.DEACTIVATE });
+      await Student.findByIdAndUpdate(id, {
+        status: ENUM_STATUS.DEACTIVATE,
+        isDelete: ENUM_YN.YES,
+      });
     }
   }
   return data;
@@ -162,7 +177,10 @@ const createAdminService = async (
   if (!user.password) {
     user.password = config.default_admin_pass as string;
   }
-  const exist = await User.isUserExistMethod(user.email);
+  const exist = await User.findOne({
+    email: user.email,
+    isDelete: ENUM_YN.YES,
+  });
   if (exist) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
   }
@@ -224,7 +242,10 @@ const createStudentService = async (
   if (!user.password) {
     user.password = config.default_student_pass as string;
   }
-  const exist = await User.isUserExistMethod(user.email);
+  const exist = await User.findOne({
+    email: user.email,
+    isDelete: ENUM_YN.YES,
+  });
   if (exist) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already exist');
   }
@@ -356,7 +377,10 @@ const createTrainerService = async (
   if (!user.password) {
     user.password = config.default_student_pass as string;
   }
-  const exist = await User.isUserExistMethod(user.email);
+  const exist = await User.findOne({
+    email: user.email,
+    isDelete: ENUM_YN.YES,
+  });
   if (exist) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User already exist');
   }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 
@@ -50,8 +51,9 @@ const createStudent = catchAsync(async (req: Request, res: Response) => {
   userData.email = student?.email;
   userData.author = req?.user?.id;
   student.author = req?.user?.id;
-  console.log("🚀 ~ createStudent ~ userData:", userData)
   const result = await UserService.createStudentService(student, userData);
+
+
   sendResponse<IUser>(res, {
     statusCode: httpStatus.OK,
     success: true,
