@@ -107,7 +107,7 @@ const getAllStudentPurchasePackageCourseFromDb = async (
   //   .populate('author')
   //   .populate('sellerPackage')
   //   .populate('course');
-  console.log('call');
+ 
   const pipeline: PipelineStage[] = [
     { $match: whereConditions },
     { $sort: sortConditions },

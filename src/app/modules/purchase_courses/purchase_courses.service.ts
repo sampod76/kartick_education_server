@@ -93,7 +93,7 @@ const getAllPurchaseCourseFromDb = async (
       ),
     });
   }
-  console.log('🚀 ~ andConditions:', filtersData);
+
 
   //****************search and filters end**********/
 

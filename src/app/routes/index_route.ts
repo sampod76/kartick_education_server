@@ -23,6 +23,7 @@ import { PackageRoute } from '../modules/package/package.route';
 import { PaymentRoute } from '../modules/payment/payment.router';
 import { PurchasePackageRoute } from '../modules/purchase_package/purchase_package.route';
 import { StudentPurchasePackageCourseRoute } from '../modules/addStudentToPackageAndCourse/route.studentPurchaseCourseBuy';
+import { PurchaseCourseRoute } from '../modules/purchase_courses/purchase_courses.route';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -105,6 +106,10 @@ const moduleRoutes = [
   {
     path: '/purchase_packages',
     route: PurchasePackageRoute,
+  },
+  {
+    path: '/purchase_courses',
+    route: PurchaseCourseRoute,
   },
   {
     path: '/student_purchase_packages_course',

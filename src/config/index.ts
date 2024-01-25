@@ -18,6 +18,10 @@ export default {
   imgbb_key: process.env.IMGBB_KEY,
   crypto_key: process.env.ENCRYPTION_SECRET,
   resetlink: 'http://localhost:3000/login/forgetPass/reset/',
+  server_side_url:
+    process.env.NODE_ENV === 'production'
+      ? process.env.REAL_HOST_SERVER_SIDE
+      : process.env.LOCALHOST_SERVER_SIDE,
   jwt: {
     secret: process.env.JWT_SECRET,
     refresh_secret: process.env.JWT_REFRESH_SECRET,
@@ -49,8 +53,8 @@ export default {
         : process.env.PAYPAL_CANCEL_URL,
   },
   paypal: {
-    client: process.env.PAYPLE_CLIENT_ID,
-    secret: process.env.PAYPLE_SECRET_KEY,
+    client: process.env.PAYPAL_CLIENT_ID,
+    secret: process.env.PAYPAL_SECRET_KEY,
   },
   // cloudinary_api_secret:process.env.cloudinary_api_secret
 };

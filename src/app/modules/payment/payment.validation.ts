@@ -57,17 +57,49 @@ const createPaypalZodSchema = z.object({
         ),
       })
       .optional(),
-    amount: z.object({
-      currency: z.string().optional(),
-      total: z.string({ required_error: 'amount is required' }).optional(),
-    }).optional(),
+    amount: z
+      .object({
+        currency: z.string().optional(),
+        total: z.string().optional(),
+      })
+      .optional(),
     description: z.string().optional(),
     //for
     data: productData,
+  }),
+});
+const createPaypalByCourseZodSchema = z.object({
+  body: z.object({
+    item_list: z
+      .object({
+        items: z.array(
+          z.object({
+            name: z.string({ required_error: 'course name is required' }), //course title
+            sku: z.string().optional(), //course id
+            price: z.string().optional(),
+            currency: z.string().optional(),
+            quantity: z.number().optional(),
+          }),
+        ),
+      })
+      .optional(),
+    amount: z
+      .object({
+        currency: z.string().optional(),
+        total: z.string().optional(),
+      })
+      .optional(),
+    description: z.string().optional(),
+    //for
+    data: z.object({
+      courseId: z.string({ required_error: 'course is required' }),
+      subscribe_duration_types: z.string().optional(), // monthly,yearly,biannual --> if exists
+    }),
   }),
 });
 
 export const PaymentValidation = {
   createPaymentStripeZodSchema,
   createPaypalZodSchema,
+  createPaypalByCourseZodSchema,
 };

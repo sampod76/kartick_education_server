@@ -29,10 +29,14 @@ export type IPurchaseCourse = {
   payment: {
     transactionId?: string;
     platform?: string;
-    //IPurchasePackage as a sem IPaddingPurchasePackage
+    //IPurchasePackage as a same IPaddingPurchaseCourse
     record?: Types.ObjectId | IPurchaseCourse | string;
   };
   paymentStatus?: 'approved' | 'pending' | 'rejected';
+  purchase: {
+    label: string; //example:biannual,monthly,yearly
+    price: number;
+  };
   //
   status: 'active' | 'deactivate' | 'save';
   isDelete: string;
