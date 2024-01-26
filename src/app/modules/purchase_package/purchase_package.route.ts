@@ -22,6 +22,17 @@ router
     ),
     PurchasePackageController.createPurchasePackage,
   );
+router
+  .route('/purchase-and-pending-package')
+  .get(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.TEACHER,
+      ENUM_USER_ROLE.STUDENT,
+    ),
+    PurchasePackageController.getAllPackagePurchasePendingPackage,
+  );
 
 router
   .route('/:id')

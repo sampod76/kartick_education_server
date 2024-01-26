@@ -55,6 +55,35 @@ const getAllPackagePurchase = catchAsync(
     // next();
   },
 );
+const getAllPackagePurchasePendingPackage = catchAsync(
+  async (req: Request, res: Response) => {
+    //****************search and filter start******* */
+    // console.log(req.query);
+    const queryObject = req.query;
+
+    const filters = pick(queryObject, PURCHASE_PACKAGE_FILTERABLE_FIELDS);
+
+    //****************pagination start************ */
+
+    const paginationOptions = pick(queryObject, PAGINATION_FIELDS);
+
+    const result =
+      await PurchasePackageService.getAllPackagePurchasePendingPackageFromDb(
+        filters,
+        paginationOptions,
+      );
+
+    sendResponse<IPurchasePackage[]>(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'successfull Get Purchase Package',
+      meta: result.meta,
+      data: result.data,
+    });
+
+    // next();
+  },
+);
 
 const getSinglePackagePurchase = catchAsync(
   async (req: Request, res: Response) => {
@@ -125,4 +154,5 @@ export const PurchasePackageController = {
   getSinglePackagePurchase,
   getAllPackagePurchase,
   updatePurchasePackage,
+  getAllPackagePurchasePendingPackage,
 };
