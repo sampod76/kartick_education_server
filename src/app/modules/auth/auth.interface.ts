@@ -1,4 +1,5 @@
 import { ENUM_USER_ROLE } from "../../../enums/users";
+import { IUser } from "../user/user.interface";
 
 
 export type ILoginUser = {
@@ -9,6 +10,7 @@ export type ILoginUser = {
 export type ILoginUserResponse = {
   accessToken: string;
   refreshToken?: string;
+  userData?:IUser
   // needsPasswordChange: boolean;
 };
 

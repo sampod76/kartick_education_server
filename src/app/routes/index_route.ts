@@ -8,22 +8,23 @@ import { CourseRoute } from '../modules/course/course.route';
 import { LessonRoute } from '../modules/lesson/lesson.route';
 import { MilestoneRoute } from '../modules/milestone/milestone.route';
 
+import { StudentPurchasePackageCourseRoute } from '../modules/addStudentToPackageAndCourse/route.studentPurchaseCourseBuy';
 import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
+import { GlossaryRoute } from '../modules/glossary/glossary.route';
+import { UserLoginHistoryRoutes } from '../modules/loginHistory/loginHistory.route';
 import { ModuleRoute } from '../modules/module/module.route';
+import { PackageRoute } from '../modules/package/package.route';
+import { PaymentRoute } from '../modules/payment/payment.router';
+import { PurchaseCourseRoute } from '../modules/purchase_courses/purchase_courses.route';
+import { PurchasePackageRoute } from '../modules/purchase_package/purchase_package.route';
 import { QuizRoute } from '../modules/quiz/quiz.route';
+import { QuizSubmitRoute } from '../modules/quizSubmit/quizSubmit.route';
+import { ResourceRoute } from '../modules/resource/resource.route';
 import { SellerRoutes } from '../modules/seller/seller.route';
 import { SingleQuizRoute } from '../modules/single_quiz/single_quiz.route';
 import { StudentRoutes } from '../modules/student/student.route';
 import { TrainerRoutes } from '../modules/trainer/trainer.route';
 import { UserRoutes } from '../modules/user/user.route';
-import { GlossaryRoute } from '../modules/glossary/glossary.route';
-import { ResourceRoute } from '../modules/resource/resource.route';
-import { QuizSubmitRoute } from '../modules/quizSubmit/quizSubmit.route';
-import { PackageRoute } from '../modules/package/package.route';
-import { PaymentRoute } from '../modules/payment/payment.router';
-import { PurchasePackageRoute } from '../modules/purchase_package/purchase_package.route';
-import { StudentPurchasePackageCourseRoute } from '../modules/addStudentToPackageAndCourse/route.studentPurchaseCourseBuy';
-import { PurchaseCourseRoute } from '../modules/purchase_courses/purchase_courses.route';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -118,6 +119,10 @@ const moduleRoutes = [
   {
     path: '/payment',
     route: PaymentRoute,
+  },
+  {
+    path: '/login_history',
+    route: UserLoginHistoryRoutes,
   },
 ];
 

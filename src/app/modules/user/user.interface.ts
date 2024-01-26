@@ -42,6 +42,7 @@ export type IUser = {
   superAdmin?: Types.ObjectId | IAdmin;
   teacher?: Types.ObjectId | IAdmin;
   //
+  user_agent?:string;
   author: Types.ObjectId | IUser; // this is author mines which person create this account--> this is IUser
   isDelete: string;
 };

@@ -1,10 +1,15 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import bcrypt from 'bcrypt';
+import { Request } from 'express';
 import httpStatus from 'http-status';
 import { JwtPayload, Secret } from 'jsonwebtoken';
+import { Types } from 'mongoose';
 import config from '../../../config';
 import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import { jwtHelpers } from '../../../helper/jwtHelpers';
 import ApiError from '../../errors/ApiError';
+import { IUserLoginHistory } from '../loginHistory/loginHistory.interface';
+import { UserLoginHistory } from '../loginHistory/loginHistory.model';
 import { User } from '../user/user.model';
 import {
   IChangePassword,
@@ -17,7 +22,7 @@ import { sendEmail } from './sendResetMail';
 const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   const { email, password } = payload;
 
-  const isUserExist = await User.isUserExistMethod(email);
+  const isUserExist = await User.findOne({ email, isDelete: ENUM_YN.NO });
 
   if (!isUserExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist');
@@ -69,13 +74,46 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   return {
     accessToken,
     refreshToken,
+    userData: isUserExist,
   };
 };
+const loginOutFromDb = async (
+  req: Request,
+): Promise<IUserLoginHistory | null> => {
+  const { id } = req.params;
 
-const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
+  // const checkLoginHistory = await UserLoginHistory.findOne({
+  //   //@ts-ignore
+  //   user: req?.user?.id,
+  //   user_agent: req.headers['user-agent'],
+  //   token: req?.cookies?.refreshToken,
+  // });
+  // let result = null;
+  // if (checkLoginHistory) {
+  //   result = await UserLoginHistory.findOneAndUpdate(
+  //     { _id: id },
+  //     { isDelete: ENUM_YN.YES },
+  //   );
+  // } else {
+  //   throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not allowed to');
+  // }
+
+  const result = await UserLoginHistory.findOneAndUpdate(
+    { _id: id },
+    { isDelete: ENUM_YN.YES },
+  );
+  console.log("🚀 ~ result:", result)
+  return result;
+};
+
+const refreshToken = async (
+  token: string,
+  req: Request,
+): Promise<IRefreshTokenResponse> => {
   //verify token
   // invalid token - synchronous
   let verifiedToken = null;
+
   try {
     verifiedToken = jwtHelpers.verifyToken(
       token,
@@ -103,6 +141,20 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
     );
   } else if (isUserExist.isDelete === ENUM_YN.YES) {
     throw new ApiError(httpStatus.NOT_FOUND, `Your account is delete`);
+  }
+  const user_agent = req.headers['user-agent'];
+  const checkLoginHistory = await UserLoginHistory.findOne({
+    user: new Types.ObjectId(id),
+    user_agent: user_agent,
+    token: token,
+    isDelete: ENUM_YN.NO,
+  });
+
+  if (!checkLoginHistory) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      'Unauthorized. Please login again',
+    );
   }
 
   const newAccessToken = jwtHelpers.createToken(
@@ -270,6 +322,7 @@ const resetPassword = async (
 
 export const AuthService = {
   loginUser,
+  loginOutFromDb,
   refreshToken,
   changePassword,
   forgotPass,

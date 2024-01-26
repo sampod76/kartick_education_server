@@ -14,10 +14,13 @@ import { Admin } from './admin.model';
 
 const getAllAdminsDB = async (
   filters: IAdminFilters,
-  paginationOptions: IPaginationOption
+  paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<IAdmin[]>> => {
   const { searchTerm, select, ...filtersData } = filters;
-   filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
+  filtersData.status = filtersData.status
+    ? filtersData.status
+    : ENUM_STATUS.ACTIVE;
+    filtersData.isDelete = filtersData.isDelete ? filtersData.isDelete : ENUM_YN.NO;
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -90,15 +93,15 @@ const getAllAdminsDB = async (
 };
 
 const getSingleAdminDB = async (id: string): Promise<IAdmin | null> => {
-  const result = await Admin.findById(id);
+  const result = await Admin.findOne({ _id: id, isDelete: ENUM_YN.NO });
   return result;
 };
 
 const updateAdminDB = async (
   id: string,
-  payload: Partial<IAdmin>
+  payload: Partial<IAdmin>,
 ): Promise<IAdmin | null> => {
-  const isExist = await Admin.findById(id);
+  const isExist = await Admin.findOne({ _id: id, isDelete: ENUM_YN.NO });
 
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Admin not found !');
@@ -123,7 +126,7 @@ const updateAdminDB = async (
 
 const deleteAdminDB = async (
   id: string,
-  query: IAdminFilters
+  query: IAdminFilters,
 ): Promise<IAdmin | null> => {
   // check if the faculty is exist
   const isExist = await Admin.findById(id);
@@ -139,7 +142,7 @@ const deleteAdminDB = async (
       //delete student first
       const adminResult = await Admin.findOneAndDelete(
         { _id: id },
-        { session }
+        { session },
       );
       if (!adminResult) {
         throw new ApiError(404, 'Failed to delete student');
@@ -156,7 +159,7 @@ const deleteAdminDB = async (
       const adminResult = await Admin.findOneAndUpdate(
         { _id: id },
         { status: ENUM_STATUS.DEACTIVATE },
-        { session }
+        { session },
       );
 
       if (adminResult) {
@@ -166,7 +169,7 @@ const deleteAdminDB = async (
       await User.findOneAndUpdate(
         { email: isExist.email },
         { status: ENUM_STATUS.DEACTIVATE },
-        { session }
+        { session },
       );
       session.commitTransaction();
       session.endSession();

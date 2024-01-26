@@ -19,7 +19,11 @@ const userSchema = new Schema<IUser, UserModel>(
     },
     userId: {
       type: String,
-      index: true,
+
+    },
+    user_agent: {
+      type: String,
+
     },
     password: {
       type: String,

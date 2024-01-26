@@ -55,6 +55,34 @@ const getAllCoursePurchase = catchAsync(
     // next();
   },
 );
+const getAllpurchaseAndPendingCourses = catchAsync(
+  async (req: Request, res: Response) => {
+    //****************search and filter start******* */
+    // console.log(req.query);
+    const queryObject = req.query;
+
+    const filters = pick(queryObject, PURCHASE_COURSE_FILTERABLE_FIELDS);
+
+    //****************pagination start************ */
+
+    const paginationOptions = pick(queryObject, PAGINATION_FIELDS);
+
+    const result = await PurchaseCourseService.getAllpurchaseAndPendingCoursesFromDb(
+      filters,
+      paginationOptions,
+    );
+
+    sendResponse<IPurchaseCourse[]>(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'successfull Get Purchase Course',
+      meta: result.meta,
+      data: result.data,
+    });
+
+    // next();
+  },
+);
 
 const getSingleCoursePurchase = catchAsync(
   async (req: Request, res: Response) => {
@@ -125,4 +153,5 @@ export const PurchaseCourseController = {
   getSingleCoursePurchase,
   getAllCoursePurchase,
   updatePurchaseCourse,
+  getAllpurchaseAndPendingCourses
 };

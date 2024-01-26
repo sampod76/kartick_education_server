@@ -14,6 +14,7 @@ import path from 'path';
 // import xss from 'xss-clean';
 import helmetOriginal from 'helmet';
 import httpStatus from 'http-status';
+import requestIp from 'request-ip';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 // import { uploadSingleImage } from './app/middlewares/uploader.multer';
 
@@ -23,6 +24,7 @@ const app: Application = express();
 // app.use(cors());
 
 app.use(helmetOriginal());
+app.use(requestIp.mw())
 
 app.use(
   cors({
