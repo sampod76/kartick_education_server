@@ -15,18 +15,23 @@ router
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
-      ENUM_USER_ROLE.STUDENT
+      ENUM_USER_ROLE.STUDENT,
     ),
-    validateRequestZod(
-      PurchaseCourseValidation.createPurchaseCourseZodSchema
-    ),
-    PurchaseCourseController.createPurchaseCourse
+    validateRequestZod(PurchaseCourseValidation.createPurchaseCourseZodSchema),
+    PurchaseCourseController.createPurchaseCourse,
   );
 
 router
   .route('purchase-and-pending-courses')
-  .get(PurchaseCourseController.getAllpurchaseAndPendingCourses)
-  
+  .get(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.TEACHER,
+      ENUM_USER_ROLE.STUDENT,
+    ),
+    PurchaseCourseController.getAllpurchaseAndPendingCourses,
+  );
 
 router
   .route('/:id')
@@ -35,17 +40,17 @@ router
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
-      ENUM_USER_ROLE.STUDENT
+      ENUM_USER_ROLE.STUDENT,
     ),
-    PurchaseCourseController.getSingleCoursePurchase
+    PurchaseCourseController.getSingleCoursePurchase,
   )
   .delete(
     authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-    PurchaseCourseController.deleteCoursePurchase
+    PurchaseCourseController.deleteCoursePurchase,
   )
   .patch(
     authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-    PurchaseCourseController.updatePurchaseCourse
+    PurchaseCourseController.updatePurchaseCourse,
   );
 
 export const PurchaseCourseRoute = router;
