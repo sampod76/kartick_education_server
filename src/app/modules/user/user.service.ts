@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import { PipelineStage } from 'mongoose';
+import { PipelineStage, Types } from 'mongoose';
 import ShortUniqueId from 'short-unique-id';
 import config from '../../../config/index';
 import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
@@ -20,7 +20,6 @@ import { userPipeline } from './pipeline/userPipeline';
 import { userSearchableFields } from './user.constant';
 import { IUser, IUserFilters } from './user.interface';
 import { User } from './user.model';
-import { Types } from 'mongoose';
 
 const getAllUsers = async (
   filters: IUserFilters,
@@ -30,6 +29,9 @@ const getAllUsers = async (
   filtersData.status = filtersData.status
     ? filtersData.status
     : ENUM_STATUS.ACTIVE;
+  filtersData.isDelete = filtersData.isDelete
+    ? filtersData.isDelete
+    : ENUM_YN.NO;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelper.calculatePagination(paginationOptions);
 

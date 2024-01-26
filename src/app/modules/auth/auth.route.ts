@@ -13,8 +13,14 @@ router.post(
   AuthController.loginUser,
 );
 router.post(
-  '/log-out/:id', // id --> login history _id
-  validateRequestZod(AuthValidation.loginZodSchema),
+  '/log-out-history/:id', // id --> login history _id
+  authMiddleware(
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.MODERATOR,
+    ENUM_USER_ROLE.STUDENT,
+    ENUM_USER_ROLE.SELLER,
+  ),
+  validateRequestZod(AuthValidation.refreshTokenZodSchema),
   AuthController.logOut,
 );
 

@@ -33,8 +33,23 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
         },
         {
           ip,
+          token: refreshToken,
         },
       );
+    } else {
+      // ! -------------- set login history function --------------
+      const ip = req.clientIp;
+      const deviceInfo = getDeviceInfo(req.headers['user-agent'] as string);
+      await UserLoginHistory.create({
+        ip,
+        //@ts-ignore
+        user: userData._id,
+        user_agent: req.headers['user-agent'],
+        token: refreshToken,
+        device_info: deviceInfo,
+      });
+
+      // ! -------------- set login history function end --------------
     }
   } else {
     // ! -------------- set login history function --------------
@@ -55,9 +70,8 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     //for development false
     secure: false,
     httpOnly: true,
-    // when my site is same url example: frontend ->sampodnath.com , backend ->sampodnath-api.com. then sameSite lagba na, when frontend ->sampodnath.com , but backend api.sampodnath.com then  sameSite: 'none',
-    // or remove this line for testing
-    maxAge: 31536000000,
+    // maxAge: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+    expires: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
     // maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'),
   };
 
@@ -71,7 +85,8 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
       maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'), 
       
       */
-  //@ts-ignore
+
+//@ts-ignore
   res.cookie('refreshToken', refreshToken, cookieOptions);
 
   sendResponse<ILoginUserResponse>(res, {

@@ -223,10 +223,12 @@ const updatePackageFromDb = async (
   id: string,
   payload: Partial<IPackage>,
 ): Promise<IPackage | null> => {
+
   const result = await Package.findOneAndUpdate({ _id: id }, payload, {
     new: true,
     runValidators: true,
   });
+
   if (!result) {
     throw new ApiError(500, 'Module update fail!!😪😭😰');
   }

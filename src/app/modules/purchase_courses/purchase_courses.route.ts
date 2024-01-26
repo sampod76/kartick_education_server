@@ -24,6 +24,11 @@ router
   );
 
 router
+  .route('purchase-and-pending-courses')
+  .get(PurchaseCourseController.getAllpurchaseAndPendingCourses)
+  
+
+router
   .route('/:id')
   .get(
     authMiddleware(

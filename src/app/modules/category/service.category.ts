@@ -4,7 +4,7 @@ import { paginationHelper } from '../../../helper/paginationHelper';
 import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 
-import { ENUM_STATUS } from '../../../enums/globalEnums';
+import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import { CATEGORY_SEARCHABLE_FIELDS } from './consent.category';
 import { ICategory, ICategoryFilters } from './interface.category';
 import { Category } from './model.category';
@@ -29,6 +29,7 @@ const getAllCategoryFromDb = async (
   filtersData.status = filtersData.status
     ? filtersData.status
     : ENUM_STATUS.ACTIVE;
+    filtersData.isDelete = filtersData.isDelete ? filtersData.isDelete : ENUM_YN.NO;
   const andConditions = [];
   if (searchTerm) {
     andConditions.push({
@@ -134,6 +135,7 @@ const getAllCategoryChildrenTitleFromDb = async (
   filtersData.status = filtersData.status
     ? filtersData.status
     : ENUM_STATUS.ACTIVE;
+    filtersData.isDelete = filtersData.isDelete ? filtersData.isDelete : ENUM_YN.NO;
   const andConditions = [];
   if (searchTerm) {
     andConditions.push({

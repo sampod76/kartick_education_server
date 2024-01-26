@@ -31,6 +31,10 @@ const getAllCourseFromDb = async (
     ? filtersData.status
     : ENUM_STATUS.ACTIVE;
 
+  filtersData.isDelete = filtersData.isDelete
+    ? filtersData.isDelete
+    : ENUM_YN.NO;
+
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -192,6 +196,71 @@ const getAllCourseFromDb = async (
       $unwind: '$category',
     },
     ///***************** */ images field ******end*********
+    {
+      $lookup: {
+        from: 'lessons',
+        let: { id: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$course', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
+              },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+          {
+            $addFields: {
+              videosCount: {
+                $cond: {
+                  if: { $eq: [{ $size: '$videos' }, 0] },
+                  then: 0,
+                  else: { $size: '$videos' },
+                },
+              },
+            },
+          },
+          // {
+          //   $project: {
+          //     password: 0,
+          //   },
+          // },
+        ],
+        as: 'lessonsDetails',
+      },
+    },
+    {
+      $addFields: {
+        totalVideoSize: { $sum: '$lessonsDetails.videosCount' },
+      },
+    },
+
+    { $project: { lessonsDetails: 0 } },
+    {
+      $lookup: {
+        from: 'pendingpurchasecourses',
+        localField: '_id',
+        foreignField: 'course',
+        as: 'totalStudents',
+      },
+    },
+    {
+      $addFields: {
+        totalEnrollStudentSize: {
+          $cond: {
+            if: { $eq: [{ $size: '$totalStudents' }, 0] },
+            then: 0,
+            else: { $size: '$totalStudents' },
+          },
+        },
+      },
+    },
+    { $project: { totalStudents: 0 } },
   ];
 
   let result = null;
@@ -224,6 +293,9 @@ const getAllCourseMilestoneModuleListFromDb = async (
   filtersData.status = filtersData.status
     ? filtersData.status
     : ENUM_STATUS.ACTIVE;
+  filtersData.isDelete = filtersData.isDelete
+    ? filtersData.isDelete
+    : ENUM_YN.NO;
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -562,6 +634,132 @@ const getSingleCourseFromDb = async (id: string): Promise<ICourse | null> => {
 
   return result[0];
 };
+const getSingleCourseModuleLessonQuizDb = async (
+  id: string,
+): Promise<ICourse | null> => {
+  const result = await Course.aggregate([
+    { $match: { _id: new ObjectId(id) } },
+    {
+      $lookup: {
+        from: 'modules',
+        let: { id: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$course', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
+              },
+
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+          // {
+          //   $project: {
+          //     password: 0,
+          //   },
+          // },
+        ],
+        as: 'modulesDetails',
+      },
+    },
+    { $project: { modulesSize: { $size: '$modulesDetails' } } },
+    {
+      $lookup: {
+        from: 'lessons',
+        let: { id: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$course', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
+              },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+          {
+            $addFields: {
+              videosCount: {
+                $cond: {
+                  if: { $eq: [{ $size: '$videos' }, 0] },
+                  then: 0,
+                  else: { $size: '$videos' },
+                },
+              },
+            },
+          },
+          // {
+          //   $project: {
+          //     password: 0,
+          //   },
+          // },
+        ],
+        as: 'lessonsDetails',
+      },
+    },
+    {
+      $addFields: {
+        totalVideoSize: { $sum: '$lessonsDetails.videosCount' },
+      },
+    },
+    {
+      $project: {
+        modulesSize: '$modulesSize',
+        totalVideoSize: '$totalVideoSize',
+        lessonsSize: { $size: '$lessonsDetails' },
+      },
+    },
+    {
+      $lookup: {
+        from: 'quizzes',
+        let: { id: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              // $expr: { $eq: ['$course', '$$id'] },
+              $expr: {
+                $and: [
+                  { $eq: ['$course', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
+              },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+          // {
+          //   $project: {
+          //     password: 0,
+          //   },
+          // },
+        ],
+        as: 'quizzesDetails',
+      },
+    },
+    {
+      $project: {
+        modulesSize: '$modulesSize',
+        lessonsSize: '$lessonsSize',
+        totalVideoSize: '$totalVideoSize',
+        quizzesSize: { $size: '$quizzesDetails' },
+      },
+    },
+  ]);
+
+  return result[0];
+};
 
 // update e form db
 const updateCourseFromDb = async (
@@ -619,4 +817,5 @@ export const CourseService = {
   updateCourseFromDb,
   deleteCourseByIdFromDb,
   courseReviewsByUserFromDb,
+  getSingleCourseModuleLessonQuizDb,
 };

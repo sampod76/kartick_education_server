@@ -81,22 +81,28 @@ const loginOutFromDb = async (
   req: Request,
 ): Promise<IUserLoginHistory | null> => {
   const { id } = req.params;
-  const checkLoginHistory = await UserLoginHistory.findOne({
-    //@ts-ignore
-    user: req?.user?.id,
-    user_agent: req.headers['user-agent'],
-    token: req?.cookies?.refreshToken,
-  });
-  let result = null;
-  if (checkLoginHistory) {
-    result = await UserLoginHistory.findOneAndUpdate(
-      { _id: id },
-      { isDelete: ENUM_YN.YES },
-    );
-  } else {
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not allowed to');
-  }
 
+  // const checkLoginHistory = await UserLoginHistory.findOne({
+  //   //@ts-ignore
+  //   user: req?.user?.id,
+  //   user_agent: req.headers['user-agent'],
+  //   token: req?.cookies?.refreshToken,
+  // });
+  // let result = null;
+  // if (checkLoginHistory) {
+  //   result = await UserLoginHistory.findOneAndUpdate(
+  //     { _id: id },
+  //     { isDelete: ENUM_YN.YES },
+  //   );
+  // } else {
+  //   throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not allowed to');
+  // }
+
+  const result = await UserLoginHistory.findOneAndUpdate(
+    { _id: id },
+    { isDelete: ENUM_YN.YES },
+  );
+  console.log("🚀 ~ result:", result)
   return result;
 };
 
