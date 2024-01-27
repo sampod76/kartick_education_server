@@ -9,7 +9,12 @@ const router = express.Router();
 
 router
   .route('/')
-  .get(PurchaseCourseController.getAllCoursePurchase)
+  .get(  authMiddleware(
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.STUDENT,
+    ENUM_USER_ROLE.SELLER,
+  ),PurchaseCourseController.getAllCoursePurchase)
   .post(
     authMiddleware(
       ENUM_USER_ROLE.ADMIN,

@@ -9,7 +9,12 @@ const router = express.Router();
 
 router
   .route('/')
-  .get(SingleQuizController.getAllSingleQuiz)
+  .get(  authMiddleware(
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.STUDENT,
+    ENUM_USER_ROLE.SELLER,
+  ),SingleQuizController.getAllSingleQuiz)
   .post(
     authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
     validateRequestZod(SingleQuizValidation.createSingleQuizZodSchema),
@@ -18,7 +23,12 @@ router
 
 router
   .route('/:id')
-  .get(SingleQuizController.getSingleSingleQuiz)
+  .get(  authMiddleware(
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.STUDENT,
+    ENUM_USER_ROLE.SELLER,
+  ),SingleQuizController.getSingleSingleQuiz)
   .patch(
     authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
     validateRequestZod(SingleQuizValidation.updateSingleQuizZodSchema),
