@@ -19,6 +19,7 @@ import globalErrorHandler from './app/middlewares/globalErrorHandler';
 // import { uploadSingleImage } from './app/middlewares/uploader.multer';
 
 import routers from './app/routes/index_route';
+import config from './config';
 
 const app: Application = express();
 // app.use(cors());
@@ -28,7 +29,7 @@ app.use(requestIp.mw());
 
 app.use(
   cors({
-    origin: true,
+    origin: config.env === 'development' ? true : ['https://iblossomlearn.org'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   }),
@@ -122,7 +123,6 @@ const test = async () => {
   // Promise.all(promess).then(values => {
   //   console.log(values);
   // });
-
   // const result = encryptCryptoData({id:"sdfjksdjfkl"},config.encryptCrypto as string)
   // const getData = "U2FsdGVkX19dOA/shL0SLR2JyDtmLpQJy88CwzgKP18YXxHGl5lrNcVpYOzLeI6ITy/cWRTBrTK0V6PkGhbl1Ik fBtfhZUFBsLHrZmvFNuC4OpxwvY79/xToKurgOskLiz7aazvvxeghiVMtnRfEw==".split(" ").join("+")
   // const verify = decryptCryptoData(getData,config.encryptCrypto as string)

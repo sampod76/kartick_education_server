@@ -20,7 +20,7 @@ router.post(
     ENUM_USER_ROLE.STUDENT,
     ENUM_USER_ROLE.SELLER,
   ),
-  validateRequestZod(AuthValidation.refreshTokenZodSchema),
+  // validateRequestZod(AuthValidation.refreshTokenZodSchema),
   AuthController.logOut,
 );
 
