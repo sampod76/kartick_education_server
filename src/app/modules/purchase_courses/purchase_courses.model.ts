@@ -21,6 +21,7 @@ const PurchaseCourseSchema = new Schema<IPurchaseCourse, PurchaseCourseModel>(
       enum: ['approved', 'pending', 'rejected'],
       default: 'pending',
     },
+    total_price:Number,
     //------------end --------------------------------------
     user: {
       type: Schema.Types.ObjectId,

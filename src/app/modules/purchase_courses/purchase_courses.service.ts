@@ -1,4 +1,4 @@
-import mongoose, { Types } from 'mongoose';
+import { PipelineStage, Types } from 'mongoose';
 
 import { paginationHelper } from '../../../helper/paginationHelper';
 
@@ -18,7 +18,6 @@ import {
   PurchaseCourse,
 } from './purchase_courses.model';
 
-const { ObjectId } = mongoose.Types;
 const createPurchaseCourseByDb = async (
   payload: IPurchaseCourse,
 ): Promise<IPurchaseCourse | null> => {
@@ -94,7 +93,6 @@ const getAllPurchaseCourseFromDb = async (
     });
   }
 
-
   //****************search and filters end**********/
 
   //****************pagination start **************/
@@ -118,18 +116,6 @@ const getAllPurchaseCourseFromDb = async (
     .limit(Number(limit))
     .populate('course')
     .populate('user');
-  //   // .populate({
-  //   //   path: 'user',
-  //   //   select: { password: 0 },
-  //   //   //   populate: {
-  //   //   //     path: 'teacher',
-  //   //   //     model: 'teachers',
-  //   //   //     populate: {
-  //   //   //         path: 'user',
-  //   //   //         model: 'User'
-  //   //   //     }
-  //   //   // }
-  //   // });
 
   // const pipeline: PipelineStage[] = [
   //   { $match: whereConditions },
@@ -260,7 +246,6 @@ const getAllpurchaseAndPendingCoursesFromDb = async (
     });
   }
 
-
   //****************search and filters end**********/
 
   //****************pagination start **************/
@@ -381,6 +366,90 @@ const getAllpurchaseAndPendingCoursesFromDb = async (
   };
 };
 
+const getAllPurchaseCoursesTotalAmountFromDb = async (
+  filters: IPurchaseCourseFilters,
+  paginationOptions: IPaginationOption,
+): Promise<IGenericResponse<IPurchaseCourse[]>> => {
+  //****************search and filters start************/
+  const { searchTerm, select, ...filtersData } = filters;
+  filtersData.isDelete = filtersData.isDelete
+    ? filtersData.isDelete
+    : ENUM_YN.NO;
+
+  // Split the string and extract field names
+  const projection: { [key: string]: number } = {};
+  if (select) {
+    const fieldNames = select?.split(',').map(field => field.trim());
+    // Create the projection object
+    fieldNames.forEach(field => {
+      projection[field] = 1;
+    });
+  }
+
+  const andConditions = [];
+  if (searchTerm) {
+    andConditions.push({
+      $or: PURCHASE_COURSE_SEARCHABLE_FIELDS.map(field =>
+        //search array value
+        field === 'tags'
+          ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
+          : {
+              [field]: new RegExp(searchTerm, 'i'),
+            },
+      ),
+    });
+  }
+
+  if (Object.keys(filtersData).length) {
+    andConditions.push({
+      $and: Object.entries(filtersData).map(([field, value]) =>
+        field === 'course'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'user'
+            ? { [field]: new Types.ObjectId(value) }
+            : { [field]: value },
+      ),
+    });
+  }
+
+  //****************search and filters end**********/
+
+  //****************pagination start **************/
+
+  const { page, limit, sortBy, sortOrder } =
+    paginationHelper.calculatePagination(paginationOptions);
+
+  const sortConditions: { [key: string]: 1 | -1 } = {};
+  if (sortBy && sortOrder) {
+    sortConditions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+  }
+
+  //****************pagination end ***************/
+
+  const whereConditions =
+    andConditions.length > 0 ? { $and: andConditions } : {};
+  const pipeline: PipelineStage[] = [
+    { $match: whereConditions },
+    {
+      $group: {
+        _id: { paymentStatus: 'approved' },
+        totalAmount: { $sum: '$total_price' },
+        count: { $sum: 1 },
+      },
+    },
+  ];
+  const result = await PurchaseCourse.aggregate(pipeline);
+
+  return {
+    meta: {
+      page,
+      limit,
+      total: 1,
+    },
+    data: result,
+  };
+};
+
 // get single e form db
 const getPurchaseCourseVerifyFromDb = async (
   id: string,
@@ -396,11 +465,23 @@ const getPurchaseCourseVerifyFromDb = async (
 const getPurchaseCourseSingelFromDb = async (
   id: string,
 ): Promise<IPurchaseCourse | null> => {
-  const result = await PurchaseCourse.aggregate([
-    { $match: { _id: new ObjectId(id) } },
-  ]);
+  const result = await PurchaseCourse.findOne({ _id: id, isDelete: ENUM_YN.NO })
+    .populate('course')
+    .populate('user');
 
-  return result[0];
+  return result;
+};
+const getSinglePurchaseAndPendingCoursesFromDb = async (
+  id: string,
+): Promise<IPurchaseCourse | null> => {
+  const result = await PendingPurchaseCourse.findOne({
+    _id: id,
+    isDelete: ENUM_YN.NO,
+  })
+    .populate('course')
+    .populate('user');
+
+  return result;
 };
 const updatePurchaseCourseFromDb = async (
   id: string,
@@ -440,5 +521,7 @@ export const PurchaseCourseService = {
   getPurchaseCourseVerifyFromDb,
   updatePurchaseCourseFromDb,
   createPendingPurchaseCourseByDb,
-  getAllpurchaseAndPendingCoursesFromDb
+  getAllpurchaseAndPendingCoursesFromDb,
+  getSinglePurchaseAndPendingCoursesFromDb,
+  getAllPurchaseCoursesTotalAmountFromDb,
 };

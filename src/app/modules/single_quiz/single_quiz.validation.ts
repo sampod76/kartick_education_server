@@ -17,7 +17,7 @@ const createSingleQuizZodSchema = z.object({
           title: z.string(),
           serialNumber: z.number().min(0).optional(),
           correct: z.boolean().optional(),
-          img: z.string().optional(),
+          img: z.string().url().optional(),
         })
       )
       .optional(),

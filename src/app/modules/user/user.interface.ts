@@ -27,6 +27,7 @@ export type IUserFilters = {
 
 export type IUser = {
   role: string;
+  additionalRole?: string;
   email: string;
   password: string;
   status: IStatus;
@@ -42,7 +43,7 @@ export type IUser = {
   superAdmin?: Types.ObjectId | IAdmin;
   teacher?: Types.ObjectId | IAdmin;
   //
-  user_agent?:string;
+  user_agent?: string;
   author: Types.ObjectId | IUser; // this is author mines which person create this account--> this is IUser
   isDelete: string;
 };
@@ -52,7 +53,10 @@ export type UserModel = {
   isUserExistMethod(
     email: string,
   ): Promise<
-    Pick<IUser, 'email' | 'password' | 'role' | 'status' | 'blockingTimeout' |'userId'>
+    Pick<
+      IUser,
+      'email' | 'password' | 'role' | 'status' | 'blockingTimeout' | 'userId'
+    >
   >;
   isPasswordMatchMethod(
     oldPassword: string,

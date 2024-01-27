@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Request, Response } from 'express';
 
+import config from '../../../config';
 import { ENUM_YN } from '../../../enums/globalEnums';
 import { getDeviceInfo } from '../../../helper/getDeviceInfo';
 import catchAsync from '../../share/catchAsync';
@@ -68,11 +69,11 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   }
   const cookieOptions = {
     //for development false
-    secure: false,
     httpOnly: true,
-    // maxAge: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-    expires: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-    // maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'),
+    expires: new Date(Date.now() + 7*24*60*60*1000),
+    secure: false,
+    sameSite: 'none',
+    path: '/'
   };
 
   /* 
@@ -86,7 +87,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
       
       */
 
-//@ts-ignore
+  //@ts-ignore
   res.cookie('refreshToken', refreshToken, cookieOptions);
 
   sendResponse<ILoginUserResponse>(res, {
@@ -112,7 +113,7 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
     //   // maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'),
     // };
 
-    secure: true,
+    secure: config.env === 'production' ? true : false,
     httpOnly: true,
     // when my site is same url example: frontend ->sampodnath.com , backend ->sampodnath-api.com. then sameSite lagba na, when frontend ->sampodnath.com , but backend api.sampodnath.com then  sameSite: 'none',
     sameSite: 'none', // or remove this line for testing

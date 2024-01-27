@@ -16,21 +16,47 @@ router
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
       ENUM_USER_ROLE.STUDENT,
+      ENUM_USER_ROLE.SELLER,
     ),
     validateRequestZod(PurchaseCourseValidation.createPurchaseCourseZodSchema),
     PurchaseCourseController.createPurchaseCourse,
   );
 
 router
-  .route('purchase-and-pending-courses')
+  .route('/purchase-and-pending-courses')
   .get(
     authMiddleware(
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
       ENUM_USER_ROLE.STUDENT,
+      ENUM_USER_ROLE.SELLER,
     ),
     PurchaseCourseController.getAllpurchaseAndPendingCourses,
+  );
+router
+  .route('/purchase-and-pending-courses/:id')
+  .get(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.TEACHER,
+      ENUM_USER_ROLE.STUDENT,
+      ENUM_USER_ROLE.SELLER,
+    ),
+    PurchaseCourseController.getSinglePurchaseAndPendingCourses,
+  );
+router
+  .route('/total-amount')
+  .get(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.TEACHER,
+      ENUM_USER_ROLE.STUDENT,
+      ENUM_USER_ROLE.SELLER,
+    ),
+    PurchaseCourseController.getAllCoursePurchaseTotalAmount,
   );
 
 router
@@ -41,6 +67,7 @@ router
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
       ENUM_USER_ROLE.STUDENT,
+      ENUM_USER_ROLE.SELLER,
     ),
     PurchaseCourseController.getSingleCoursePurchase,
   )

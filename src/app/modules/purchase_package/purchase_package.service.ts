@@ -1,4 +1,4 @@
-import mongoose, { Types } from 'mongoose';
+import { Types } from 'mongoose';
 
 import { paginationHelper } from '../../../helper/paginationHelper';
 
@@ -18,7 +18,6 @@ import {
   PurchasePackage,
 } from './purchase_package.model';
 
-const { ObjectId } = mongoose.Types;
 const createPurchasePackageByDb = async (
   payload: IPurchasePackage,
 ): Promise<IPurchasePackage | null> => {
@@ -46,7 +45,6 @@ const createPendingPurchasePackageByDb = async (
   // const result =null
   return result;
 };
-
 
 const getAllPurchasePackageFromDb = async (
   filters: IPurchasePackageFilters,
@@ -98,7 +96,6 @@ const getAllPurchasePackageFromDb = async (
     });
   }
 
-
   //****************search and filters end**********/
 
   //****************pagination start **************/
@@ -122,18 +119,7 @@ const getAllPurchasePackageFromDb = async (
     .limit(Number(limit))
     .populate('categories.category')
     .populate('user');
-  //   // .populate({
-  //   //   path: 'user',
-  //   //   select: { password: 0 },
-  //   //   //   populate: {
-  //   //   //     path: 'teacher',
-  //   //   //     model: 'teachers',
-  //   //   //     populate: {
-  //   //   //         path: 'user',
-  //   //   //         model: 'User'
-  //   //   //     }
-  //   //   // }
-  //   // });
+  
 
   // const pipeline: PipelineStage[] = [
   //   { $match: whereConditions },
@@ -269,7 +255,6 @@ const getAllPackagePurchasePendingPackageFromDb = async (
     });
   }
 
-
   //****************search and filters end**********/
 
   //****************pagination start **************/
@@ -293,18 +278,7 @@ const getAllPackagePurchasePendingPackageFromDb = async (
     .limit(Number(limit))
     .populate('categories.category')
     .populate('user');
-  //   // .populate({
-  //   //   path: 'user',
-  //   //   select: { password: 0 },
-  //   //   //   populate: {
-  //   //   //     path: 'teacher',
-  //   //   //     model: 'teachers',
-  //   //   //     populate: {
-  //   //   //         path: 'user',
-  //   //   //         model: 'User'
-  //   //   //     }
-  //   //   // }
-  //   // });
+
 
   // const pipeline: PipelineStage[] = [
   //   { $match: whereConditions },
@@ -402,15 +376,31 @@ const getPurchasePackageVerifyFromDb = async (
 
   return findSubmitQuiz;
 };
+
 const getPurchasePackageSingelFromDb = async (
   id: string,
 ): Promise<IPurchasePackage | null> => {
-  const result = await PurchasePackage.aggregate([
-    { $match: { _id: new ObjectId(id) } },
-  ]);
-
-  return result[0];
+  const result = await PurchasePackage.findOne({
+    _id: id,
+    isDelete: ENUM_YN.NO,
+  })
+    .populate('categories.category')
+    .populate('user');
+  return result;
 };
+
+const getSinglePurchasePendingPackageFromDb = async (
+  id: string,
+): Promise<IPurchasePackage | null> => {
+  const result = await PendingPurchasePackage.findOne({
+    _id: id,
+    isDelete: ENUM_YN.NO,
+  })
+    .populate('categories.category')
+    .populate('user');
+  return result;
+};
+
 const updatePurchasePackageFromDb = async (
   id: string,
   payload: Partial<IPurchasePackage>,
@@ -449,5 +439,6 @@ export const PurchasePackageService = {
   getPurchasePackageVerifyFromDb,
   updatePurchasePackageFromDb,
   createPendingPurchasePackageByDb,
-  getAllPackagePurchasePendingPackageFromDb
+  getAllPackagePurchasePendingPackageFromDb,
+  getSinglePurchasePendingPackageFromDb,
 };

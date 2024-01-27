@@ -136,7 +136,7 @@ const createPaymentPaypal = catchAsync(async (req: Request, res: Response) => {
   if (!allExist) {
     throw new ApiError(404, 'This is not approved');
   }
-  const newPrice =
+  const totalPrice =
     (findPackage[categoryData?.purchase?.label].price +
       findPackage[categoryData?.purchase?.label].each_student_increment *
         categoryData?.total_purchase_student) *
@@ -146,7 +146,7 @@ const createPaymentPaypal = catchAsync(async (req: Request, res: Response) => {
 
   //! ------- price configuration ------
   const item = item_list.items[0];
-  const price = parseFloat(String(newPrice));
+  const price = parseFloat(String(totalPrice));
   // Convert the price to a string with exactly 2 decimal places
   const formattedPrice = price.toFixed(2);
   // Update the item's price with the formatted value
@@ -161,13 +161,14 @@ const createPaymentPaypal = catchAsync(async (req: Request, res: Response) => {
   const createPackge = await PendingPurchasePackage.create({
     ...categoryData,
     paymentStatus: 'pending',
+    total_price: totalPrice,
   });
   if (!createPackge._id) {
     throw new ApiError(400, 'Something is wrong with purchase');
   }
   const data: any = {
     id: createPackge?._id,
-    amount: { total: newPrice, currency: 'USD' },
+    amount: { total: totalPrice, currency: 'USD' },
     platform: 'paypal',
   };
 
@@ -289,7 +290,9 @@ const checkPaypalPayment = catchAsync(async (req: Request, res: Response) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore
         const accepted = await PurchasePackage.create(calldata?._doc);
-        res.redirect(`${config.payment_url.paypal_success_url as string}?purchase_transactionsId=${paymentId}`);
+        res.redirect(
+          `${config.payment_url.paypal_success_url as string}?purchase_transactionsId=${paymentId}`,
+        );
         // return sendResponse<any>(res, {
         //   success: true,
         //   message: 'Payment success!',
@@ -330,12 +333,12 @@ const createPaymentPaypalByCourse = catchAsync(
     if (!findPackage) {
       throw new ApiError(404, 'Do not found package category');
     }
-    const newPrice =
+    const totalPrice =
       findPackage[courseData?.purchase?.label]?.price || findPackage?.price;
 
     //! ------- price configuration ------
     const item = item_list.items[0];
-    const price = parseFloat(String(newPrice));
+    const price = parseFloat(String(totalPrice));
     // Convert the price to a string with exactly 2 decimal places
     const formattedPrice = price.toFixed(2);
     // Update the item's price with the formatted value
@@ -351,11 +354,11 @@ const createPaymentPaypalByCourse = catchAsync(
         )
       : undefined;
 
-
     const createPendingCourse = await PendingPurchaseCourse.create({
       ...courseData,
-      course:findPackage._id,
+      course: findPackage._id,
       paymentStatus: 'pending',
+      total_price: totalPrice,
     });
     if (!createPendingCourse._id) {
       throw new ApiError(400, 'Something is wrong with purchase');
@@ -486,7 +489,9 @@ const checkPaypalPaymentByCourse = catchAsync(
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           //@ts-ignore
           const accepted = await PurchaseCourse.create(calldata?._doc);
-          res.redirect(`${config.payment_url.paypal_success_url as string}?purchase_transactionsId=${paymentId}`);
+          res.redirect(
+            `${config.payment_url.paypal_success_url as string}?purchase_transactionsId=${paymentId}`,
+          );
           // return sendResponse<any>(res, {
           //   success: true,
           //   message: 'Payment success!',

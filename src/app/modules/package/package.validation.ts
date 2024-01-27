@@ -8,7 +8,7 @@ const createPackageZodSchema = z.object({
       uid: z.string().optional(),
     }),
     title: z.string({ required_error: 'package name is required' }),
-    img: z.string().optional(),
+    img: z.string().url().optional(),
     categories: z.array(
       z.object({
         category: z.string(),
@@ -66,7 +66,7 @@ const updatePackageZodSchema = z.object({
       uid: z.string().optional(),
     }),
     title: z.string().optional(),
-    img: z.string().optional(),
+    img: z.string().url().optional(),
     categories: z.array(
       z.object({
         category: z.string(),

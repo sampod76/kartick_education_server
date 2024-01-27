@@ -33,6 +33,17 @@ router
     ),
     PurchasePackageController.getAllPackagePurchasePendingPackage,
   );
+router
+  .route('/purchase-and-pending-package/:id')
+  .get(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.TEACHER,
+      ENUM_USER_ROLE.STUDENT,
+    ),
+    PurchasePackageController.getSinglePurchasePendingPackage,
+  );
 
 router
   .route('/:id')

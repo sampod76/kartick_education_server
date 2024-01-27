@@ -17,6 +17,10 @@ const AdminSchema = new Schema<IAdmin, AdminModel>(
       },
       required: true,
     },
+    additionalRole: {
+      type: String,
+      default: 'admin',
+    },
     dateOfBirth: {
       type: String,
     },
@@ -37,9 +41,9 @@ const AdminSchema = new Schema<IAdmin, AdminModel>(
     address: {
       type: String,
     },
-isDelete: {
+    isDelete: {
       type: String,
-      enum:["yes", "no"],
+      enum: ['yes', 'no'],
       default: 'no',
     },
     img: {
@@ -51,7 +55,7 @@ isDelete: {
     toJSON: {
       virtuals: true,
     },
-  }
+  },
 );
 
 export const Admin = model<IAdmin, AdminModel>('Admin', AdminSchema);

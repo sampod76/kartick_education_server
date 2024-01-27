@@ -12,6 +12,7 @@ export type IStudent = {
   gender: 'male' | 'female' | 'other';
   dateOfBirth: string;
   email: string;
+  additionalRole: string;
   phoneNumber?: string;
   address?: string;
   status: string;
