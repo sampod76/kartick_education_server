@@ -16,8 +16,12 @@ const SellerSchema = new Schema<ISeller, SellerModel>(
       },
       required: true,
     },
-    userId:{
+    userId: {
       type: String,
+    },
+    additionalRole: {
+      type: String,
+      default: 'seller',
     },
     dateOfBirth: {
       type: String,
@@ -59,7 +63,7 @@ const SellerSchema = new Schema<ISeller, SellerModel>(
     toJSON: {
       virtuals: true,
     },
-  }
+  },
 );
 
 export const Seller = model<ISeller, SellerModel>('Seller', SellerSchema);

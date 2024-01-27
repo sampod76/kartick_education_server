@@ -13,7 +13,6 @@ const createStudentZodSchema = z.object({
           required_error: 'Last name is required',
         }),
       }),
-   
       gender: z.enum([...gender] as [string, ...string[]], {
         required_error: 'Gender is required',
       }),
@@ -26,8 +25,9 @@ const createStudentZodSchema = z.object({
         })
         .email(),
       phoneNumber: z.number().optional(),
-      address:z.string().optional(),
-      img: z.string().optional(),
+      address: z.string().optional(),
+      additionalRole: z.string().optional(),
+      img: z.string().url().optional(),
     }),
   }),
 });
@@ -47,7 +47,8 @@ const createModeratorZodSchema = z.object({
       email: z.string().email(),
       phoneNumber: z.number(),
       address: z.string().optional(),
-      img: z.string().optional(),
+      additionalRole: z.string().optional(),
+      img: z.string().url().optional(),
     }),
   }),
 });
@@ -67,8 +68,9 @@ const createAdminZodSchema = z.object({
       email: z.string().email().optional(),
       phoneNumber: z.number().optional(),
       address: z.string().optional(),
+      additionalRole: z.string().optional(),
       user_bio: z.string().optional(),
-      img: z.string().optional(),
+      img: z.string().url().optional(),
     }),
   }),
 });
@@ -88,7 +90,8 @@ const createSellerZodSchema = z.object({
       email: z.string().email().optional(),
       phoneNumber: z.number().optional(),
       address: z.string().optional(),
-      img: z.string().optional(),
+      additionalRole: z.string().optional(),
+      img: z.string().url().optional(),
       user_bio: z.string().optional(),
     }),
   }),
@@ -108,14 +111,15 @@ const createTrainerZodSchema = z.object({
       email: z.string().email().optional(),
       phoneNumber: z.number().optional(),
       address: z.string().optional(),
-      img: z.string().optional(),
+      additionalRole: z.string().optional(),
+      img: z.string().url().optional(),
       user_bio: z.string().optional(),
     }),
   }),
 });
 
 export const UserValidation = {
- createStudentZodSchema,
+  createStudentZodSchema,
   createModeratorZodSchema,
   createAdminZodSchema,
   createSellerZodSchema,

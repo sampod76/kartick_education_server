@@ -5,7 +5,7 @@ import { COURSE_TYPES } from './course.constant';
 const createCourseZodSchema = z.object({
   body: z.object({
     title: z.string({ required_error: 'title field is required' }),
-    img: z.string().optional(),
+    img: z.string().url().optional(),
     details: z.string().optional(),
     short_description: z.string().optional(),
     author: z.string({ required_error: 'author_id field is required' }),
@@ -31,7 +31,7 @@ const createCourseZodSchema = z.object({
 const updateCourseZodSchema = z.object({
   body: z.object({
     title: z.string().optional(),
-    img: z.string().optional(),
+    img: z.string().url().optional(),
     details: z.string().optional(),
     author_id: z.string().optional(),
     category: z.string().optional(),

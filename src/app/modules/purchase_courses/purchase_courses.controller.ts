@@ -11,50 +11,46 @@ import { PurchaseCourseService } from './purchase_courses.service';
 import { PURCHASE_COURSE_FILTERABLE_FIELDS } from './purchase_courses.constant';
 
 // import { z } from 'zod'
-const createPurchaseCourse = catchAsync(
-  async (req: Request, res: Response) => {
-    const { ...CourseData } = req.body;
+const createPurchaseCourse = catchAsync(async (req: Request, res: Response) => {
+  const { ...CourseData } = req.body;
 
-    const result =
-      await PurchaseCourseService.createPurchaseCourseByDb(CourseData);
+  const result =
+    await PurchaseCourseService.createPurchaseCourseByDb(CourseData);
 
-    sendResponse<IPurchaseCourse>(res, {
-      success: true,
-      statusCode: httpStatus.OK,
-      message: 'successfull create Course',
-      data: result,
-    });
-  },
-);
+  sendResponse<IPurchaseCourse>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'successfull create Course',
+    data: result,
+  });
+});
 
-const getAllCoursePurchase = catchAsync(
-  async (req: Request, res: Response) => {
-    //****************search and filter start******* */
-    // console.log(req.query);
-    const queryObject = req.query;
+const getAllCoursePurchase = catchAsync(async (req: Request, res: Response) => {
+  //****************search and filter start******* */
+  // console.log(req.query);
+  const queryObject = req.query;
 
-    const filters = pick(queryObject, PURCHASE_COURSE_FILTERABLE_FIELDS);
+  const filters = pick(queryObject, PURCHASE_COURSE_FILTERABLE_FIELDS);
 
-    //****************pagination start************ */
+  //****************pagination start************ */
 
-    const paginationOptions = pick(queryObject, PAGINATION_FIELDS);
+  const paginationOptions = pick(queryObject, PAGINATION_FIELDS);
 
-    const result = await PurchaseCourseService.getAllPurchaseCourseFromDb(
-      filters,
-      paginationOptions,
-    );
+  const result = await PurchaseCourseService.getAllPurchaseCourseFromDb(
+    filters,
+    paginationOptions,
+  );
 
-    sendResponse<IPurchaseCourse[]>(res, {
-      success: true,
-      statusCode: httpStatus.OK,
-      message: 'successfull Get Purchase Course',
-      meta: result.meta,
-      data: result.data,
-    });
+  sendResponse<IPurchaseCourse[]>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'successfull Get Purchase Course',
+    meta: result.meta,
+    data: result.data,
+  });
 
-    // next();
-  },
-);
+  // next();
+});
 const getAllpurchaseAndPendingCourses = catchAsync(
   async (req: Request, res: Response) => {
     //****************search and filter start******* */
@@ -67,11 +63,33 @@ const getAllpurchaseAndPendingCourses = catchAsync(
 
     const paginationOptions = pick(queryObject, PAGINATION_FIELDS);
 
-    const result = await PurchaseCourseService.getAllpurchaseAndPendingCoursesFromDb(
-      filters,
-      paginationOptions,
-    );
+    const result =
+      await PurchaseCourseService.getAllpurchaseAndPendingCoursesFromDb(
+        filters,
+        paginationOptions,
+      );
 
+    sendResponse<IPurchaseCourse[]>(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'successfull Get Purchase Course',
+      meta: result.meta,
+      data: result.data,
+    });
+
+    // next();
+  },
+);
+const getAllCoursePurchaseTotalAmount = catchAsync(
+  async (req: Request, res: Response) => {
+    const queryObject = req.query;
+    const filters = pick(queryObject, PURCHASE_COURSE_FILTERABLE_FIELDS);
+    const paginationOptions = pick(queryObject, PAGINATION_FIELDS);
+    const result =
+      await PurchaseCourseService.getAllPurchaseCoursesTotalAmountFromDb(
+        filters,
+        paginationOptions,
+      );
     sendResponse<IPurchaseCourse[]>(res, {
       success: true,
       statusCode: httpStatus.OK,
@@ -85,6 +103,19 @@ const getAllpurchaseAndPendingCourses = catchAsync(
 );
 
 const getSingleCoursePurchase = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result =
+      await PurchaseCourseService.getPurchaseCourseSingelFromDb(id);
+    sendResponse<IPurchaseCourse>(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'successfull get  Course',
+      data: result,
+    });
+  },
+);
+const getSinglePurchaseAndPendingCourses = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const result =
@@ -114,37 +145,33 @@ const getVerifyCoursePurchase = catchAsync(
   },
 );
 
-const updatePurchaseCourse = catchAsync(
-  async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const result = await PurchaseCourseService.updatePurchaseCourseFromDb(
-      id,
-      req.body,
-    );
-    sendResponse<IPurchaseCourse>(res, {
-      success: true,
-      statusCode: httpStatus.OK,
-      message: 'successfull get  Course',
-      data: result,
-    });
-  },
-);
+const updatePurchaseCourse = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await PurchaseCourseService.updatePurchaseCourseFromDb(
+    id,
+    req.body,
+  );
+  sendResponse<IPurchaseCourse>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'successfull get  Course',
+    data: result,
+  });
+});
 
-const deleteCoursePurchase = catchAsync(
-  async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const result = await PurchaseCourseService.deletePurchaseCourseByIdFromDb(
-      id,
-      req.query,
-    );
-    sendResponse<IPurchaseCourse>(res, {
-      success: true,
-      statusCode: httpStatus.OK,
-      message: 'successfull delete  Course',
-      data: result,
-    });
-  },
-);
+const deleteCoursePurchase = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await PurchaseCourseService.deletePurchaseCourseByIdFromDb(
+    id,
+    req.query,
+  );
+  sendResponse<IPurchaseCourse>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'successfull delete  Course',
+    data: result,
+  });
+});
 
 export const PurchaseCourseController = {
   createPurchaseCourse,
@@ -153,5 +180,7 @@ export const PurchaseCourseController = {
   getSingleCoursePurchase,
   getAllCoursePurchase,
   updatePurchaseCourse,
-  getAllpurchaseAndPendingCourses
+  getAllpurchaseAndPendingCourses,
+  getSinglePurchaseAndPendingCourses,
+  getAllCoursePurchaseTotalAmount
 };

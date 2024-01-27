@@ -11,6 +11,7 @@ export type IAdmin = {
   gender: IGender;
   dateOfBirth: string;
   email: string;
+  additionalRole: string;
   phoneNumber: string;
   bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
   address: string;

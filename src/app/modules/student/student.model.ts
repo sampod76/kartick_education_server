@@ -17,6 +17,10 @@ export const StudentSchema = new Schema<IStudent, StudentModel>(
       },
       required: true,
     },
+    additionalRole: {
+      type: String,
+      default: 'student',
+    },
     gender: {
       type: String,
       enum: gender,

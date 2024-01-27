@@ -24,7 +24,7 @@ const app: Application = express();
 // app.use(cors());
 
 app.use(helmetOriginal());
-app.use(requestIp.mw())
+app.use(requestIp.mw());
 
 app.use(
   cors({
@@ -127,7 +127,27 @@ const test = async () => {
   // const getData = "U2FsdGVkX19dOA/shL0SLR2JyDtmLpQJy88CwzgKP18YXxHGl5lrNcVpYOzLeI6ITy/cWRTBrTK0V6PkGhbl1Ik fBtfhZUFBsLHrZmvFNuC4OpxwvY79/xToKurgOskLiz7aazvvxeghiVMtnRfEw==".split(" ").join("+")
   // const verify = decryptCryptoData(getData,config.encryptCrypto as string)
   // console.log(verify);
-  
+  // const result = await PurchasePackage.updateMany(
+  //   {},
+  //   [
+  //     {
+  //       $set: {
+  //         total_price: {
+  //           $sum: [
+  //             '$purchase.price',
+  //             {
+  //               $multiply: [
+  //                 '$purchase.each_student_increment',
+  //                 '$total_purchase_student',
+  //               ],
+  //             },
+  //           ],
+  //         },
+  //       },
+  //     },
+  //   ]
+  // );
+  // console.log("🚀 ~ test ~ result:", result)
 };
 test();
 

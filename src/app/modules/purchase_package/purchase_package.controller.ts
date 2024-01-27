@@ -98,6 +98,19 @@ const getSinglePackagePurchase = catchAsync(
     });
   },
 );
+const getSinglePurchasePendingPackage = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result =
+      await PurchasePackageService.getSinglePurchasePendingPackageFromDb(id);
+    sendResponse<IPurchasePackage>(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'successfull get  Package',
+      data: result,
+    });
+  },
+);
 
 const getVerifyPackagePurchase = catchAsync(
   async (req: Request, res: Response) => {
@@ -155,4 +168,5 @@ export const PurchasePackageController = {
   getAllPackagePurchase,
   updatePurchasePackage,
   getAllPackagePurchasePendingPackage,
+  getSinglePurchasePendingPackage
 };
