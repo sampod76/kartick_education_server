@@ -25,6 +25,7 @@ import { SingleQuizRoute } from '../modules/single_quiz/single_quiz.route';
 import { StudentRoutes } from '../modules/student/student.route';
 import { TrainerRoutes } from '../modules/trainer/trainer.route';
 import { UserRoutes } from '../modules/user/user.route';
+import { CourseCartRoute } from '../modules/courseCart/courseCart.route';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -123,6 +124,10 @@ const moduleRoutes = [
   {
     path: '/login_history',
     route: UserLoginHistoryRoutes,
+  },
+  {
+    path: '/course-cart',
+    route: CourseCartRoute,
   },
 ];
 

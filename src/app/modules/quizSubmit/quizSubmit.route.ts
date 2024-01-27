@@ -35,7 +35,12 @@ router
 
 router
   .route('/:id')
-  .get(QuizSubmitController.getSingleQuizSubmit)
+  .get(  authMiddleware(
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.STUDENT,
+    ENUM_USER_ROLE.SELLER,
+  ),QuizSubmitController.getSingleQuizSubmit)
   .delete(
     authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
     QuizSubmitController.deleteQuizSubmit
