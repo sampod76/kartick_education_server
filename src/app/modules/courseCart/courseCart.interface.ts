@@ -12,8 +12,8 @@ export type ICourseCartFilters = {
 };
 
 export type ICourseCart = {
-  course: Types.ObjectId | IUser;
-  user: Types.ObjectId | IUser;
+  course: Types.ObjectId | IUser | string;
+  user: Types.ObjectId | IUser |string;
   status: 'active' | 'deactivate' | 'save';
   isDelete: string;
 };

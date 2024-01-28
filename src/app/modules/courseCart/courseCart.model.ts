@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { STATUS_ARRAY } from '../../../constant/globalConstant';
-import { ICourseCart, CourseCartModel } from './courseCart.interface';
+import { CourseCartModel, ICourseCart } from './courseCart.interface';
 
 const CourseCartSchema = new Schema<ICourseCart, CourseCartModel>(
   {
@@ -33,4 +33,4 @@ const CourseCartSchema = new Schema<ICourseCart, CourseCartModel>(
   },
 );
 
-export const CourseCart = model<ICourseCart, CourseCartModel>('Cart', CourseCartSchema);
+export const CourseCart = model<ICourseCart, CourseCartModel>('CourseCart', CourseCartSchema);
