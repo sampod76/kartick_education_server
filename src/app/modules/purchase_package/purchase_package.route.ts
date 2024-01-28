@@ -30,6 +30,18 @@ router
     ),
     PurchasePackageController.createPurchasePackage,
   );
+
+  router
+  .route('/total-amount')
+  .get(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.STUDENT,
+      ENUM_USER_ROLE.SELLER,
+    ),
+    PurchasePackageController.getAllPackagePurchaseToAmount,
+  )
 router
   .route('/purchase-and-pending-package')
   .get(

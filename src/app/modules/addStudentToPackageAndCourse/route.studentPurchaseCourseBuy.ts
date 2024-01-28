@@ -44,11 +44,11 @@ router
     StudentPurchasePackageCourseController.getSingleStudentPurchasePackageCourse,
   )
   .delete(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN,ENUM_USER_ROLE.SELLER),
     StudentPurchasePackageCourseController.deleteStudentPurchasePackageCourse,
   )
   .patch(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.SELLER,),
+    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN,ENUM_USER_ROLE.SELLER),
     validateRequestZod(
       StudentPurchasePackageCourseValidation.updateStudentPurchasePackageCourseZodSchema,
     ),

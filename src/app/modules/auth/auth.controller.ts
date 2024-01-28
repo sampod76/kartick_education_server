@@ -23,6 +23,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
       user_agent: req.headers['user-agent'],
       token: req?.cookies?.refreshToken,
     });
+    console.log('🚀 ~ loginUser ~ checkLoginHistory:', checkLoginHistory);
     if (checkLoginHistory) {
       const ip = req.clientIp;
       await UserLoginHistory.findOneAndUpdate(
@@ -68,16 +69,9 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     // ! -------------- set login history function end --------------
   }
   const cookieOptions = {
-    //for development false
-    // httpOnly: true,
-    // expires: new Date(Date.now() + 7*24*60*60*1000),
-    // secure: false,
-    // sameSite: 'none',
-    // path: '/'
-
     secure: false,
     httpOnly: true,
-    maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'),
+    maxAge: 31536000000,
   };
 
   /* 
@@ -91,6 +85,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
       
       */
 
+     console.log(refreshToken);
   //@ts-ignore
   res.cookie('refreshToken', refreshToken, cookieOptions);
 
@@ -101,6 +96,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
 
 const refreshToken = catchAsync(async (req: Request, res: Response) => {
   const { refreshToken } = req.cookies;

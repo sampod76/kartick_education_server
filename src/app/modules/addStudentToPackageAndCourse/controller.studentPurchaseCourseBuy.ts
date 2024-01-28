@@ -107,6 +107,7 @@ const updateStudentPurchasePackageCourse = catchAsync(
       await StudentPurchasePackageCourseService.updateStudentPurchasePackageCourseFromDb(
         id,
         req.body,
+        req
       );
     sendResponse<IStudentPurchasePackageCourse>(res, {
       success: true,
@@ -124,6 +125,7 @@ const deleteStudentPurchasePackageCourse = catchAsync(
       await StudentPurchasePackageCourseService.deleteStudentPurchasePackageCourseByIdFromDb(
         id,
         req.query,
+        req?.user
       );
     sendResponse<IStudentPurchasePackageCourse>(res, {
       success: true,
