@@ -15,7 +15,8 @@ router
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
-      ENUM_USER_ROLE.STUDENT,
+      // ENUM_USER_ROLE.STUDENT,  // if future student is allowed
+      ENUM_USER_ROLE.SELLER,
     ),
     validateRequestZod(PackageValidation.createPackageZodSchema),
     PackageController.createPackage,

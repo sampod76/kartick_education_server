@@ -7,7 +7,6 @@ import { IPaginationOption } from '../../interface/pagination';
 
 import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import ApiError from '../../errors/ApiError';
-import { CourseCart_SEARCHABLE_FIELDS } from './courseCart.constant';
 import { ICourseCart, ICourseCartFilters } from './courseCart.interface';
 import { CourseCart } from './courseCart.model';
 
@@ -15,6 +14,13 @@ const { ObjectId } = mongoose.Types;
 const createCourseCartByDb = async (
   payload: ICourseCart,
 ): Promise<ICourseCart> => {
+  const find = await CourseCart.findOne({
+    user: payload.user,
+    course: payload.course,
+  });
+  if (find) {
+    throw new ApiError(500, 'User are already add to this');
+  }
   const result = await CourseCart.create(payload);
   return result;
 };
@@ -25,25 +31,16 @@ const getAllCourseCartFromDb = async (
   paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<ICourseCart[]>> => {
   //****************search and filters start************/
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { searchTerm, ...filtersData } = filters;
   filtersData.status = filtersData.status
     ? filtersData.status
     : ENUM_STATUS.ACTIVE;
-  filtersData.isDelete = filtersData.status ? filtersData.isDelete : ENUM_YN.NO;
+  filtersData.isDelete = filtersData.isDelete
+    ? filtersData.isDelete
+    : ENUM_YN.NO;
 
   const andConditions = [];
-  if (searchTerm) {
-    andConditions.push({
-      $or: CourseCart_SEARCHABLE_FIELDS.map(field =>
-        //search array value
-        field === 'tags'
-          ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
-          : {
-              [field]: new RegExp(searchTerm, 'i'),
-            },
-      ),
-    });
-  }
 
   if (Object.keys(filtersData).length) {
     andConditions.push({
@@ -98,7 +95,7 @@ const getAllCourseCartFromDb = async (
           },
           {
             $project: {
-              title: 1,
+              password: 0,
             },
           },
         ],
@@ -119,6 +116,9 @@ const getAllCourseCartFromDb = async (
           {
             $project: {
               title: 1,
+              img: 1,
+              price: 1,
+              status: 1,
             },
           },
         ],

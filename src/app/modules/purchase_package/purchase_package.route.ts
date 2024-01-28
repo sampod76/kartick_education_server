@@ -9,18 +9,21 @@ const router = express.Router();
 
 router
   .route('/')
-  .get(  authMiddleware(
-    ENUM_USER_ROLE.ADMIN,
-    ENUM_USER_ROLE.SUPER_ADMIN,
-    ENUM_USER_ROLE.STUDENT,
-    ENUM_USER_ROLE.SELLER,
-  ),PurchasePackageController.getAllPackagePurchase)
+  .get(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.STUDENT,
+      ENUM_USER_ROLE.SELLER,
+    ),
+    PurchasePackageController.getAllPackagePurchase,
+  )
   .post(
     authMiddleware(
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
-      ENUM_USER_ROLE.STUDENT,
+      ENUM_USER_ROLE.SELLER,
     ),
     validateRequestZod(
       PurchasePackageValidation.createPurchasePackageZodSchema,
@@ -34,7 +37,7 @@ router
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
-      ENUM_USER_ROLE.STUDENT,
+      ENUM_USER_ROLE.SELLER,
     ),
     PurchasePackageController.getAllPackagePurchasePendingPackage,
   );
@@ -45,7 +48,7 @@ router
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
-      ENUM_USER_ROLE.STUDENT,
+      ENUM_USER_ROLE.SELLER,
     ),
     PurchasePackageController.getSinglePurchasePendingPackage,
   );
@@ -57,7 +60,7 @@ router
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
-      ENUM_USER_ROLE.STUDENT,
+
       ENUM_USER_ROLE.SELLER,
     ),
     PurchasePackageController.getSinglePackagePurchase,

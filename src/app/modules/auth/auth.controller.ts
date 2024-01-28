@@ -69,11 +69,15 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   }
   const cookieOptions = {
     //for development false
-    httpOnly: true,
-    expires: new Date(Date.now() + 7*24*60*60*1000),
+    // httpOnly: true,
+    // expires: new Date(Date.now() + 7*24*60*60*1000),
+    // secure: false,
+    // sameSite: 'none',
+    // path: '/'
+
     secure: false,
-    sameSite: 'none',
-    path: '/'
+    httpOnly: true,
+    maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'),
   };
 
   /* 

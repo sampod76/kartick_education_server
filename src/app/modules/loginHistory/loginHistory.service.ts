@@ -3,7 +3,6 @@ import { SortOrder, Types } from 'mongoose';
 
 import httpStatus from 'http-status';
 
-import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import { paginationHelper } from '../../../helper/paginationHelper';
 import ApiError from '../../errors/ApiError';
 import { IGenericResponse } from '../../interface/common';
@@ -118,13 +117,14 @@ const deleteUserLoginHistory = async (
   if (filter.delete === 'yes') {
     await UserLoginHistory.findByIdAndDelete({ _id: id });
   } else {
-    await UserLoginHistory.findOneAndUpdate(
-      { _id: id },
-      {
-        status: ENUM_STATUS.DEACTIVATE,
-        isDelete: ENUM_YN.YES,
-      },
-    );
+    await UserLoginHistory.findByIdAndDelete({ _id: id });
+    // await UserLoginHistory.findOneAndUpdate(
+    //   { _id: id },
+    //   {
+    //     status: ENUM_STATUS.DEACTIVATE,
+    //     isDelete: ENUM_YN.YES,
+    //   },
+    // );
     
   }
   return null;
