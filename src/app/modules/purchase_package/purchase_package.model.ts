@@ -42,6 +42,7 @@ const PurchasePackageSchema = new Schema<
       enum: ['approved', 'pending', 'rejected'],
       default: 'pending',
     },
+    total_price: Number,
     //------------end --------------------------------------
 
     user: {

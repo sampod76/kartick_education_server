@@ -7,6 +7,7 @@ import { IPaginationOption } from '../../interface/pagination';
 
 import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import ApiError from '../../errors/ApiError';
+import { PurchasePackage } from '../purchase_package/purchase_package.model';
 import { student_purchase_course_SEARCHABLE_FIELDS } from './constant.studentPurchaseCourseBuy';
 import {
   IStudentPurchasePackageCourse,
@@ -17,19 +18,50 @@ import { StudentPurchasePackageCourse } from './model.studentPurchaseCourseBuy';
 const createStudentPurchasePackageCourseByDb = async (
   payload: IStudentPurchasePackageCourse,
 ): Promise<IStudentPurchasePackageCourse | null> => {
-  // const findPackage = await StudentPurchasePackageCourse.findOne({
-  //   title: payload.title,
-  //   isDelete: false,
-  // });
+  const findPackage = await StudentPurchasePackageCourse.findOne({
+    sellerPackage: payload.sellerPackage,
+    user: payload.user,
+    isDelete: ENUM_YN.NO,
+  });
+  console.log('🚀 ~ findPackage:', findPackage);
 
-  // let result;
-  // if (findPackage) {
-  //   throw new ApiError(400, 'This package is already have');
-  // } else {
-  //   result = await StudentPurchasePackageCourse.create({ ...payload });
-  // }
+  let result;
+  if (findPackage) {
+    throw new ApiError(400, 'This package is already have');
+  } else {
+    const findSellerPackage = await PurchasePackage.findOne({
+      _id: payload.sellerPackage,
+      user: payload.author,
+    });
+    console.log('🚀 ~ findSellerPackage:', findSellerPackage);
 
-  const result = await StudentPurchasePackageCourse.create({ ...payload });
+    if (
+      findSellerPackage &&
+      new Date(findSellerPackage?.expiry_date)?.getTime() < Date.now()
+    ) {
+      throw new ApiError(400, 'Your package has expired please Renew it');
+    } else if (
+      findSellerPackage &&
+      findSellerPackage?.total_purchase_student ===
+        findSellerPackage.students.length
+    ) {
+      throw new ApiError(400, 'Your Student limit has over');
+    } else {
+      const incressSeller = await PurchasePackage.findOneAndUpdate(
+        {
+          _id: payload.sellerPackage,
+          user: payload.author,
+        },
+        {
+          $push: { students: { $each: [payload.user] } },
+        },
+      );
+      console.log('🚀 ~ incressSeller:', incressSeller);
+      result = await StudentPurchasePackageCourse.create({ ...payload });
+    }
+  }
+
+  // const result = await StudentPurchasePackageCourse.create({ ...payload });
   return result;
 };
 
@@ -107,7 +139,7 @@ const getAllStudentPurchasePackageCourseFromDb = async (
   //   .populate('author')
   //   .populate('sellerPackage')
   //   .populate('course');
- 
+
   const pipeline: PipelineStage[] = [
     { $match: whereConditions },
     { $sort: sortConditions },
