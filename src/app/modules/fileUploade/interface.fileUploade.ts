@@ -1,26 +1,20 @@
 import { Model } from 'mongoose';
 // import { IAdmin } from '../admin/admin.interface';
 // import { IGeneralUser } from '../generalUser/interface.GeneralUser';
+import { ICloudinaryResponse } from '../../interface/fileUpload';
 
 export type IFileUploadeFilters = {
   searchTerm?: string;
-  title?: string;
+  original_filename?: string;
   category?: string;
+  user?: string;
   tag?: string;
 };
 
-export type IFileUploade = {
-  userId?: string; /* | IAdmin | IGeneralUser; */
-  title?: string;
-  filename: string;
-  path?: string;
-  size?: number;
-  url?: string;
-  link?: string;
-  mimetype?: string;
+export type IFileUploadeExta = {
+  user?: string /* | IAdmin | IGeneralUser; */;
   category?: string;
-  tag?: string[];
-  destination?:string
+  fileType?: string;
 };
-
+export type IFileUploade = IFileUploadeExta & ICloudinaryResponse;
 export type FileUploadeModel = Model<IFileUploade, Record<string, unknown>>;

@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import { PipelineStage, Types } from 'mongoose';
 
 import { paginationHelper } from '../../../helper/paginationHelper';
 
@@ -119,7 +119,6 @@ const getAllPurchasePackageFromDb = async (
     .limit(Number(limit))
     .populate('categories.category')
     .populate('user');
-  
 
   // const pipeline: PipelineStage[] = [
   //   { $match: whereConditions },
@@ -205,6 +204,85 @@ const getAllPurchasePackageFromDb = async (
   };
 };
 
+const getAllPurchasePackageToTotalAmountFromDb = async (
+  filters: IPurchasePackageFilters,
+  paginationOptions: IPaginationOption,
+): Promise<IGenericResponse<IPurchasePackage[]>> => {
+  //****************search and filters start************/
+  const { searchTerm, ...filtersData } = filters;
+  filtersData.isDelete = filtersData.isDelete
+    ? filtersData.isDelete
+    : ENUM_YN.NO;
+
+  const andConditions = [];
+  if (searchTerm) {
+    andConditions.push({
+      $or: PURCHASE_PACKAGE_SEARCHABLE_FIELDS.map(field =>
+        //search array value
+        field === 'tags'
+          ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
+          : {
+              [field]: new RegExp(searchTerm, 'i'),
+            },
+      ),
+    });
+  }
+
+  if (Object.keys(filtersData).length) {
+    andConditions.push({
+      $and: Object.entries(filtersData).map(([field, value]) =>
+        field === 'membershipUid'
+          ? { ['membership.uid']: value }
+          : field === 'package'
+            ? { [field]: new Types.ObjectId(value) }
+            : field === 'user'
+              ? { [field]: new Types.ObjectId(value) }
+              : field === 'category'
+                ? { ['categories.category']: new Types.ObjectId(value) }
+                : { [field]: value },
+      ),
+    });
+  }
+
+  //****************search and filters end**********/
+
+  //****************pagination start **************/
+
+  const { page, limit,  sortBy, sortOrder } =
+    paginationHelper.calculatePagination(paginationOptions);
+
+  const sortConditions: { [key: string]: 1 | -1 } = {};
+  if (sortBy && sortOrder) {
+    sortConditions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+  }
+
+  //****************pagination end ***************/
+
+  const whereConditions =
+    andConditions.length > 0 ? { $and: andConditions } : {};
+  const pipeline: PipelineStage[] = [
+    { $match: whereConditions },
+    {
+      $group: {
+        _id: { paymentStatus: 'approved' },
+        totalAmount: { $sum: '$total_price' },
+        count: { $sum: 1 },
+      },
+    },
+  ];
+  const result = await PurchasePackage.aggregate(pipeline);
+
+  const total = await PurchasePackage.countDocuments(whereConditions);
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
+
 const getAllPackagePurchasePendingPackageFromDb = async (
   filters: IPurchasePackageFilters,
   paginationOptions: IPaginationOption,
@@ -278,7 +356,6 @@ const getAllPackagePurchasePendingPackageFromDb = async (
     .limit(Number(limit))
     .populate('categories.category')
     .populate('user');
-
 
   // const pipeline: PipelineStage[] = [
   //   { $match: whereConditions },
@@ -441,4 +518,5 @@ export const PurchasePackageService = {
   createPendingPurchasePackageByDb,
   getAllPackagePurchasePendingPackageFromDb,
   getSinglePurchasePendingPackageFromDb,
+  getAllPurchasePackageToTotalAmountFromDb
 };

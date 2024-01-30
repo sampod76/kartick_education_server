@@ -32,7 +32,7 @@ const authMiddleware =
       } catch (error) {
         throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden access');
       }
-      console.log("🚀 ~ verifiedUser:", verifiedUser)
+     
 
       // role diye guard korar jnno
       if (requiredRoles.length && !requiredRoles.includes(verifiedUser?.role)) {

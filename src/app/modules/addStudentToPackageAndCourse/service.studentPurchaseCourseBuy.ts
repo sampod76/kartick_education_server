@@ -6,6 +6,7 @@ import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 
 import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
+import { ENUM_USER_ROLE } from '../../../enums/users';
 import ApiError from '../../errors/ApiError';
 import { PurchasePackage } from '../purchase_package/purchase_package.model';
 import { student_purchase_course_SEARCHABLE_FIELDS } from './constant.studentPurchaseCourseBuy';
@@ -103,13 +104,15 @@ const getAllStudentPurchasePackageCourseFromDb = async (
   if (Object.keys(filtersData).length) {
     andConditions.push({
       $and: Object.entries(filtersData).map(([field, value]) =>
-        field === 'package'
+        field === 'sellerPackage'
           ? { [field]: new Types.ObjectId(value) }
           : field === 'course'
             ? { [field]: new Types.ObjectId(value) }
-            : field === 'user'
+            : field === 'author'
               ? { [field]: new Types.ObjectId(value) }
-              : { [field]: value },
+              : field === 'user'
+                ? { [field]: new Types.ObjectId(value) }
+                : { [field]: value },
       ),
     });
   }
@@ -190,6 +193,30 @@ const getAllStudentPurchasePackageCourseFromDb = async (
       },
     },
     { $unwind: '$sellerPackageDetails' },
+    {
+      $lookup: {
+        from: 'users',
+        let: { id: '$user' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$_id', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+          {
+            $project: {
+              password: 0,
+            },
+          },
+        ],
+        as: 'userDetails',
+      },
+    },
+    { $unwind: '$userDetails' },
   ];
 
   let result = null;
@@ -244,7 +271,18 @@ const getStudentPurchasePackageCourseSingelFromDb = async (
 const updateStudentPurchasePackageCourseFromDb = async (
   id: string,
   payload: Partial<IStudentPurchasePackageCourse>,
+  req: any,
 ): Promise<IStudentPurchasePackageCourse | null> => {
+  if (req?.user?.role !== ENUM_USER_ROLE.ADMIN) {
+    const find = await StudentPurchasePackageCourse.findOne({
+      author: req?.user?.id,
+      _id: id,
+    });
+    console.log("🚀 ~ find:", find)
+    if (!find) {
+      throw new ApiError(400, 'Unauthorize');
+    }
+  }
   const result = await StudentPurchasePackageCourse.findOneAndUpdate(
     { _id: id },
     payload,
@@ -262,7 +300,17 @@ const updateStudentPurchasePackageCourseFromDb = async (
 const deleteStudentPurchasePackageCourseByIdFromDb = async (
   id: string,
   query: IStudentPurchasePackageCourseFilters,
+  user?: any,
 ): Promise<IStudentPurchasePackageCourse | null> => {
+  if (user.role !== ENUM_USER_ROLE.ADMIN) {
+    const find = await StudentPurchasePackageCourse.findOne({
+      author: user.id,
+      _id: id,
+    });
+    if (!find) {
+      throw new ApiError(400, 'Unauthorize');
+    }
+  }
   let result;
   if (query.delete === ENUM_YN.YES) {
     result = await StudentPurchasePackageCourse.findByIdAndDelete(id);

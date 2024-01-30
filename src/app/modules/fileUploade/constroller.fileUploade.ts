@@ -9,6 +9,7 @@ import catchAsync from '../../share/catchAsync';
 import pick from '../../share/pick';
 import sendResponse from '../../share/sendResponse';
 
+import { FileUploadHelper } from '../../middlewares/uploderCloudinary';
 import { FILEUPLOADE_FILTERABLE_FIELDS } from './consent.fileUploade';
 import { IFileUploade } from './interface.fileUploade';
 import { FileUploadeService } from './service.fileUploade';
@@ -18,90 +19,78 @@ import { FileUploadeService } from './service.fileUploade';
 
 const uploadeSingleFileByServer = catchAsync(
   async (req: Request, res: Response) => {
-    const fileDetails = req.file;
-  
-
-    const file: any = {
-      filename: fileDetails?.filename as string,
-      mimetype: fileDetails?.mimetype,
-      destination: fileDetails?.destination,
-      path: fileDetails?.path,
-      size: fileDetails?.size,
-    };
-
-    const result = await FileUploadeService.createFileUploadeByDb(file);
+    const result: any = await FileUploadHelper.uploadToCloudinary(
+      req.file as any,
+    );
     sendResponse<any>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: 'successfull uploade single file',
       data: result,
     });
-  }
+    await FileUploadeService.createFileUploadeByDb({
+      user: req?.user?.id,
+      category: 'admin',
+      fileType: 'image',
+      ...result,
+    });
+  },
 );
 
 const uploadeProfileFileByServer = catchAsync(
   async (req: Request, res: Response) => {
-    const fileDetails = req.file;
-    const file = {
-      filename: fileDetails?.filename as string,
-      mimetype: fileDetails?.mimetype,
-      destination: fileDetails?.destination,
-      path: 'uploadFile/profile',
-      size: fileDetails?.size,
-    };
-
-    const result = await FileUploadeService.createFileUploadeByDb(file);
+    const result: any = await FileUploadHelper.uploadToCloudinary(
+      req.file as any,
+    );
+    // const result = await FileUploadeService.createFileUploadeByDb(file);
     sendResponse<any>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: 'successfull uploade single file',
       data: result,
     });
-  }
+  },
 );
 
 const uploadeMultipalFileByServer = catchAsync(
   async (req: Request, res: Response) => {
     const files = req.files as Express.Multer.File[];
-    const filesDetailes = files?.map(value => ({
-      filename: value?.filename,
-      mimetype: value?.mimetype,
-      destination: value?.destination,
-      path: 'uploadFile/images',
-      size: value?.size,
-    }));
-    console.log(68, filesDetailes);
-    const result = await FileUploadeService.createMultipalFileUploadeByDb(
-      filesDetailes
+    const result: any = await FileUploadHelper.uploadToCloudinaryMultiple(
+      files.map(file => ({
+        ...file,
+        user: req?.user?.id,
+        category: 'admin',
+        fileType: 'image',
+      })),
     );
-    console.log(68, result);
-    sendResponse<any>(res, {
+    sendResponse<any[]>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: 'successfull uploade multipal file',
       data: result,
     });
-  }
+    await FileUploadeService.createMultipalFileUploadeByDb(result);
+  },
 );
 const uploadePdfFileByServer = catchAsync(
   async (req: Request, res: Response) => {
-    const fileDetails = req.file;
-    const file = {
-      filename: fileDetails?.filename as string,
-      mimetype: fileDetails?.mimetype,
-      destination: fileDetails?.destination,
-      path: 'uploadFile/pdfs',
-      size: fileDetails?.size,
-    };
+    // const fileDetails = req.file;
+    // const file = {
+    //   filename: fileDetails?.filename as string,
+    //   mimetype: fileDetails?.mimetype,
+    //   destination: fileDetails?.destination,
+    //   path: 'uploadFile/pdfs',
+    //   size: fileDetails?.size,
+    // };
 
-    const result = await FileUploadeService.createFileUploadeByDb(file);
+    // const result = await FileUploadeService.createFileUploadeByDb(file);
     sendResponse<any>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: 'successfull uploade single file',
-      data: result,
+      data: null,
     });
-  }
+  },
 );
 
 // ! ********** file upload server --end ***************
@@ -109,9 +98,8 @@ const uploadePdfFileByServer = catchAsync(
 const createFileUploade = catchAsync(async (req: Request, res: Response) => {
   const { ...FileUploadeData } = req.body;
   req.body.userId = req?.user?._id;
-  const result = await FileUploadeService.createFileUploadeByDb(
-    FileUploadeData
-  );
+  const result =
+    await FileUploadeService.createFileUploadeByDb(FileUploadeData);
 
   sendResponse<IFileUploade>(res, {
     success: true,
@@ -132,7 +120,7 @@ const getAllFileUploade = catchAsync(async (req: Request, res: Response) => {
   let queryObject = req.query;
   queryObject = Object.fromEntries(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    Object.entries(queryObject).filter(([_, value]) => Boolean(value))
+    Object.entries(queryObject).filter(([_, value]) => Boolean(value)),
   );
   const filters = pick(queryObject, FILEUPLOADE_FILTERABLE_FIELDS);
 
@@ -142,7 +130,7 @@ const getAllFileUploade = catchAsync(async (req: Request, res: Response) => {
 
   const result = await FileUploadeService.getAllFileUploadeFromDb(
     filters,
-    paginationOptions
+    paginationOptions,
   );
 
   sendResponse<IFileUploade[]>(res, {
@@ -183,7 +171,7 @@ const updateFileUploade = catchAsync(async (req: Request, res: Response) => {
 
   const result = await FileUploadeService.updateFileUploadeFromDb(
     id,
-    updateData
+    updateData,
   );
 
   /* if (!result) {
