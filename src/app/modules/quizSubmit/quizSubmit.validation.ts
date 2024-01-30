@@ -11,6 +11,7 @@ const createQuizSubmitZodSchema = z.object({
     milestone: z.string().optional(),
     module: z.string().optional(),
     lesson: z.string().optional(),
+    singleAnswer: z.string().optional(),
     //
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
     singleQuiz: z.string({ required_error: 'single required' }),

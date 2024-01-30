@@ -39,13 +39,14 @@ const quizSubmitSchema = new Schema<IQuizSubmit, QuizSubmitModel>(
       type: Schema.Types.ObjectId,
       ref: 'Quiz',
     },
-isDelete: {
+    isDelete: {
       type: String,
-      enum:["yes", "no"],
+      enum: ['yes', 'no'],
       default: 'no',
     },
     singleQuiz: { type: Schema.Types.ObjectId, ref: 'SingleQuiz' },
     submitAnswers: [String],
+    singleAnswer: String,
     // userSubmitQuizzes: [
     //   {
     //     singleQuizId: { type: String, ref: 'SingleQuiz' },
@@ -59,10 +60,10 @@ isDelete: {
     toJSON: {
       virtuals: true,
     },
-  }
+  },
 );
 
 export const QuizSubmit = model<IQuizSubmit, QuizSubmitModel>(
   'QuizSubmit',
-  quizSubmitSchema
+  quizSubmitSchema,
 );

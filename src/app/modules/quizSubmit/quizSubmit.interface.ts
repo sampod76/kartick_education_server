@@ -53,7 +53,8 @@ export type IQuizSubmit = {
   //
   // userSubmitQuizzes: IProvideUserQuiz[];
   // userSubmitQuiz: IProvideUserQuiz;
-  submitAnswers: string[];
+  submitAnswers?: string[];
+  singleAnswer?:string;
 };
 
 export type QuizSubmitModel = Model<IQuizSubmit, Record<string, unknown>>;

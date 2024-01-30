@@ -9,6 +9,7 @@ import { LessonRoute } from '../modules/lesson/lesson.route';
 import { MilestoneRoute } from '../modules/milestone/milestone.route';
 
 import { StudentPurchasePackageCourseRoute } from '../modules/addStudentToPackageAndCourse/route.studentPurchaseCourseBuy';
+import { CourseCartRoute } from '../modules/courseCart/courseCart.route';
 import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 import { GlossaryRoute } from '../modules/glossary/glossary.route';
 import { UserLoginHistoryRoutes } from '../modules/loginHistory/loginHistory.route';
@@ -25,7 +26,6 @@ import { SingleQuizRoute } from '../modules/single_quiz/single_quiz.route';
 import { StudentRoutes } from '../modules/student/student.route';
 import { TrainerRoutes } from '../modules/trainer/trainer.route';
 import { UserRoutes } from '../modules/user/user.route';
-import { CourseCartRoute } from '../modules/courseCart/courseCart.route';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -127,6 +127,10 @@ const moduleRoutes = [
   },
   {
     path: '/course-cart',
+    route: CourseCartRoute,
+  },
+  {
+    path: '/upload',
     route: CourseCartRoute,
   },
 ];

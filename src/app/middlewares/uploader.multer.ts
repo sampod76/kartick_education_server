@@ -156,7 +156,7 @@ export const uploadMultipleImage: RequestHandler = multer({
 //------------upload video file ---start-----------
 const videoStorage: StorageEngine = multer.diskStorage({
   destination: (req: any, file: any, cb: (arg0: null, arg1: string) => any) => {
-    cb(null, path.join(__dirname, '../uploadFile/video/'));
+    cb(null, path.join(__dirname, '../../../../uploadFile/video/'));
   },
   filename: (
     req: any,
@@ -199,7 +199,7 @@ export const uploadVideoFile: RequestHandler = multer({
 //------------upload pdf file ---start-----------
 const pdfStorage: StorageEngine = multer.diskStorage({
   destination: (req: any, file: any, cb: (arg0: null, arg1: string) => any) => {
-    cb(null, path.join(__dirname, '../uploadFile/pdfs/'));
+    cb(null, path.join(__dirname, '../../../../uploadFile/pdfs/'));
   },
   filename: (
     req: any,

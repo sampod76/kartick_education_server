@@ -15,6 +15,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   const { refreshToken, userData, ...result } = await AuthService.loginUser(
     req.body,
   );
+  console.log('🚀 ~ loginUser ~ refreshToken:', refreshToken);
 
   if (req?.cookies?.refreshToken) {
     const checkLoginHistory = await UserLoginHistory.findOne({
@@ -68,9 +69,13 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
 
     // ! -------------- set login history function end --------------
   }
+  console.log(config.env);
   const cookieOptions = {
+    // secure: config.env === 'development' ? false : true,
     secure: false,
     httpOnly: true,
+    // maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'),
+    
     maxAge: 31536000000,
   };
 
@@ -85,7 +90,6 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
       
       */
 
-     console.log(refreshToken);
   //@ts-ignore
   res.cookie('refreshToken', refreshToken, cookieOptions);
 
@@ -96,7 +100,6 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-
 
 const refreshToken = catchAsync(async (req: Request, res: Response) => {
   const { refreshToken } = req.cookies;
