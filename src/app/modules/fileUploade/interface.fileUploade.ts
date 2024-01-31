@@ -14,7 +14,10 @@ export type IFileUploadeFilters = {
 export type IFileUploadeExta = {
   user?: string /* | IAdmin | IGeneralUser; */;
   category?: string;
-  fileType?: string;
+  fileType?: 'image' | 'video' | 'audio' | 'pdf' | 'doc';
+  path?: string;
+  server_url?: string;
+  size?: number;
 };
-export type IFileUploade = IFileUploadeExta & ICloudinaryResponse;
+export type IFileUploade = IFileUploadeExta & Partial<ICloudinaryResponse>;
 export type FileUploadeModel = Model<IFileUploade, Record<string, unknown>>;
