@@ -22,17 +22,18 @@ const uploadeSingleFileByServer = catchAsync(
     const result: any = await FileUploadHelper.uploadToCloudinary(
       req.file as any,
     );
+    const data = await FileUploadeService.createFileUploadeByDb({
+      user: req?.user?.id,
+      category: 'admin',
+      server_url: 'uploadFile/pdfs/' + req?.file?.filename,
+      fileType: req?.file?.mimetype || 'image',
+      ...result,
+    });
     sendResponse<any>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: 'successfull uploade single file',
-      data: result,
-    });
-    await FileUploadeService.createFileUploadeByDb({
-      user: req?.user?.id,
-      category: 'admin',
-      fileType: 'image',
-      ...result,
+      data: data,
     });
   },
 );
@@ -60,35 +61,61 @@ const uploadeMultipalFileByServer = catchAsync(
         ...file,
         user: req?.user?.id,
         category: 'admin',
-        fileType: 'image',
+        fileType: req?.file?.mimetype || 'image',
+        server_url: 'uploadFile/pdfs/' + file?.filename,
+        path: 'uploadFile/images',
       })),
     );
+    const data = await FileUploadeService.createMultipalFileUploadeByDb(result);
     sendResponse<any[]>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: 'successfull uploade multipal file',
-      data: result,
+      data: data,
     });
-    await FileUploadeService.createMultipalFileUploadeByDb(result);
   },
 );
 const uploadePdfFileByServer = catchAsync(
   async (req: Request, res: Response) => {
-    // const fileDetails = req.file;
-    // const file = {
-    //   filename: fileDetails?.filename as string,
-    //   mimetype: fileDetails?.mimetype,
-    //   destination: fileDetails?.destination,
-    //   path: 'uploadFile/pdfs',
-    //   size: fileDetails?.size,
-    // };
+    const fileDetails = req.file;
 
-    // const result = await FileUploadeService.createFileUploadeByDb(file);
+    const file = {
+      original_filename: fileDetails?.filename as string,
+      fileType: fileDetails?.mimetype || 'pdf',
+      user: req?.user?.id,
+      category: 'dashboard',
+      path: 'uploadFile/pdfs',
+      server_url: 'uploadFile/pdfs/' + fileDetails?.filename,
+      size: fileDetails?.size,
+    };
+    const data = await FileUploadeService.createFileUploadeByDb(file);
     sendResponse<any>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: 'successfull uploade single file',
-      data: null,
+      data: data,
+    });
+  },
+);
+const uploadeAudioFileByServer = catchAsync(
+  async (req: Request, res: Response) => {
+    const fileDetails = req.file;
+
+    const file = {
+      original_filename: fileDetails?.filename as string,
+      fileType: fileDetails?.mimetype || 'audio',
+      user: req?.user?.id,
+      category: 'dashboard',
+      path: 'uploadFile/audios',
+      server_url: 'uploadFile/audios/' + fileDetails?.filename,
+      size: fileDetails?.size,
+    };
+    const data = await FileUploadeService.createFileUploadeByDb(file);
+    sendResponse<any>(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'successfull uploade single file',
+      data: data,
     });
   },
 );
@@ -205,4 +232,5 @@ export const FileUploadeController = {
   uploadeProfileFileByServer,
   uploadeMultipalFileByServer,
   uploadePdfFileByServer,
+  uploadeAudioFileByServer,
 };

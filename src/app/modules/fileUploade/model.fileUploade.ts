@@ -21,12 +21,18 @@ const FileUploadeSchema = new Schema<IFileUploade, FileUploadeModel>(
     url: { type: String },
     secure_url: { type: String },
     folder: { type: String },
-    original_filename: { type: String },
+    original_filename: { type: String }, //use all
     original_extension: { type: String },
     api_key: { type: String },
+    //
     user: { type: Types.ObjectId, ref: 'User' },
     category: { type: String },
-    fileType: { type:String}
+    fileType: { type: String, required: true }, //image,video,audio,pdf,doc
+    path: { type: String },
+    server_url: { type: String },
+    size: { type: Number },
+   
+    //
   },
   {
     timestamps: true,

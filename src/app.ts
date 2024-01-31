@@ -18,9 +18,9 @@ import requestIp from 'request-ip';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 // import { uploadSingleImage } from './app/middlewares/uploader.multer';
 
+import fs from 'fs';
 import routers from './app/routes/index_route';
 import config from './config';
-
 const app: Application = express();
 // app.use(cors());
 
@@ -91,6 +91,27 @@ const run: RequestHandler = (req, res, next) => {
   }
 };
 
+const downloadFunction: RequestHandler = (req, res, next) => {
+  try {
+    const filePath = path.resolve(
+      __dirname,
+      `../../uploadFile/pdfs/${req.params?.filename}`,
+    );
+    const fileContents = fs.readFileSync(filePath);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename=${req.params?.filename}`,
+    );
+    res.status(200).end(fileContents, 'binary');
+    // jwtHelpers.verifyToken(`${req.headers.authorization}`, config.jwt.secret as string);
+    // console.log('first');
+    // next();
+  } catch (error) {
+    res.status(500).end({message:'File not found'});
+  }
+};
+
 app.use(
   '/images',
   run,
@@ -104,9 +125,29 @@ app.use(
 );
 
 app.use(
-  '/vedios',
+  '/videos',
   run,
-  express.static(path.join(__dirname, '../../uploadFile/vedios/')),
+  express.static(path.join(__dirname, '../../uploadFile/videos/')),
+);
+
+app.use(
+  '/pdfs/:filename',
+  run,
+  downloadFunction,
+  // express.static(path.join(__dirname, `../../uploadFile/pdfs/`)),
+);
+
+app.use(
+  '/audios-download/:filename',
+  run,
+  downloadFunction,
+  // express.static(path.join(__dirname, `../../uploadFile/pdfs/`)),
+);
+app.use(
+  '/audios',
+  run,
+  // downloadFunction,
+  express.static(path.join(__dirname, `../../uploadFile/audios/`)),
 );
 
 app.set('view engine', 'ejs');

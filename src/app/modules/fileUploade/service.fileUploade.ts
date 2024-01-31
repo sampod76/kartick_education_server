@@ -9,7 +9,7 @@ import { IFileUploade, IFileUploadeFilters } from './interface.fileUploade';
 import { FileUploade } from './model.fileUploade';
 
 const createFileUploadeByDb = async (
-  payload: IFileUploade
+  payload: any
 ): Promise<IFileUploade> => {
   const result = await FileUploade.create(payload);
   return result;

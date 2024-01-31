@@ -224,7 +224,8 @@ const fileFilterPdf = (
   file: Express.Multer.File,
   cb: FileFilterCallback
 ) => {
-  if (file.mimetype === 'file/pdf') {
+  
+  if (file.mimetype === 'file/pdf' || file.mimetype === 'application/pdf') {
     cb(null, true);
   } else {
     cb(new Error('Only pdf format is allowed!'));
@@ -238,4 +239,49 @@ export const uploadPdfFile: RequestHandler = multer({
   },
   fileFilter: fileFilterPdf,
 }).single('pdf');
+//------------upload video file --end---------------
+
+//------------upload audio file ---start-----------
+const audioStorage: StorageEngine = multer.diskStorage({
+  destination: (req: any, file: any, cb: (arg0: null, arg1: string) => any) => {
+    cb(null, path.join(__dirname, '../../../../uploadFile/audios/'));
+  },
+  filename: (
+    req: any,
+    file: { originalname: string },
+    cb: (arg0: null, arg1: string) => any
+  ) => {
+    const fileExt = path.extname(file.originalname);
+    const fileName =
+      file.originalname
+        .replace(fileExt, '')
+        .toLowerCase()
+        .split(' ')
+        .join('-') +
+      '-' +
+      Date.now();
+    cb(null, fileName + fileExt);
+  },
+});
+
+const fileFilterAudio = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: FileFilterCallback
+) => {
+  console.log(file);
+  if (file.mimetype === 'file/mpeg' || file.mimetype === 'audio/mpeg') {
+    cb(null, true);
+  } else {
+    cb(new Error('Only pdf format is allowed!'));
+  }
+};
+
+export const uploadAudioFile: RequestHandler = multer({
+  storage: audioStorage,
+  limits: {
+    fileSize: 30 * 1024 * 1024, // 10 MB
+  },
+  fileFilter: fileFilterAudio,
+}).single('audio');
 //------------upload video file --end---------------
