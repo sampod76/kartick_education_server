@@ -14,7 +14,7 @@ import { QuizSubmit } from './quizSubmit.model';
 const { ObjectId } = mongoose.Types;
 const createQuizSubmitByDb = async (
   payload: IQuizSubmit,
-  user: any
+  user: any,
 ): Promise<IQuizSubmit | null> => {
   const findSubmitQuiz = await QuizSubmit.findOne({
     quiz: new Types.ObjectId(payload.quiz as string),
@@ -27,7 +27,7 @@ const createQuizSubmitByDb = async (
     throw new ApiError(400, 'You are already submit this quiz');
   } else {
     result = (await QuizSubmit.create({ ...payload, user: user.id })).populate(
-      'singleQuiz'
+      'singleQuiz',
     );
   }
 
@@ -59,14 +59,16 @@ const createQuizSubmitByDb = async (
 //getAllQuizFromDb
 const getAllQuizSubmitFromDb = async (
   filters: IQuizSubmitFilters,
-  paginationOptions: IPaginationOption
+  paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<IQuizSubmit[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
   filtersData.status = filtersData.status
     ? filtersData.status
     : ENUM_STATUS.ACTIVE;
-    filtersData.isDelete = filtersData.isDelete ? filtersData.isDelete : ENUM_YN.NO;
+  filtersData.isDelete = filtersData.isDelete
+    ? filtersData.isDelete
+    : ENUM_YN.NO;
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -86,7 +88,7 @@ const getAllQuizSubmitFromDb = async (
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
           : {
               [field]: new RegExp(searchTerm, 'i'),
-            }
+            },
       ),
     });
   }
@@ -97,16 +99,16 @@ const getAllQuizSubmitFromDb = async (
         field === 'category'
           ? { [field]: new Types.ObjectId(value) }
           : field === 'course'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'milestone'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'module'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'lesson'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'quiz'
-          ? { [field]: new Types.ObjectId(value) }
-          : { [field]: value }
+            ? { [field]: new Types.ObjectId(value) }
+            : field === 'milestone'
+              ? { [field]: new Types.ObjectId(value) }
+              : field === 'module'
+                ? { [field]: new Types.ObjectId(value) }
+                : field === 'lesson'
+                  ? { [field]: new Types.ObjectId(value) }
+                  : field === 'quiz'
+                    ? { [field]: new Types.ObjectId(value) }
+                    : { [field]: value },
       ),
     });
   }
@@ -164,7 +166,7 @@ const getAllQuizSubmitFromDb = async (
 // get single e form db
 const getQuizSubmitVerifyFromDb = async (
   id: string,
-  user: any
+  user: any,
 ): Promise<IQuizSubmit[] | null> => {
   const findSubmitQuiz = await QuizSubmit.find({
     quiz: new Types.ObjectId(id as string),
@@ -174,7 +176,7 @@ const getQuizSubmitVerifyFromDb = async (
   return findSubmitQuiz;
 };
 const getQuizSubmitSingelFromDb = async (
-  id: string
+  id: string,
 ): Promise<IQuizSubmit | null> => {
   const result = await QuizSubmit.aggregate([
     { $match: { _id: new ObjectId(id) } },
@@ -186,15 +188,16 @@ const getQuizSubmitSingelFromDb = async (
 // delete e form db
 const deleteQuizSubmitByIdFromDb = async (
   id: string,
-  query: IQuizSubmitFilters
+  query: IQuizSubmitFilters,
 ): Promise<IQuizSubmit | null> => {
   let result;
+  console.log(query, 'query');
   if (query.delete === ENUM_YN.YES) {
     result = await QuizSubmit.findByIdAndDelete(id);
   } else {
     result = await QuizSubmit.findOneAndUpdate(
-     { _id: id },
-      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
+      { _id: id },
+      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES },
     );
   }
   return result;

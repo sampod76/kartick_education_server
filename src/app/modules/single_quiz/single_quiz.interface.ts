@@ -8,7 +8,13 @@ import { IMilestone } from '../milestone/milestone.interface';
 import { IModule } from '../module/module.interface';
 import { IQuiz } from '../quiz/quiz.interface';
 
-export type IQUIZ_TYPE = 'input' | 'select' | 'multiple_select' | 'text';
+export type IQUIZ_TYPE =
+  | 'input'
+  | 'select'
+  | 'multiple_select'
+  | 'text'
+  | 'find'
+  
 
 export type ISingleQuizFilters = {
   searchTerm?: string;
