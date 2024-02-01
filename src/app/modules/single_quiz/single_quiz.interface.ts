@@ -14,7 +14,7 @@ export type IQUIZ_TYPE =
   | 'multiple_select'
   | 'text'
   | 'find'
-  
+  | 'drag';
 
 export type ISingleQuizFilters = {
   searchTerm?: string;
