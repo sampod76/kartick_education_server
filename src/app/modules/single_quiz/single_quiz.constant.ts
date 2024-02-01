@@ -5,6 +5,7 @@ export const SINGLE_QUIZ_TYPE = [
   'multiple_select',
   'text',
   'find',
+  'drag',
 ];
 
 // category?: string;
