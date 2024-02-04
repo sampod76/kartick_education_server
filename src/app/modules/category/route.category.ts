@@ -17,6 +17,13 @@ router
     CategoryController.createCategory
   );
 
+
+router
+  .route('/category-children')
+  // This route is open
+  .get(CategoryController.getAllCategoryChildrenTitle)
+
+
 router
   .route('/:id')
   // This route is open

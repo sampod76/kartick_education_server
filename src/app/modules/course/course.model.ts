@@ -9,6 +9,7 @@ const courseSchema = new Schema<ICourse, CourseModel>(
       type: String,
       trim: true,
       index: true,
+      required: true,
     },
     snid: {
       type: String,
@@ -20,6 +21,10 @@ const courseSchema = new Schema<ICourse, CourseModel>(
       type: String,
       trim: true,
     },
+    short_description: {
+      type: String,
+      trim: true,
+    },
     author: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -27,6 +32,7 @@ const courseSchema = new Schema<ICourse, CourseModel>(
     category: {
       type: Schema.Types.ObjectId,
       ref: 'Category',
+      required: true,
     },
     // sub1_course_category_id: {
     //   type: Schema.Types.ObjectId,
@@ -37,7 +43,7 @@ const courseSchema = new Schema<ICourse, CourseModel>(
       min: 0,
     },
     duration: {
-      type: String,
+      type: [Date],
     },
     level: {
       type: String,
@@ -52,6 +58,11 @@ const courseSchema = new Schema<ICourse, CourseModel>(
       enum: STATUS_ARRAY,
       default: 'active',
     },
+isDelete: {
+      type: String,
+      enum:["yes", "no"],
+      default: 'no',
+    },
     demo_video: {
       type: Object,
       default: {},
@@ -59,7 +70,6 @@ const courseSchema = new Schema<ICourse, CourseModel>(
 
     showing_number: {
       type: Number,
-      default: 9999,
     },
     favorite: {
       type: String,
@@ -76,5 +86,25 @@ const courseSchema = new Schema<ICourse, CourseModel>(
     },
   }
 );
+courseSchema.statics.isCourseExistMethod = async function ({
+  id,
+  title,
+}: {
+  id?: string;
+  title?: string;
+}): Promise<Pick<ICourse, 'title'> | null> {
+  let result = null;
+  if (id) {
+    result = await Course.findById(id);
+  }
+  if (title) {
+    result = await Course.findOne(
+      { title: new RegExp(title, 'i') },
+      { title: 1 }
+    );
+  }
+
+  return result;
+};
 
 export const Course = model<ICourse, CourseModel>('Course', courseSchema);

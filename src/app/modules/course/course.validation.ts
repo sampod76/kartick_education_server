@@ -5,8 +5,9 @@ import { COURSE_TYPES } from './course.constant';
 const createCourseZodSchema = z.object({
   body: z.object({
     title: z.string({ required_error: 'title field is required' }),
-    img: z.string().optional(),
+    img: z.string().url().optional(),
     details: z.string().optional(),
+    short_description: z.string().optional(),
     author: z.string({ required_error: 'author_id field is required' }),
     category: z.string({
       required_error: 'main_course_category_id field is required',
@@ -14,7 +15,7 @@ const createCourseZodSchema = z.object({
     // sub1_course_category_id: z.string({
     //   required_error: 'sub1_course_category_id field is required',
     // }),
-    duration: z.string().optional(),
+    duration: z.array(z.string()).optional(),
     level: z.string().optional(),
     price_type: z.enum([...COURSE_TYPES] as [string, ...string[]]).optional(),
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
@@ -23,13 +24,14 @@ const createCourseZodSchema = z.object({
     price: z.number().min(0).optional(),
     demo_video: z.object({}).optional(),
     tags: z.array(z.string()).optional(),
+    isDelete: z.string().optional(),
   }),
 });
 
 const updateCourseZodSchema = z.object({
   body: z.object({
     title: z.string().optional(),
-    img: z.string().optional(),
+    img: z.string().url().optional(),
     details: z.string().optional(),
     author_id: z.string().optional(),
     category: z.string().optional(),
@@ -38,7 +40,7 @@ const updateCourseZodSchema = z.object({
     //     required_error: 'sub1_course_category_id field is required',
     //   })
     //   .optional(),
-    duration: z.string().optional(),
+    duration: z.array(z.string()).optional(),
     level: z.string().optional(),
     price_type: z.enum([...COURSE_TYPES] as [string, ...string[]]).optional(),
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
@@ -47,6 +49,7 @@ const updateCourseZodSchema = z.object({
     showing_number: z.number().min(0).optional(),
     demo_video: z.object({}).optional(),
     tags: z.array(z.string()).optional(),
+    isDelete: z.string().optional(),
   }),
 });
 

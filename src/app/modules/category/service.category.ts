@@ -4,12 +4,18 @@ import { paginationHelper } from '../../../helper/paginationHelper';
 import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 
+import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import { CATEGORY_SEARCHABLE_FIELDS } from './consent.category';
 import { ICategory, ICategoryFilters } from './interface.category';
 import { Category } from './model.category';
+import { categoryPipeline } from './pipeline/categoryChildren';
 
 const createCategoryByDb = async (payload: ICategory): Promise<ICategory> => {
-  const result = (await Category.create(payload))
+  // const find = await Category.findOne({ title: payload.title, isDelete: true });
+  // if (find) {
+  //   throw new ApiError(400, 'This Category All Ready Exist');
+  // }
+  const result = await Category.create(payload);
   return result;
 };
 
@@ -20,6 +26,10 @@ const getAllCategoryFromDb = async (
 ): Promise<IGenericResponse<ICategory[]>> => {
   //****************search and filters start************/
   const { searchTerm, ...filtersData } = filters;
+  filtersData.status = filtersData.status
+    ? filtersData.status
+    : ENUM_STATUS.ACTIVE;
+    filtersData.isDelete = filtersData.isDelete ? filtersData.isDelete : ENUM_YN.NO;
   const andConditions = [];
   if (searchTerm) {
     andConditions.push({
@@ -110,8 +120,96 @@ const updateCategoryFromDb = async (
 const deleteCategoryByIdFromDb = async (
   id: string
 ): Promise<ICategory | null> => {
-  const result = await Category.findOneAndDelete({_id:id})
+  const result = await Category.findOneAndDelete({ _id: id });
   return result;
+};
+//
+
+//getAllCategoryChildrenFromDb
+const getAllCategoryChildrenTitleFromDb = async (
+  filters: ICategoryFilters,
+  paginationOptions: IPaginationOption
+): Promise<IGenericResponse<ICategory[]>> => {
+  //****************search and filters start************/
+  const { searchTerm, children, ...filtersData } = filters;
+  filtersData.status = filtersData.status
+    ? filtersData.status
+    : ENUM_STATUS.ACTIVE;
+    filtersData.isDelete = filtersData.isDelete ? filtersData.isDelete : ENUM_YN.NO;
+  const andConditions = [];
+  if (searchTerm) {
+    andConditions.push({
+      $or: CATEGORY_SEARCHABLE_FIELDS.map(field => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: 'i',
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filtersData).length) {
+    andConditions.push({
+      $and: Object.entries(filtersData).map(([field, value]) => ({
+        [field]: value,
+      })),
+    });
+  }
+
+  //****************search and filters end**********/
+
+  //****************pagination start **************/
+  const { page, limit, sortBy, sortOrder } =
+    paginationHelper.calculatePagination(paginationOptions);
+
+  const sortConditions: { [key: string]: 1 | -1 } = {};
+  if (sortBy && sortOrder) {
+    sortConditions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+  }
+  //****************pagination end ***************/
+
+  const whereConditions =
+    andConditions.length > 0 ? { $and: andConditions } : {};
+
+  // const result = await Category.find(whereConditions)
+  //   .populate('thumbnail')
+  //   .sort(sortConditions)
+  //   .skip(Number(skip))
+  //   .limit(Number(limit));
+  const pipeline: PipelineStage[] =
+    children === 'course'
+      ? categoryPipeline.categoryCourse({ whereConditions, sortConditions })
+      : children === 'course-milestone'
+      ? categoryPipeline.categoryCourseMileston({
+          whereConditions,
+          sortConditions,
+        })
+      : children === 'course-milestone-module'
+      ? categoryPipeline.categoryCourseMilestonModule({
+          whereConditions,
+          sortConditions,
+        })
+      : children === 'course-milestone-module-lessons'
+      ? categoryPipeline.categoryCourseMilestonModuleLesson({
+          whereConditions,
+          sortConditions,
+        })
+      : children === 'course-milestone-module-lessons-quiz'
+      ? categoryPipeline.all({ whereConditions, sortConditions })
+      : categoryPipeline.all({ whereConditions, sortConditions });
+
+  // console.log(pipeline);
+  const result = await Category.aggregate(pipeline);
+  // console.log(result, 127);
+  const total = await Category.countDocuments(whereConditions);
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
 };
 
 export const CategoryService = {
@@ -120,4 +218,5 @@ export const CategoryService = {
   getSingleCategoryFromDb,
   updateCategoryFromDb,
   deleteCategoryByIdFromDb,
+  getAllCategoryChildrenTitleFromDb,
 };

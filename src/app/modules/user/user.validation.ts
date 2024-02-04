@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { gender } from '../student/student.constant';
 
-const SignUpZodSchema = z.object({
+const createStudentZodSchema = z.object({
   body: z.object({
     password: z.string(),
     student: z.object({
@@ -24,11 +24,10 @@ const SignUpZodSchema = z.object({
           required_error: 'Email is required',
         })
         .email(),
-      phoneNumber: z.string({
-        required_error: 'phoneNumber is required',
-      }),
-      address: z.string(),
-      img: z.string({ required_error: 'img is required' }),
+      phoneNumber: z.number().optional(),
+      address: z.string().optional(),
+      additionalRole: z.string().optional(),
+      img: z.string().url().optional(),
     }),
   }),
 });
@@ -45,10 +44,11 @@ const createModeratorZodSchema = z.object({
         .optional(),
       gender: z.enum([...gender] as [string, ...string[]]).optional(),
       dateOfBirth: z.string().optional(),
-      email: z.string().email().optional(),
-      phoneNumber: z.string().optional(),
+      email: z.string().email(),
+      phoneNumber: z.number(),
       address: z.string().optional(),
-      img: z.string().optional(),
+      additionalRole: z.string().optional(),
+      img: z.string().url().optional(),
     }),
   }),
 });
@@ -66,9 +66,11 @@ const createAdminZodSchema = z.object({
       gender: z.enum([...gender] as [string, ...string[]]).optional(),
       dateOfBirth: z.string().optional(),
       email: z.string().email().optional(),
-      phoneNumber: z.string().optional(),
+      phoneNumber: z.number().optional(),
       address: z.string().optional(),
-      img: z.string().optional(),
+      additionalRole: z.string().optional(),
+      user_bio: z.string().optional(),
+      img: z.string().url().optional(),
     }),
   }),
 });
@@ -86,16 +88,17 @@ const createSellerZodSchema = z.object({
       gender: z.enum([...gender] as [string, ...string[]]).optional(),
       dateOfBirth: z.string().optional(),
       email: z.string().email().optional(),
-      phoneNumber: z.string().optional(),
+      phoneNumber: z.number().optional(),
       address: z.string().optional(),
-      img: z.string().optional(),
+      additionalRole: z.string().optional(),
+      img: z.string().url().optional(),
+      user_bio: z.string().optional(),
     }),
   }),
 });
 const createTrainerZodSchema = z.object({
   body: z.object({
     password: z.string().optional(),
-
     trainer: z.object({
       name: z
         .object({
@@ -106,15 +109,17 @@ const createTrainerZodSchema = z.object({
       gender: z.enum([...gender] as [string, ...string[]]).optional(),
       dateOfBirth: z.string().optional(),
       email: z.string().email().optional(),
-      phoneNumber: z.string().optional(),
+      phoneNumber: z.number().optional(),
       address: z.string().optional(),
-      img: z.string().optional(),
+      additionalRole: z.string().optional(),
+      img: z.string().url().optional(),
+      user_bio: z.string().optional(),
     }),
   }),
 });
 
 export const UserValidation = {
-  SignUpZodSchema,
+  createStudentZodSchema,
   createModeratorZodSchema,
   createAdminZodSchema,
   createSellerZodSchema,

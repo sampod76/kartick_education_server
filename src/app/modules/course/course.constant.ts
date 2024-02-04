@@ -1,6 +1,6 @@
 export const COURSE_SEARCHABLE_FIELDS = [
   'title',
-  'details',
+  // 'details',
   'snid'
 ];
 export const COURSE_FILTERABLE_FIELDS = [
@@ -10,7 +10,11 @@ export const COURSE_FILTERABLE_FIELDS = [
   'level',
   'status',
   'price_type',
-  'delete'
+  'delete',
+  'select',
+  'category',
+  'favorite',
+  "isDelete"
 ];
 
 export const COURSE_TYPES = ['free', 'paid', 'open', 'closed', 'recurrig'];

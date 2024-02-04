@@ -1,5 +1,6 @@
 import { Model } from 'mongoose';
 
+
 export type UserName = {
   firstName: string;
   lastName: string;
@@ -7,14 +8,15 @@ export type UserName = {
 
 export type ITrainer = {
   name: UserName; //embedded object
-  gender: 'male' | 'female';
+  gender: 'male' | 'female' | 'other';
   dateOfBirth: string;
   email: string;
   phoneNumber: string;
-  bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
-  address: string;
-  img: string;
+  userId?: string;
+  address?: string;
+  img?: string;
   details?: string;
+  user_bio?: string;
 };
 
 export type TrainerModel = Model<ITrainer, Record<string, unknown>>;
@@ -26,5 +28,4 @@ export type ITrainerFilters = {
   email?: string;
   phoneNumber?: string;
   delete?: 'yes' | 'no';
-  status?:'active' | 'deactivate' | 'disabled' | 'block'
 };

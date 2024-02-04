@@ -14,33 +14,42 @@ import path from 'path';
 // import xss from 'xss-clean';
 import helmetOriginal from 'helmet';
 import httpStatus from 'http-status';
+import requestIp from 'request-ip';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 // import { uploadSingleImage } from './app/middlewares/uploader.multer';
 
-
+import fs from 'fs';
 import routers from './app/routes/index_route';
-import { Course } from './app/modules/course/course.model';
-
+import config from './config';
 const app: Application = express();
 // app.use(cors());
 
 app.use(helmetOriginal());
-// app.use(
-//   cors({
-//     origin: ['https://salontrainingpro.app', 'http://localhost:3000'],
-//     credentials: true,
-//   })
-// );
-
-
+app.use(requestIp.mw());
 
 app.use(
   cors({
-    origin: true,
+    origin:
+      config.env === 'development'
+        ? [
+            'http://localhost:3000',
+            'http://127.0.0.1:3000',
+            'http://192.168.0.101:3000',
+          ]
+        : ['https://iblossomlearn.org'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  })
+  }),
 );
+// app.use(
+//   cors({
+//     origin: true,
+//     credentials: true,
+//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+//   }),
+// );
+
+// app.use(cors(corsOptions));
 
 //  app.use(function (req, res, next) {
 //   res.header("Access-Control-Allow-Origin", 'https://salontrainingpro.app')
@@ -68,8 +77,8 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 paypal.configure({
   mode: 'sandbox',
-  client_id: process.env.PAYPLE_CLIENT_ID as string,
-  client_secret: process.env.PAYPLE_SECRET_KEY as string,
+  client_id: process.env.PAYPAL_CLIENT_ID as string,
+  client_secret: process.env.PAYPAL_SECRET_KEY as string,
 });
 
 const run: RequestHandler = (req, res, next) => {
@@ -82,27 +91,67 @@ const run: RequestHandler = (req, res, next) => {
   }
 };
 
+const downloadFunction: RequestHandler = (req, res, next) => {
+  try {
+    const filePath = path.resolve(
+      __dirname,
+      `../../uploadFile/pdfs/${req.params?.filename}`,
+    );
+    const fileContents = fs.readFileSync(filePath);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename=${req.params?.filename}`,
+    );
+    res.status(200).end(fileContents, 'binary');
+    // jwtHelpers.verifyToken(`${req.headers.authorization}`, config.jwt.secret as string);
+    // console.log('first');
+    // next();
+  } catch (error) {
+    res.status(500).end({message:'File not found'});
+  }
+};
+
 app.use(
   '/images',
   run,
-  express.static(path.join(__dirname, '../dist/uploadFile/images/'))
+  express.static(path.join(__dirname, '../../uploadFile/images/')),
 );
 
 app.use(
   '/profile',
   run,
-  express.static(path.join(__dirname, '../dist/uploadFile/profile/'))
+  express.static(path.join(__dirname, '../../uploadFile/profile/')),
 );
 
 app.use(
-  '/vedios',
+  '/videos',
   run,
-  express.static(path.join(__dirname, '../dist/uploadFile/vedios/'))
+  express.static(path.join(__dirname, '../../uploadFile/videos/')),
+);
+
+app.use(
+  '/pdfs/:filename',
+  run,
+  downloadFunction,
+  // express.static(path.join(__dirname, `../../uploadFile/pdfs/`)),
+);
+
+app.use(
+  '/audios-download/:filename',
+  run,
+  downloadFunction,
+  // express.static(path.join(__dirname, `../../uploadFile/pdfs/`)),
+);
+app.use(
+  '/audios',
+  run,
+  // downloadFunction,
+  express.static(path.join(__dirname, `../../uploadFile/audios/`)),
 );
 
 app.set('view engine', 'ejs');
 app.set('views', path.resolve('./views/success.ejs'));
-
 
 app.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -113,41 +162,47 @@ app.get('/', async (req: Request, res: Response, next: NextFunction) => {
   // res.send('server is running');
 });
 
-
 const test = async () => {
-/*  
- const url = 'https://api.revenuecat.com/v1/apps/appcadee85965/subscribers/882b1b28b5664a0ea3ecc7a6efb56b9b';
-
-  try {
-const data =await revenuecat
-.getSubscriptions({ userId:"$RCAnonymousID:882b1b28b5664a0ea3ecc7a6efb56b9b" })
-// .then(res => console.log(res.subscriber, 'getSubscriptions'))
-console.log(data);
-  } catch (error) {
-    console.error('Error fetching data:', error);
-   
-  } 
-  */
- 
-//  const result= await firebaseAdmin.auth().setCustomUserClaims("St9VaFVV3JX8QFEGwFQd3A3psR23",{_id:"650fd9626e7c6052b7e19242",role:"general-user"});
-// console.log(result);
-
-// const updateArray = await Course.find({});
-
-// const promess: any = [];
-
-// updateArray.forEach((data, index) => {
-//   console.log(index);
-//   promess.push(
-//     Course.findByIdAndUpdate(data._id, {
-//       courseId: `00${index + 1}`,
-//     })
-//   );
-// });
-// Promise.all(promess).then(values => {
-//   console.log(values);
-// });
-
+  // const restul = await User.updateMany({}, { isDelete: ENUM_YN.NO });
+  // console.log(restul);
+  // const updateArray = await Course.find({});
+  // const promess: any = [];
+  // updateArray.forEach((data, index) => {
+  //   console.log(index);
+  //   promess.push(
+  //     Course.findByIdAndUpdate(data._id, {
+  //       courseId: `00${index + 1}`,
+  //     })
+  //   );
+  // });
+  // Promise.all(promess).then(values => {
+  //   console.log(values);
+  // });
+  // const result = encryptCryptoData({id:"sdfjksdjfkl"},config.encryptCrypto as string)
+  // const getData = "U2FsdGVkX19dOA/shL0SLR2JyDtmLpQJy88CwzgKP18YXxHGl5lrNcVpYOzLeI6ITy/cWRTBrTK0V6PkGhbl1Ik fBtfhZUFBsLHrZmvFNuC4OpxwvY79/xToKurgOskLiz7aazvvxeghiVMtnRfEw==".split(" ").join("+")
+  // const verify = decryptCryptoData(getData,config.encryptCrypto as string)
+  // console.log(verify);
+  // const result = await PurchasePackage.updateMany(
+  //   {},
+  //   [
+  //     {
+  //       $set: {
+  //         total_price: {
+  //           $sum: [
+  //             '$purchase.price',
+  //             {
+  //               $multiply: [
+  //                 '$purchase.each_student_increment',
+  //                 '$total_purchase_student',
+  //               ],
+  //             },
+  //           ],
+  //         },
+  //       },
+  //     },
+  //   ]
+  // );
+  // console.log("🚀 ~ test ~ result:", result)
 };
 test();
 
@@ -173,7 +228,5 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   });
   next();
 });
-
-
 
 export default app;

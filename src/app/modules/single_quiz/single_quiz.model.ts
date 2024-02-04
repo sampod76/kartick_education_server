@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { STATUS_ARRAY } from '../../../constant/globalConstant';
+import { SINGLE_QUIZ_TYPE } from './single_quiz.constant';
 import { ISingleQuiz, SingleQuizModel } from './single_quiz.interface';
 
 const singleQuizSchema = new Schema<ISingleQuiz, SingleQuizModel>(
@@ -10,35 +11,55 @@ const singleQuizSchema = new Schema<ISingleQuiz, SingleQuizModel>(
       required: true,
       index: true,
     },
-    answers:[{
-      title: {
+    answers: [
+      {
+        title: {
+          type: String,
+          trim: true,
+        },
+        correct: {
+          type: Boolean,
+          default: false,
+        },
+        imgs: [
+          {
+            type: String,
+            trim: true,
+          },
+        ],
+        serialNumber: {
+          type: Number,
+          default: 0,
+        },
+        status: {
+          type: String,
+          enum: STATUS_ARRAY,
+          default: 'active',
+        },
+      },
+    ],
+    imgs: [
+      {
         type: String,
         trim: true,
       },
-      correct: {
-        type: Boolean,
-        default: false,
-      },
-      img: {
-        type: String,
-        trim: true,
-      },
-      serialNumber: {
-        type: Number,
-        default: 0,
-      },
-      status: {
-        type: String,
-        enum: STATUS_ARRAY,
-        default: 'active',
-      },
-    }],
-    img: {
-      type: String,
-    },
+    ],
     details: {
       type: String,
       trim: true,
+    },
+    short_description: {
+      type: String,
+      trim: true,
+    },
+    single_answer: {
+      type: String,
+      trim: true,
+    },
+    type: {
+      type: String,
+      enum: SINGLE_QUIZ_TYPE,
+      default: 'select',
     },
     serialNumber: {
       type: Number,
@@ -53,6 +74,27 @@ const singleQuizSchema = new Schema<ISingleQuiz, SingleQuizModel>(
       type: String,
       trim: true,
     },
+    //
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+    },
+    course: {
+      type: Schema.Types.ObjectId,
+      ref: 'Course',
+    },
+    milestone: {
+      type: Schema.Types.ObjectId,
+      ref: 'Milestone',
+    },
+    module: {
+      type: Schema.Types.ObjectId,
+      ref: 'Module',
+    },
+    lesson: {
+      type: Schema.Types.ObjectId,
+      ref: 'Lesson',
+    },
     quiz: {
       type: Schema.Types.ObjectId,
       ref: 'Quiz',
@@ -61,11 +103,7 @@ const singleQuizSchema = new Schema<ISingleQuiz, SingleQuizModel>(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    module: {
-      type: Schema.Types.ObjectId,
-      ref: 'Module',
-      required: true,
-    },
+   //
 
     status: {
       type: String,
@@ -73,6 +111,11 @@ const singleQuizSchema = new Schema<ISingleQuiz, SingleQuizModel>(
       default: 'active',
     },
 
+isDelete: {
+      type: String,
+      enum:["yes", "no"],
+      default: 'no',
+    },
     demo_video: {
       type: Object,
       default: {},

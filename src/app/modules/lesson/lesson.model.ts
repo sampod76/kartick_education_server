@@ -2,7 +2,7 @@ import { Schema, model } from 'mongoose';
 import { STATUS_ARRAY } from '../../../constant/globalConstant';
 import { ILesson, LessonModel } from './lesson.interface';
 
-const lessonSchema = new Schema<ILesson,LessonModel>(
+const lessonSchema = new Schema<ILesson, LessonModel>(
   {
     title: {
       type: String,
@@ -10,17 +10,35 @@ const lessonSchema = new Schema<ILesson,LessonModel>(
       required: true,
       index: true,
     },
-    img: {
+    imgs: [{
       type: String,
-    },
-    
+    }],
+
     details: {
+      type: String,
+      trim: true,
+    },
+    short_description: {
       type: String,
       trim: true,
     },
     author: {
       type: Schema.Types.ObjectId,
       ref: 'User',
+    },
+   
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+    },
+    course: {
+      type: Schema.Types.ObjectId,
+      ref: 'Course',
+    },
+    
+    milestone: {
+      type: Schema.Types.ObjectId,
+      ref: 'Milestone',
     },
     module: {
       type: Schema.Types.ObjectId,
@@ -31,17 +49,28 @@ const lessonSchema = new Schema<ILesson,LessonModel>(
       enum: STATUS_ARRAY,
       default: 'active',
     },
+isDelete: {
+      type: String,
+      enum:["yes", "no"],
+      default: 'no',
+    },
     lesson_number: {
       type: Number,
     },
-   
+    lecture: {
+      type: Number,
+    },
+
     demo_video: {
       type: Object,
       default: {},
     },
-    video: {
-      type: String,
-    },
+    videos: [
+      {
+        type: Object,
+        default: {},
+      },
+    ],
     tags: [String],
   },
   {
@@ -53,4 +82,4 @@ const lessonSchema = new Schema<ILesson,LessonModel>(
   }
 );
 
-export const Lesson = model<ILesson,LessonModel>('Lesson', lessonSchema);
+export const Lesson = model<ILesson, LessonModel>('Lesson', lessonSchema);

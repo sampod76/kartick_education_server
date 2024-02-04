@@ -57,6 +57,35 @@ const getAllCategory = catchAsync(async (req: Request, res: Response) => {
   });
   // next();
 });
+const getAllCategoryChildrenTitle = catchAsync(
+  async (req: Request, res: Response) => {
+    //****************search and filter start******* */
+    let queryObject = req.query;
+    queryObject = Object.fromEntries(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      Object.entries(queryObject).filter(([_, value]) => Boolean(value))
+    );
+    const filters = pick(queryObject, CATEGORY_FILTERABLE_FIELDS);
+
+    //****************pagination start************ */
+
+    const paginationOptions = pick(queryObject, PAGINATION_FIELDS);
+
+    const result = await CategoryService.getAllCategoryChildrenTitleFromDb(
+      filters,
+      paginationOptions
+    );
+
+    sendResponse<ICategory[]>(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'successfull Get category Category',
+      meta: result.meta,
+      data: result.data,
+    });
+    // next();
+  }
+);
 
 const getSingleCategory = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -113,4 +142,5 @@ export const CategoryController = {
   getSingleCategory,
   updateCategory,
   deleteCategory,
+  getAllCategoryChildrenTitle,
 };

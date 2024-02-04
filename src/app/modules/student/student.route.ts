@@ -8,12 +8,15 @@ import validateRequestZod from '../../middlewares/validateRequestZod';
 import { StudentValidation } from './student.validation';
 const router = express.Router();
 
-router
-  .route('/')
-  .get(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-    StudentController.getAllStudents
-  );
+router.route('/').get(
+  authMiddleware(
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.TEACHER,
+    ENUM_USER_ROLE.SELLER,
+  ),
+  StudentController.getAllStudents,
+);
 
 router
   .route('/:id')
@@ -21,18 +24,19 @@ router
     authMiddleware(
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
-      ENUM_USER_ROLE.STUDENT
+      ENUM_USER_ROLE.TEACHER,
+      ENUM_USER_ROLE.STUDENT,
     ),
-    StudentController.getSingleStudent
+    StudentController.getSingleStudent,
   )
   .patch(
     authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
     validateRequestZod(StudentValidation.updateStudentZodSchema),
-    StudentController.updateStudent
+    StudentController.updateStudent,
   )
   .delete(
     authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-    StudentController.deleteStudent
+    StudentController.deleteStudent,
   );
 
 export const StudentRoutes = router;

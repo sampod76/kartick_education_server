@@ -1,364 +1,542 @@
-// /* eslint-disable @typescript-eslint/no-unused-vars */
-// import { Request, Response } from 'express';
-// import httpStatus from 'http-status';
-// import { Types } from 'mongoose';
-// import paypal, { Payment } from 'paypal-rest-sdk';
-// import Stripe from 'stripe';
-// import { decrypt, encrypt } from '../../../helper/encryptionJwt';
-// import ApiError from '../../errors/ApiError';
-// import { IEncodedPaymentData } from '../../interface/encrypt';
-// import catchAsync from '../../share/catchAsync';
-// import { GeneralUser } from '../generalUser/model.GeneralUser';
-// import { Purchased_courses } from '../purchased_courses/purchased_courses.model';
-// // import { v4 as uuidv4 } from 'uuid';
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+import axios from 'axios';
+import { Request, Response } from 'express';
+import paypal, { Payment } from 'paypal-rest-sdk';
+import Stripe from 'stripe';
+import config from '../../../config';
+import calculateNextBillingDate from '../../../utils/calculateNextBillingDate';
+import {
+  decryptCryptoData,
+  encryptCryptoData,
+} from '../../../utils/cryptoEncryptDecrypt';
+import ApiError from '../../errors/ApiError';
+import catchAsync from '../../share/catchAsync';
+import { Course } from '../course/course.model';
+import { Package } from '../package/package.model';
+import {
+  PendingPurchaseCourse,
+  PurchaseCourse,
+} from '../purchase_courses/purchase_courses.model';
+import {
+  PendingPurchasePackage,
+  PurchasePackage,
+} from '../purchase_package/purchase_package.model';
 
-// // import { errorLogger, logger } from '../../share/logger';
-// paypal.configure({
-//   mode: 'sandbox',
-//   client_id: process.env.PAYPLE_CLIENT_ID as string,
-//   client_secret: process.env.PAYPLE_SECRET_KEY as string,
-// });
+// import { v4 as uuidv4 } from 'uuid';
 
-// // import { z } from 'zod'
-// import path from 'path';
-// import { Purchased_coursesService } from '../purchased_courses/purchased_courses.service';
-// const createPaymentStripe = catchAsync(async (req: Request, res: Response) => {
-//   const stripe = new Stripe(process.env.STRIPE_SK as string, {
-//     apiVersion: '2022-11-15',
-//     typescript: true,
-//   });
-//   const { paymentAmount: price, course_id } = req.body;
-//   const amount: number = parseFloat(price) * 100;
+// import { errorLogger, logger } from '../../share/logger';
+paypal.configure({
+  mode: 'sandbox', //  mode:"live"
+  client_id: config.paypal.client as string,
+  client_secret: config.paypal.secret as string,
+});
 
-//   const result = await GeneralUser.findById(req?.user?._id);
-//   const courseIdExaite = result?.purchase_courses?.find(
-//     value => value?.course?.toString() === course_id
-//   );
+// import { z } from 'zod'
 
-//   if (courseIdExaite) {
-//     return res.status(404).send({
-//       success: false,
-//       statusCode: 404,
-//       message: 'You are already purchased course!!😭😭',
-//     });
-//   }
+const createPaymentStripe = catchAsync(async (req: Request, res: Response) => {
+  const stripe = new Stripe(process.env.STRIPE_SK as string, {
+    apiVersion: '2023-10-16',
+    typescript: true,
+  });
+  const { products } = req.body;
 
-//   const paymentIntent: Stripe.PaymentIntent =
-//     await stripe.paymentIntents.create({
-//       amount,
-//       currency: 'USD',
-//       payment_method_types: ['card'],
-      
-//     });
+  const lineItems = products.map((product: any) => ({
+    price_data: {
+      currency: 'usd',
+      product_data: {
+        name: product.name,
+        images: [product.img],
+      },
+      unit_amount: Math.round(Number(product.price) * 100),
+    },
+    quantity: product.quantity || 1,
+  }));
 
-//   if (paymentIntent.client_secret) {
-//     res.status(200).send({
-//       success: true,
-//       statusCode: 200,
-//       message: 'successfull get secret',
-//       data: { clientSecret: paymentIntent.client_secret },
-//     });
-//   } else {
-//     throw new ApiError(404, 'Payment faild');
-//   }
-// });
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items: lineItems,
+    mode: 'payment',
+    success_url: config.payment_url.stripe_success_url,
+    cancel_url: config.payment_url.stripe_cancel_url,
+  });
+  if (session?.id) {
+    res.status(200).send({
+      success: true,
+      statusCode: 200,
+      message: 'successfull get secret',
+      data: { id: session?.id },
+    });
+  } else {
+    throw new ApiError(404, 'Payment failed');
+  }
+});
 
-// const createPaymentStripeAdvanceForNative = catchAsync(
-//   async (req: Request, res: Response) => {
-//     const { paymentAmount: price, course_id } = req.body;
-//     const amount: number = parseFloat(price) * 100;
+const createPaymentStripeAdvanceForNative = catchAsync(
+  async (req: Request, res: Response) => {
+    const { paymentAmount: price, course_id } = req.body;
+    const amount: number = parseFloat(price) * 100;
+    const stripe = new Stripe(process.env.STRIPE_SK as string, {
+      apiVersion: '2023-10-16',
+      typescript: true,
+    });
 
-//     //********** */ You are already purchased course!!*******
-//     const result = await GeneralUser.findById(req?.user?._id);
-//     const courseIdExaite = result?.purchase_courses?.find(
-//       value => value?.course?.toString() === course_id
-//     );
-//     if (courseIdExaite) {
-//       return res.status(404).send({
-//         success: false,
-//         statusCode: 404,
-//         message: 'You are already purchased course!!😭😭',
-//       });
-//     }
-//     //********** */ You are already purchased course!!*******
+    // Use an existing Customer ID if this is a returning customer.
+    const customer = await stripe.customers.create();
+    const ephemeralKey = await stripe.ephemeralKeys.create(
+      { customer: customer.id },
+      { apiVersion: '2022-11-15' },
+    );
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount,
+      currency: 'USD',
+      customer: customer.id,
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
 
-//     const stripe = new Stripe(process.env.STRIPE_SK as string, {
-//       apiVersion: '2022-11-15',
-//       typescript: true,
-//     });
+    if (paymentIntent.client_secret) {
+      return res.status(200).send({
+        success: true,
+        statusCode: 200,
+        message: 'successful get secret',
+        data: {
+          // paymentIntent: paymentIntent.client_secret,
+          clientSecret: paymentIntent.client_secret,
+          ephemeralKey: ephemeralKey.secret,
+          customer: customer.id,
+          publishableKey: process.env.STRIPE_PK,
+        },
+      });
+    } else {
+      throw new ApiError(404, 'Payment failed');
+    }
+  },
+);
 
-//     // Use an existing Customer ID if this is a returning customer.
-//     const customer = await stripe.customers.create();
-//     const ephemeralKey = await stripe.ephemeralKeys.create(
-//       { customer: customer.id },
-//       { apiVersion: '2022-11-15' }
-//     );
-//     const paymentIntent = await stripe.paymentIntents.create({
-//       amount: amount,
-//       currency: 'USD',
-//       customer: customer.id,
-//       automatic_payment_methods: {
-//         enabled: true,
-//       },
-      
-//     });
+// // paypal intergrate
+const createPaymentPaypal = catchAsync(async (req: Request, res: Response) => {
+  const { amount, item_list, description, data: categoryData } = req.body;
 
-//     if (paymentIntent.client_secret) {
-//       return res.status(200).send({
-//         success: true,
-//         statusCode: 200,
-//         message: 'successfull get secret',
-//         data: {
-//           // paymentIntent: paymentIntent.client_secret,
-//           clientSecret: paymentIntent.client_secret,
-//           ephemeralKey: ephemeralKey.secret,
-//           customer: customer.id,
-//           publishableKey: process.env.STRIPE_PK,
-//         },
-//       });
-//     } else {
-//       throw new ApiError(404, 'Payment faild');
-//     }
-//   }
-// );
+  const findPackage = (await Package.findById(categoryData?.package)) as any;
 
-// // payple intergrate
-// const createPaymentPayple = catchAsync(async (req: Request, res: Response) => {
-//   const { amount, item_list, description } = req.body;
+  const packageToCategories = findPackage?.categories?.map(
+    (singleObject: any) => singleObject.category?.toString(),
+  );
 
-//   // const itemSkus = new Set(item_list?.items?.map((item: any) => item?.sku));
-//   const item = new Types.ObjectId(item_list?.items[0]?.sku);
-//   const findByCourse = await Purchased_courses.findOne({
-//     userId: new Types.ObjectId(req?.user?._id),
-//     course: new Types.ObjectId(item),
-//   });
+  if (!packageToCategories || !findPackage) {
+    throw new ApiError(404, 'Do not found package category');
+  }
+  const allExist = categoryData.categories.every((singleObject: any) =>
+    packageToCategories.includes(singleObject.category),
+  );
 
-//   if (findByCourse) {
-//     return res.status(404).send({
-//       success: false,
-//       statusCode: 404,
-//       message: 'You are already purchased course!!😭😭',
-//     });
-//   }
+  if (!allExist) {
+    throw new ApiError(404, 'This is not approved');
+  }
+  const totalPrice =
+    (findPackage[categoryData?.purchase?.label].price +
+      findPackage[categoryData?.purchase?.label].each_student_increment *
+        categoryData?.total_purchase_student) *
+    (findPackage?.type === 'multiple_select'
+      ? categoryData?.categories?.length
+      : 1);
 
-//   const data: IEncodedPaymentData = {
-//     userId: req?.user?._id,
-//     course_id: item.toString(),
-//     userName: req?.user?.name || '',
-//     email: req?.user?.email || '',
-//     phone: req?.user?.phone || '',
-//     amount: {
-//       currency: amount?.currency || 'USD',
-//       total: amount?.total,
-//     },
-//   };
+  //! ------- price configuration ------
+  const item = item_list.items[0];
+  const price = parseFloat(String(totalPrice));
+  // Convert the price to a string with exactly 2 decimal places
+  const formattedPrice = price.toFixed(2);
+  // Update the item's price with the formatted value
+  item.price = formattedPrice;
 
-//   const encryptData = encrypt(data);
+  //! ------- price configuration end ------
+  categoryData.user = categoryData.user || req?.user?.id;
+  categoryData.expiry_date = calculateNextBillingDate(
+    categoryData?.purchase?.label, // example monthly,yearly
+  );
 
-//   const payment: Payment = {
-//     intent: 'sale',
-//     payer: {
-//       payment_method: 'paypal',
-//     },
-//     redirect_urls: {
-//       return_url: `${process.env.REAL_HOST_SERVER_SIDE}/api/v1/payment/success?app=${encryptData}`,
-//       // return_url: `${process.env.LOCALHOST_SERVER_SIDE}/api/v1/payment/success?app=${encriptData}`,
-//       cancel_url: `${process.env.REAL_HOST_SERVER_SIDE}/api/v1/payment/cancel`,
-//     },
-//     transactions: [
-//       {
-//         item_list,
-//         amount: {
-//           currency: 'USD',
-//           total: String(amount?.total),
-//         },
-//         description: description,
-//       },
-//     ],
-//   };
+  const createPackge = await PendingPurchasePackage.create({
+    ...categoryData,
+    paymentStatus: 'pending',
+    total_price: totalPrice,
+  });
+  if (!createPackge._id) {
+    throw new ApiError(400, 'Something is wrong with purchase');
+  }
+  const data: any = {
+    id: createPackge?._id,
+    amount: { total: totalPrice, currency: 'USD' },
+    platform: 'paypal',
+  };
 
-//   paypal.payment.create(payment, (error: any, payment: any) => {
-//     if (error) {
-//       console.log(error);
-//       // errorLogger.error(error)
-//       return res.status(404).send({
-//         success: false,
-//         statusCode: 404,
-//         message: 'Paypal payment fail !!!',
-//       });
-//     } else {
-//       for (let i = 0; i < payment.links.length; i++) {
-//         if (payment.links[i].rel === 'approval_url') {
-//           res.status(200).send({
-//             success: true,
-//             message: `Successfully Paypal payment instant`,
-//             data: {
-//               url: payment.links[i].href,
-//             },
-//           });
-//         }
-//       }
-//     }
-//   });
-// });
+  const encryptData = encryptCryptoData(data, config.encryptCrypto as string);
 
-// const chackPayplePayment = catchAsync(async (req: Request, res: Response) => {
-//   const payerId = req.query.PayerID;
-//   const paymentId = req.query.paymentId;
-//   const app = req.query.app;
-//   if (
-//     typeof payerId !== 'string' ||
-//     typeof paymentId !== 'string' ||
-//     typeof app !== 'string'
-//   ) {
-//     throw new ApiError(httpStatus.UNAUTHORIZED, 'unauthorized access !!');
-//   }
-//   const data = decrypt(app);
-  
-//   const execute_payment_json = {
-//     payer_id: payerId,
-//     transactions: [
-//       {
-//         amount: data?.amount,
-//       },
-//     ],
-//   };
+  const payment: Payment = {
+    intent: 'sale',
+    payer: {
+      payment_method: 'paypal',
+    },
+    redirect_urls: {
+      // http://localhost:3000/payment/paypal/success?app=U2FsdGVkX1/W0OEYqkDDooRyGcj23kavmEj7xiedIVIWPAGID8IG1ZaQiYlkUBkTWbXF0CMarK9yjqgXRB7wL0QIfFYyfdgt4FIZNPB8Dcy84ZY+NRGtWx3nkosUhbHXnxHxot79HolUb/a12AAKdQ==&paymentId=PAYID-MWUGVTY45C10167TA709600D&token=EC-0FV098435R815293J&PayerID=L3CREV92USD28
+      // this url to get -->paymentId  , PayerID
+      return_url: `${config.server_side_url}/api/v1/payment/paypal/check?app=${encryptData}`,
+      // return_url: `${process.env.LOCALHOST_SERVER_SIDE}/api/v1/payment/success?app=${encriptData}`,
+      cancel_url: `${config.payment_url.paypal_cancel_url}`,
+    },
+    transactions: [
+      {
+        item_list,
+        amount: {
+          currency: 'USD',
+          total: formattedPrice,
+        },
+        description: description || '',
+      },
+    ],
+  };
 
-//   try {
-//     const payment: Payment = await new Promise((resolve, reject) => {
-//       paypal.payment.execute(
-//         paymentId,
-//         execute_payment_json,
-//         function (error, payment) {
-//           if (error) {
-//             reject(new ApiError(500, 'Payment is denied'));
-//           } else {
-//             resolve(payment);
-//           }
-//         }
-//       );
-//     });
-//     console.log(payment);
+  paypal.payment.create(payment, (error: any, payment: any) => {
+    if (error) {
+      console.log(error, 'ddd');
+      // errorLogger.error(error)
+      return res.status(404).send({
+        success: false,
+        statusCode: 404,
+        message: error,
+      });
+    } else {
+      for (let i = 0; i < payment.links.length; i++) {
+        if (payment.links[i].rel === 'approval_url') {
+          res.status(200).send({
+            success: true,
+            message: `Successfully Paypal payment instant`,
+            data: {
+              url: payment.links[i].href,
+            },
+          });
+        }
+      }
+    }
+  });
+});
 
-//     /* 
-//     {
-//       id: 'PAYID-MS2BCPA4BT713665C9605913',
-//       intent: 'sale',
-//       state: 'approved',
-//       cart: '0N1193480W3023509',
-//       payer: {
-//         payment_method: 'paypal',
-//         status: 'VERIFIED',
-//         payer_info: {
-//           email: 'sb-4jbgp26719602@personal.example.com',
-//           first_name: 'John',
-//           last_name: 'Doe',
-//           payer_id: 'L3CREV92USD28',
-//           shipping_address: [Object],
-//           country_code: 'US'
-//         }
-//       },
-//       transactions: [
-//         {
-//           amount: [Object],
-//           payee: [Object],
-//           description: 'Payment for order #12345',
-//           item_list: [Object],
-//           related_resources: [Array]
-//         }
-//       ],
-//       failed_transactions: [],
-//       create_time: '2023-07-16T15:48:12Z',
-//       update_time: '2023-07-16T15:54:15Z',
-//       links: [
-//         {
-//           href: 'https://api.sandbox.paypal.com/v1/payments/payment/PAYID-MS2BCPA4BT713665C9605913',
-//           rel: 'self',
-//           method: 'GET'
-//         }
-//       ],
-//       httpStatusCode: 200
-//     }
-//      */
-    
-//     // if payment status not approved then throw error
-//     if (!(payment?.state === 'approved')) {
-//       return res.sendFile(
-//         path.join(path.join(__dirname, '../../../views/sumthingWrong.html'))
-//       );
-//     }
+const checkPaypalPayment = catchAsync(async (req: Request, res: Response) => {
+  // http://localhost:3000/payment/paypal/success?app=U2FsdGVkX1/W0OEYqkDDooRyGcj23kavmEj7xiedIVIWPAGID8IG1ZaQiYlkUBkTWbXF0CMarK9yjqgXRB7wL0QIfFYyfdgt4FIZNPB8Dcy84ZY+NRGtWx3nkosUhbHXnxHxot79HolUb/a12AAKdQ==&paymentId=PAYID-MWUGVTY45C10167TA709600D&token=EC-0FV098435R815293J&PayerID=L3CREV92USD28
+  // this url to get -->paymentId  , PayerID
+  const payerId = req.query.PayerID;
+  const paymentId = req.query.paymentId;
+  const app = req.query.app;
 
-//     const find = await Purchased_courses.findOne({
-//       transactionID: paymentId,
-//     });
+  if (
+    typeof payerId !== 'string' ||
+    typeof paymentId !== 'string' ||
+    typeof app !== 'string'
+  ) {
+    throw new ApiError(400, 'Forbidden access !!');
+  }
+  const data = decryptCryptoData(
+    // because some time whitespace code
+    // 'U2FsdGVkX19dOA/shL0SLR2JyDtmLpQJy88CwzgKP18YXxHGl5lrNcVpYOzLeI6ITy/cWRTBrTK0V6PkGhbl1Ik fBtfhZUFBsLHrZmvFNuC4OpxwvY79/xToKurgOskLiz7aazvvxeghiVMtnRfEw=='
+    app.split(' ').join('+'),
+    config.encryptCrypto as string,
+  );
 
-//     if (!find?._id) {
-//       const result = await Purchased_coursesService.createPurchased_coursesByDb(
-//         {
-//           userId: data.userId,
-//           course: data.course_id,
-//           userName: data?.userName,
-//           email: data?.email,
-//           phone: data?.phone,
-//           transactionID: paymentId,
-//         },
-//         data.userId
-//       );
+  try {
+    // Set up the request headers for authentication
+    const authHeader = {
+      Authorization: `Basic ${Buffer.from(`${config.paypal.client as string}:${config.paypal.secret as string}`).toString('base64')}`,
+      'Content-Type': 'application/json',
+    };
 
-//       if (!result?.userId) {
-//         console.log(result, '312');
-//         return res.sendFile(
-//           path.join(path.join(__dirname, '../../../views/sumthingWrong.html'))
-//         );
-//         // return res.status(400).json({
-//         //   success: false,
-//         //   message: 'Payment failed!',
-//         // });
-//       } else {
-//         return res.sendFile(
-//           path.join(__dirname, '../../../views/success.html')
-//         );
-//       }
+    // Make a request to PayPal to execute the payment
 
-//       // return res.status(200).json({
-//       //   success: true,
-//       //   message: 'Payment success!',
-//       //   payment,
-//       // });
-//     } else {
-//       console.log(323);
-//       return res.sendFile(
-//         path.join(path.join(__dirname, '../../../views/allredybuye.html'))
-//       );
-//       // return res.send({
-//       //   success: false,
-//       //   message: 'You are allrady purchess course',
-//       // });
-//     }
-//   } catch (error) {
-//     console.log(333);
-//     return res.sendFile(
-//       path.join(path.join(__dirname, '../../../views/sumthingWrong.html'))
-//     );
-//     // return res.status(500).json({
-//     //   success: false,
-//     //   message: 'An error occurred during payment execution.',
-//     // });
-//   }
-// });
+    const responseData = await axios.post(
+      'https://api.sandbox.paypal.com/v1/payments/payment/' +
+        paymentId +
+        '/execute',
+      { payer_id: payerId },
+      { headers: authHeader },
+    );
+    if (responseData?.data?.state !== 'approved') {
+      throw new ApiError(400, 'Payment not approved');
+    }
 
-// const canclePayplePayment = catchAsync(async (req: Request, res: Response) => {
-//   // return res.status(400).json({
-//   //   success: false,
-//   //   message: 'cancle your payment request',
-//   // });
-//   return res.sendFile(path.join(__dirname, '../../../views/cancle.html'));
-// });
+    const find = await PendingPurchasePackage.findOne({
+      'payment.transactionId': paymentId,
+      paymentStatus: { $in: ['approved', 'rejected'] },
+    });
 
-// export const createPaymentController = {
-//   createPaymentStripe,
-//   createPaymentStripeAdvanceForNative,
-//   createPaymentPayple,
-//   chackPayplePayment,
-//   canclePayplePayment,
-// };
+    if (!find?._id) {
+      const result = await PendingPurchasePackage.findOneAndUpdate(
+        { _id: data.id },
+        {
+          payment: { transactionId: paymentId, platform: 'paypal' },
+          paymentStatus: 'approved',
+          // fullPaymentData: responseData?.data,
+        },
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
+
+      if (result?._id) {
+        const { payment, _id, ...calldata } = result;
+        payment.record = result?._id;
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        const accepted = await PurchasePackage.create(calldata?._doc);
+        res.redirect(
+          `${config.payment_url.paypal_success_url as string}?purchase_transactionsId=${paymentId}`,
+        );
+        // return sendResponse<any>(res, {
+        //   success: true,
+        //   message: 'Payment success!',
+        //   data: accepted,
+        // });
+      } else {
+        res.redirect(`${config.payment_url.paypal_success_url as string}`);
+        // throw new ApiError(400, 'Payment is not success 264');
+      }
+
+      // return res.status(200).json({
+      //   success: true,
+      //   message: 'Payment success!',
+      //   payment,
+      // });
+    } else {
+      res.redirect(`${config.payment_url.paypal_success_url as string}`);
+      // throw new ApiError(400, 'Payment is not success');
+      // return res.send({
+      //   success: false,
+      //   message: 'You are allrady purchess course',
+      // });
+    }
+  } catch (error: any) {
+    res.redirect(`${config.payment_url.paypal_success_url as string}`);
+    // throw new ApiError(400, error?.message || 'Payment is not success');
+    // return res.status(500).json({
+    //   success: false,
+    //   message: 'An error occurred during payment execution.',
+    // });
+  }
+});
+
+const createPaymentPaypalByCourse = catchAsync(
+  async (req: Request, res: Response) => {
+    const { amount, item_list, description, data: courseData } = req.body;
+    const findPackage = (await Course.findById(courseData?.courseId)) as any;
+    if (!findPackage) {
+      throw new ApiError(404, 'Do not found package category');
+    }
+    const totalPrice =
+      findPackage[courseData?.purchase?.label]?.price || findPackage?.price;
+
+    //! ------- price configuration ------
+    const item = item_list.items[0];
+    const price = parseFloat(String(totalPrice));
+    // Convert the price to a string with exactly 2 decimal places
+    const formattedPrice = price.toFixed(2);
+    // Update the item's price with the formatted value
+    item.price = formattedPrice;
+    item.currency = 'USD';
+    item.quantity = 1;
+
+    //! ------- price configuration end ------
+    courseData.user = courseData.user || req?.user?.id;
+    courseData.expiry_date = courseData?.purchase?.label
+      ? calculateNextBillingDate(
+          courseData?.purchase?.label, // example monthly,yearly
+        )
+      : undefined;
+
+    const createPendingCourse = await PendingPurchaseCourse.create({
+      ...courseData,
+      course: findPackage._id,
+      paymentStatus: 'pending',
+      total_price: totalPrice,
+    });
+    if (!createPendingCourse._id) {
+      throw new ApiError(400, 'Something is wrong with purchase');
+    }
+    const data: any = {
+      id: createPendingCourse?._id,
+      amount: { total: item.price, currency: 'USD' },
+      platform: 'paypal',
+    };
+
+    const encryptData = encryptCryptoData(data, config.encryptCrypto as string);
+
+    const payment: Payment = {
+      intent: 'sale',
+      payer: {
+        payment_method: 'paypal',
+      },
+      redirect_urls: {
+        // http://localhost:3000/payment/paypal/success?app=U2FsdGVkX1/W0OEYqkDDooRyGcj23kavmEj7xiedIVIWPAGID8IG1ZaQiYlkUBkTWbXF0CMarK9yjqgXRB7wL0QIfFYyfdgt4FIZNPB8Dcy84ZY+NRGtWx3nkosUhbHXnxHxot79HolUb/a12AAKdQ==&paymentId=PAYID-MWUGVTY45C10167TA709600D&token=EC-0FV098435R815293J&PayerID=L3CREV92USD28
+        // this url to get -->paymentId  , PayerID
+        // return_url: `${config.payment_url.paypal_success_url}?app=${encryptData}`,
+        return_url: `${config.server_side_url}/api/v1/payment/paypal/check/buy_course?app=${encryptData}`,
+        cancel_url: `${config.payment_url.paypal_cancel_url}`,
+      },
+      transactions: [
+        {
+          item_list,
+          amount: {
+            currency: 'USD',
+            total: String(formattedPrice),
+          },
+          description: description || '',
+        },
+      ],
+    };
+
+    paypal.payment.create(payment, (error: any, payment: any) => {
+      if (error) {
+        console.log(error, 'ddd');
+        // errorLogger.error(error)
+        return res.status(404).send({
+          success: false,
+          statusCode: 404,
+          message: error,
+        });
+      } else {
+        for (let i = 0; i < payment.links.length; i++) {
+          if (payment.links[i].rel === 'approval_url') {
+            res.status(200).send({
+              success: true,
+              message: `Successfully Paypal payment instant`,
+              data: {
+                url: payment.links[i].href,
+              },
+            });
+          }
+        }
+      }
+    });
+  },
+);
+
+const checkPaypalPaymentByCourse = catchAsync(
+  async (req: Request, res: Response) => {
+    // http://localhost:3000/payment/paypal/success?app=U2FsdGVkX1/W0OEYqkDDooRyGcj23kavmEj7xiedIVIWPAGID8IG1ZaQiYlkUBkTWbXF0CMarK9yjqgXRB7wL0QIfFYyfdgt4FIZNPB8Dcy84ZY+NRGtWx3nkosUhbHXnxHxot79HolUb/a12AAKdQ==&paymentId=PAYID-MWUGVTY45C10167TA709600D&token=EC-0FV098435R815293J&PayerID=L3CREV92USD28
+    // this url to get -->paymentId  , PayerID
+    const payerId = req.query.PayerID;
+    const paymentId = req.query.paymentId;
+    const app = req.query.app;
+
+    if (
+      typeof payerId !== 'string' ||
+      typeof paymentId !== 'string' ||
+      typeof app !== 'string'
+    ) {
+      throw new ApiError(400, 'Forbidden access !!');
+    }
+    const data = decryptCryptoData(
+      // because some time whitespace code
+      // 'U2FsdGVkX19dOA/shL0SLR2JyDtmLpQJy88CwzgKP18YXxHGl5lrNcVpYOzLeI6ITy/cWRTBrTK0V6PkGhbl1Ik fBtfhZUFBsLHrZmvFNuC4OpxwvY79/xToKurgOskLiz7aazvvxeghiVMtnRfEw=='
+      app.split(' ').join('+'),
+      config.encryptCrypto as string,
+    );
+
+    try {
+      // Set up the request headers for authentication
+      const authHeader = {
+        Authorization: `Basic ${Buffer.from(`${config.paypal.client as string}:${config.paypal.secret as string}`).toString('base64')}`,
+        'Content-Type': 'application/json',
+      };
+
+      // Make a request to PayPal to execute the payment
+
+      const responseData = await axios.post(
+        'https://api.sandbox.paypal.com/v1/payments/payment/' +
+          paymentId +
+          '/execute',
+        { payer_id: payerId },
+        { headers: authHeader },
+      );
+      if (responseData?.data?.state !== 'approved') {
+        throw new ApiError(400, 'Payment not approved');
+      }
+
+      const find = await PendingPurchaseCourse.findOne({
+        'payment.transactionId': paymentId,
+        paymentStatus: { $in: ['approved', 'rejected'] },
+      });
+
+      if (!find?._id) {
+        const result = await PendingPurchaseCourse.findOneAndUpdate(
+          { _id: data.id },
+          {
+            payment: { transactionId: paymentId, platform: 'paypal' },
+            paymentStatus: 'approved',
+            // fullPaymentData: responseData?.data,
+          },
+          {
+            new: true,
+            runValidators: true,
+          },
+        );
+
+        if (result?._id) {
+          const { payment, _id, ...calldata } = result;
+          payment.record = result?._id;
+
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          //@ts-ignore
+          const accepted = await PurchaseCourse.create(calldata?._doc);
+          res.redirect(
+            `${config.payment_url.paypal_success_url as string}?purchase_transactionsId=${paymentId}`,
+          );
+          // return sendResponse<any>(res, {
+          //   success: true,
+          //   message: 'Payment success!',
+          //   data: accepted,
+          // });
+        } else {
+          throw new ApiError(400, 'Payment is not success 264');
+        }
+
+        // return res.status(200).json({
+        //   success: true,
+        //   message: 'Payment success!',
+        //   payment,
+        // });
+      } else {
+        throw new ApiError(400, 'Payment is not success');
+        // return res.send({
+        //   success: false,
+        //   message: 'You are allrady purchess course',
+        // });
+      }
+    } catch (error: any) {
+      throw new ApiError(400, error?.message || 'Payment is not success');
+      // return res.status(500).json({
+      //   success: false,
+      //   message: 'An error occurred during payment execution.',
+      // });
+    }
+  },
+);
+
+const cancelPaypalPayment = catchAsync(async (req: Request, res: Response) => {
+  // return res.status(400).json({
+  //   success: false,
+  //   message: 'cancle your payment request',
+  // });
+  // return res.sendFile(path.join(__dirname, '../../../views/cancle.html'));
+});
+
+export const createPaymentController = {
+  createPaymentStripe,
+  createPaymentStripeAdvanceForNative,
+  createPaymentPaypal,
+  createPaymentPaypalByCourse,
+  checkPaypalPaymentByCourse,
+  checkPaypalPayment,
+  cancelPaypalPayment,
+};

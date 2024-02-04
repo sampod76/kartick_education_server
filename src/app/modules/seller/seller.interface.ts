@@ -10,11 +10,15 @@ export type ISeller = {
   gender: 'male' | 'female';
   dateOfBirth: string;
   email: string;
+  additionalRole: string;
+  userId?: string;
   phoneNumber: string;
   bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
   address: string;
   img: string;
   details?: string;
+  user_bio?: string;
+  isDelete: string;
 };
 
 export type SellerModel = Model<ISeller, Record<string, unknown>>;
@@ -26,5 +30,6 @@ export type ISellerFilters = {
   email?: string;
   phoneNumber?: string;
   delete?: 'yes' | 'no';
+  isDelete?: string;
   status?:'active' | 'deactivate' | 'disabled' | 'block'
 };

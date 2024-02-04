@@ -26,7 +26,10 @@ const getAllSingleQuizFromDb = async (
 ): Promise<IGenericResponse<ISingleQuiz[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-
+  filtersData.status = filtersData.status
+    ? filtersData.status
+    : ENUM_STATUS.ACTIVE;
+    filtersData.isDelete = filtersData.isDelete ? filtersData.isDelete : ENUM_YN.NO;
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -54,7 +57,17 @@ const getAllSingleQuizFromDb = async (
   if (Object.keys(filtersData).length) {
     andConditions.push({
       $and: Object.entries(filtersData).map(([field, value]) =>
-        field === 'module'
+        field === 'category'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'course'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'milestone'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'module'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'lesson'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'quiz'
           ? { [field]: new Types.ObjectId(value) }
           : { [field]: value }
       ),
@@ -103,11 +116,11 @@ const getAllSingleQuizFromDb = async (
           // Additional stages for collection2
           // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
 
-          // {
-          //   $project: {
-          //     __v: 0,
-          //   },
-          // },
+          {
+            $project: {
+              __v: 0,
+            },
+          },
         ],
         as: 'moduleDetails',
       },
@@ -272,6 +285,43 @@ const getSingleSingleQuizFromDb = async (
     {
       $unwind: '$quiz',
     },
+    //------------ quiz pipelines --------------------------------
+    {
+      $lookup: {
+        from: 'quizzes',
+        let: { id: '$quiz' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$_id', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+        ],
+        as: 'quizDetails',
+      },
+    },
+
+    {
+      $project: { quiz: 0 },
+    },
+    {
+      $addFields: {
+        quiz: {
+          $cond: {
+            if: { $eq: [{ $size: '$quizDetails' }, 0] },
+            then: [{}],
+            else: '$quizDetails',
+          },
+        },
+      },
+    },
+    {
+      $project: { quizDetails: 0 },
+    },
+    {
+      $unwind: '$quiz',
+    },
   ]);
 
   return result[0];
@@ -282,17 +332,19 @@ const updateSingleQuizFromDb = async (
   id: string,
   payload: Partial<ISingleQuiz>
 ): Promise<ISingleQuiz | null> => {
-  const { demo_video, ...otherData } = payload;
-  const updateData = { ...otherData };
-  if (demo_video && Object.keys(demo_video).length > 0) {
-    Object.keys(demo_video).forEach(key => {
-      const demo_videoKey = `demo_video.${key}`; // `demo_video.status`
-      (updateData as any)[demo_videoKey] =
-        demo_video[key as keyof typeof demo_video];
-    });
-  }
+  console.log('🚀 ~ file: single_quiz.service.ts:285 ~ id:', id);
+  // const { /* demo_video,  */ ...otherData } = payload;
+  // console.log('🚀 ~ file: single_quiz.service.ts:286 ~ payload:', payload);
+  // const updateData = { ...otherData };
+  // if (demo_video && Object.keys(demo_video).length > 0) {
+  //   Object.keys(demo_video).forEach(key => {
+  //     const demo_videoKey = `demo_video.${key}`; // `demo_video.status`
+  //     (updateData as any)[demo_videoKey] =
+  //       demo_video[key as keyof typeof demo_video];
+  //   });
+  // }
 
-  const result = await SingleQuiz.findOneAndUpdate({ _id: id }, updateData, {
+  const result = await SingleQuiz.findOneAndUpdate({ _id: id }, payload, {
     new: true,
     runValidators: true,
   });
@@ -311,9 +363,12 @@ const deleteSingleQuizByIdFromDb = async (
   if (query.delete === ENUM_YN.YES) {
     result = await SingleQuiz.findByIdAndDelete(id);
   } else {
-    result = await SingleQuiz.findOneAndUpdate({
-      status: ENUM_STATUS.DEACTIVATE,
-    });
+    result = await SingleQuiz.findOneAndUpdate(
+      { _id: id },
+      {
+        status: ENUM_STATUS.DEACTIVATE,
+      }
+    );
   }
   return result;
 };

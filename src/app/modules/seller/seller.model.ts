@@ -16,6 +16,13 @@ const SellerSchema = new Schema<ISeller, SellerModel>(
       },
       required: true,
     },
+    userId: {
+      type: String,
+    },
+    additionalRole: {
+      type: String,
+      default: 'seller',
+    },
     dateOfBirth: {
       type: String,
     },
@@ -36,11 +43,19 @@ const SellerSchema = new Schema<ISeller, SellerModel>(
     address: {
       type: String,
     },
+    user_bio: {
+      type: String,
+    },
     img: {
       type: String,
     },
     details: {
       type: String,
+    },
+    isDelete: {
+      type: String,
+      enum: ['yes', 'no'],
+      default: 'no',
     },
   },
   {
@@ -48,7 +63,7 @@ const SellerSchema = new Schema<ISeller, SellerModel>(
     toJSON: {
       virtuals: true,
     },
-  }
+  },
 );
 
 export const Seller = model<ISeller, SellerModel>('Seller', SellerSchema);

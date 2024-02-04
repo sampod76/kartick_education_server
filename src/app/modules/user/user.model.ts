@@ -17,6 +17,15 @@ const userSchema = new Schema<IUser, UserModel>(
       type: String,
       required: true,
     },
+    additionalRole: {
+      type: String,
+    },
+    userId: {
+      type: String,
+    },
+    user_agent: {
+      type: String,
+    },
     password: {
       type: String,
       required: true,
@@ -59,29 +68,37 @@ const userSchema = new Schema<IUser, UserModel>(
       type: Schema.Types.ObjectId,
       ref: 'Seller',
     },
+    author: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    isDelete: {
+      type: String,
+      enum: ['yes', 'no'],
+      default: 'no',
+    },
   },
   {
     timestamps: true,
     toJSON: {
       virtuals: true,
     },
-  }
+  },
 );
 
 userSchema.statics.isUserExistMethod = async function (
-  email: string
+  email: string,
 ): Promise<Pick<IUser, 'email' | 'password' | 'role'> | null> {
   const user = await User.findOne(
     { email },
-    { id: 1, email: 1, password: 1, role: 1 }
+    { id: 1, email: 1, password: 1, role: 1 },
   );
-
   return user;
 };
 
 userSchema.statics.isPasswordMatchMethod = async function (
   givenPassword: string,
-  savedPassword: string
+  savedPassword: string,
 ): Promise<boolean | null> {
   return await bcrypt.compare(givenPassword, savedPassword);
 };
@@ -92,7 +109,7 @@ userSchema.pre('save', async function (next) {
     if (user.isModified('password')) {
       user.password = await bcrypt.hash(
         user.password,
-        Number(config.bycrypt_salt_rounds)
+        Number(config.bycrypt_salt_rounds),
       );
     }
     next();

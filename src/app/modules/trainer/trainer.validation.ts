@@ -32,7 +32,9 @@ const updateTrainer = z.object({
     address: z
       .string()
       .optional(),
-    img: z.string().optional(),
+    img: z.string().url().optional(),
+    user_bio: z.string().optional(),
+    
   }),
 });
 

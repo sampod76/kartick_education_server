@@ -7,6 +7,7 @@ const createCategoryZodSchema = z.object({
     }),
     thumbnail: z.string().optional(),
     status: z.string().optional(),
+    isDelete: z.string().optional(),
   }),
 });
 const updateCategoryZodSchema = z.object({
@@ -14,6 +15,7 @@ const updateCategoryZodSchema = z.object({
     title: z.string().optional(),
     thumbnail: z.string().optional(),
     status: z.string().optional(),
+    isDelete: z.string().optional(),
   }),
 });
 

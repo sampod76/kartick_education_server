@@ -2,18 +2,21 @@ import { Schema, model } from 'mongoose';
 import { STATUS_ARRAY, YN_ARRAY } from '../../../constant/globalConstant';
 import { IMilestone, MilestoneModel } from './milestone.interface';
 
-const milestoneSchema = new Schema<IMilestone,MilestoneModel>(
+const milestoneSchema = new Schema<IMilestone, MilestoneModel>(
   {
     title: {
       type: String,
       trim: true,
-      required: true,
       index: true,
     },
-    img: {
+    imgs: [{
       type: String,
-    },
+    }],
     details: {
+      type: String,
+      trim: true,
+    },
+    short_description: {
       type: String,
       trim: true,
     },
@@ -25,14 +28,24 @@ const milestoneSchema = new Schema<IMilestone,MilestoneModel>(
       type: Schema.Types.ObjectId,
       ref: 'Course',
     },
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+    },
     status: {
       type: String,
       enum: STATUS_ARRAY,
       default: 'active',
     },
-    showing_number: {
+isDelete: {
+      type: String,
+      enum:["yes", "no"],
+      default: 'no',
+    },
+    milestone_number: {
       type: Number,
-      default: 9999,
+      // unique: true,
+      required: [true, 'milestone_number is required'],
     },
     demo_video: {
       type: Object,
@@ -54,4 +67,7 @@ const milestoneSchema = new Schema<IMilestone,MilestoneModel>(
   }
 );
 
-export const Milestone = model<IMilestone,MilestoneModel>('Milestone', milestoneSchema);
+export const Milestone = model<IMilestone, MilestoneModel>(
+  'Milestone',
+  milestoneSchema
+);

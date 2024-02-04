@@ -17,6 +17,9 @@ const TrainerSchema = new Schema<ITrainer, TrainerModel>(
       },
       required: true,
     },
+    userId:{
+      type: String,
+    },
     dateOfBirth: {
       type: String,
     },
@@ -35,6 +38,9 @@ const TrainerSchema = new Schema<ITrainer, TrainerModel>(
       required: true,
     },
     address: {
+      type: String,
+    },
+    user_bio: {
       type: String,
     },
     img: {

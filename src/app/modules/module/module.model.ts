@@ -7,13 +7,17 @@ const moduleSchema = new Schema<IModule,ModuleModel>(
     title: {
       type: String,
       trim: true,
-      required: true,
+   
       index: true,
     },
-    img: {
+    imgs: [{
       type: String,
-    },
+    }],
     details: {
+      type: String,
+      trim: true,
+    },
+    short_description: {
       type: String,
       trim: true,
     },
@@ -21,14 +25,29 @@ const moduleSchema = new Schema<IModule,ModuleModel>(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
+    //
+    course: {
+      type: Schema.Types.ObjectId,
+      ref: 'Course',
+    },
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+    },
     milestone: {
       type: Schema.Types.ObjectId,
       ref: 'Milestone',
     },
+    //
     status: {
       type: String,
       enum: STATUS_ARRAY,
       default: 'active',
+    },
+isDelete: {
+      type: String,
+      enum:["yes", "no"],
+      default: 'no',
     },
     module_number: {
       type: Number,

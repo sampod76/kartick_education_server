@@ -11,17 +11,11 @@ import path from 'path';
 
 //*******************note********* */
 
-// ! ---- upload only imgbb helper ---------------------
-const storageFack = multer.memoryStorage();
-export const multerImgbbUploder = multer({ storage: storageFack });
-
-
-
-//!-------------single file upload----start------------
+//-------------single file upload----start------------
 const storage: StorageEngine = multer.diskStorage({
   destination: (req, file, cb) => {
     console.log(req);
-    cb(null, path.join(__dirname, '../../uploadFile/images/'));
+    cb(null, path.join(__dirname, '../../../../uploadFile/images/'));
   },
   filename: (
     req,
@@ -65,16 +59,12 @@ export const uploadSingleImage: RequestHandler = multer({
   },
   fileFilter: fileFilter,
 }).single('image');
-//-------------single file upload----end------------
+//!-------------single file upload----end------------
 
-
-
-
-
-//!-------------single file upload----start------------
+//-------------single file upload----start------------
 const storageByProfile: StorageEngine = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../../uploadFile/images/'));
+    cb(null, path.join(__dirname, '../../../../uploadFile/profile/'));
   },
   filename: (
     req,
@@ -117,16 +107,12 @@ export const uploadSingleImageByProfile: RequestHandler = multer({
   },
   fileFilter: fileFilterByProfile,
 }).single('image');
-//-------------single file upload----end------------
-
-
-
-
+//!-------------single file upload----end------------
 
 //------------upload multiple images-----------------
 const storageMultiple: StorageEngine = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../../uploadFile/images/'));
+    cb(null, path.join(__dirname, '../../../../uploadFile/images/'));
   },
   filename: (req, file, cb) => {
     const fileExt = path.extname(file.originalname);
@@ -165,63 +151,12 @@ export const uploadMultipleImage: RequestHandler = multer({
   },
   fileFilter: fileFilterMultiple,
 }).array('images', 10);
-//------------upload multiple images--end---------------
-
-
-
-
-//!-----------upload multiple photo-contest---start---------------
-const storageMultiplePhotoContest: StorageEngine = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../../uploadFile/photo-contest/'));
-  },
-  filename: (req, file, cb) => {
-    const fileExt = path.extname(file.originalname);
-    const fileName =
-      file.originalname
-        .replace(fileExt, '')
-        .toLowerCase()
-        .split(' ')
-        .join('-') +
-      '-' +
-      Date.now();
-    cb(null, fileName + fileExt);
-  },
-});
-
-const fileFilterMultiplePhotoContest = (
-  req: Request,
-  file: Express.Multer.File,
-  cb: FileFilterCallback
-) => {
-  if (
-    file.mimetype === 'image/png' ||
-    file.mimetype === 'image/jpg' ||
-    file.mimetype === 'image/jpeg'
-  ) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only jpg, jpeg, png formats are allowed!'));
-  }
-};
-
-export const uploadMultiplePhotoContestImage: RequestHandler = multer({
-  storage: storageMultiplePhotoContest,
-  limits: {
-    fileSize: 50 * 1024 * 1024, // 50 MB
-  },
-  fileFilter: fileFilterMultiplePhotoContest,
-}).array('images', 10);
-
-
-//!------------upload multiple-photo-contest--end---------------
-
-
+//!------------upload multiple images--end---------------
 
 //------------upload video file ---start-----------
 const videoStorage: StorageEngine = multer.diskStorage({
   destination: (req: any, file: any, cb: (arg0: null, arg1: string) => any) => {
-    cb(null, path.join(__dirname, '../uploadFile/vedio/'));
+    cb(null, path.join(__dirname, '../../../../uploadFile/video/'));
   },
   filename: (
     req: any,
@@ -259,5 +194,94 @@ export const uploadVideoFile: RequestHandler = multer({
     fileSize: 200 * 1024 * 1024, // 200 MB
   },
   fileFilter: fileFilterVideo,
-}).single('vedio');
+}).single('video');
+
+//------------upload pdf file ---start-----------
+const pdfStorage: StorageEngine = multer.diskStorage({
+  destination: (req: any, file: any, cb: (arg0: null, arg1: string) => any) => {
+    cb(null, path.join(__dirname, '../../../../uploadFile/pdfs/'));
+  },
+  filename: (
+    req: any,
+    file: { originalname: string },
+    cb: (arg0: null, arg1: string) => any
+  ) => {
+    const fileExt = path.extname(file.originalname);
+    const fileName =
+      file.originalname
+        .replace(fileExt, '')
+        .toLowerCase()
+        .split(' ')
+        .join('-') +
+      '-' +
+      Date.now();
+    cb(null, fileName + fileExt);
+  },
+});
+
+const fileFilterPdf = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: FileFilterCallback
+) => {
+  
+  if (file.mimetype === 'file/pdf' || file.mimetype === 'application/pdf') {
+    cb(null, true);
+  } else {
+    cb(new Error('Only pdf format is allowed!'));
+  }
+};
+
+export const uploadPdfFile: RequestHandler = multer({
+  storage: pdfStorage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10 MB
+  },
+  fileFilter: fileFilterPdf,
+}).single('pdf');
+//------------upload video file --end---------------
+
+//------------upload audio file ---start-----------
+const audioStorage: StorageEngine = multer.diskStorage({
+  destination: (req: any, file: any, cb: (arg0: null, arg1: string) => any) => {
+    cb(null, path.join(__dirname, '../../../../uploadFile/audios/'));
+  },
+  filename: (
+    req: any,
+    file: { originalname: string },
+    cb: (arg0: null, arg1: string) => any
+  ) => {
+    const fileExt = path.extname(file.originalname);
+    const fileName =
+      file.originalname
+        .replace(fileExt, '')
+        .toLowerCase()
+        .split(' ')
+        .join('-') +
+      '-' +
+      Date.now();
+    cb(null, fileName + fileExt);
+  },
+});
+
+const fileFilterAudio = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: FileFilterCallback
+) => {
+  console.log(file);
+  if (file.mimetype === 'file/mpeg' || file.mimetype === 'audio/mpeg') {
+    cb(null, true);
+  } else {
+    cb(new Error('Only pdf format is allowed!'));
+  }
+};
+
+export const uploadAudioFile: RequestHandler = multer({
+  storage: audioStorage,
+  limits: {
+    fileSize: 30 * 1024 * 1024, // 10 MB
+  },
+  fileFilter: fileFilterAudio,
+}).single('audio');
 //------------upload video file --end---------------

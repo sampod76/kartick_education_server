@@ -8,13 +8,24 @@ import { CourseRoute } from '../modules/course/course.route';
 import { LessonRoute } from '../modules/lesson/lesson.route';
 import { MilestoneRoute } from '../modules/milestone/milestone.route';
 
+import { StudentPurchasePackageCourseRoute } from '../modules/addStudentToPackageAndCourse/route.studentPurchaseCourseBuy';
+import { CourseCartRoute } from '../modules/courseCart/courseCart.route';
+import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
+import { GlossaryRoute } from '../modules/glossary/glossary.route';
+import { UserLoginHistoryRoutes } from '../modules/loginHistory/loginHistory.route';
 import { ModuleRoute } from '../modules/module/module.route';
-import { QuizRoute } from '../modules/singel_quiz/quiz.route';
-import { StudentRoutes } from '../modules/student/student.route';
-import { UserRoutes } from '../modules/user/user.route';
-import { SingleQuizRoute } from '../modules/single_quiz/single_quiz.route';
+import { PackageRoute } from '../modules/package/package.route';
+import { PaymentRoute } from '../modules/payment/payment.router';
+import { PurchaseCourseRoute } from '../modules/purchase_courses/purchase_courses.route';
+import { PurchasePackageRoute } from '../modules/purchase_package/purchase_package.route';
+import { QuizRoute } from '../modules/quiz/quiz.route';
+import { QuizSubmitRoute } from '../modules/quizSubmit/quizSubmit.route';
+import { ResourceRoute } from '../modules/resource/resource.route';
 import { SellerRoutes } from '../modules/seller/seller.route';
+import { SingleQuizRoute } from '../modules/single_quiz/single_quiz.route';
+import { StudentRoutes } from '../modules/student/student.route';
 import { TrainerRoutes } from '../modules/trainer/trainer.route';
+import { UserRoutes } from '../modules/user/user.route';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -46,7 +57,7 @@ const moduleRoutes = [
     route: SingleQuizRoute,
   },
   {
-    path: '/user',
+    path: '/users',
     route: UserRoutes,
   },
   {
@@ -73,6 +84,54 @@ const moduleRoutes = [
   {
     path: '/category',
     route: CategoryRoute,
+  },
+  {
+    path: '/glossary',
+    route: GlossaryRoute,
+  },
+  {
+    path: '/resource',
+    route: ResourceRoute,
+  },
+  {
+    path: '/upload',
+    route: FileUploadeRoute,
+  },
+  {
+    path: '/quiz_submit',
+    route: QuizSubmitRoute,
+  },
+  {
+    path: '/packages',
+    route: PackageRoute,
+  },
+  {
+    path: '/purchase_packages',
+    route: PurchasePackageRoute,
+  },
+  {
+    path: '/purchase_courses',
+    route: PurchaseCourseRoute,
+  },
+  {
+    path: '/student_purchase_packages_course',
+    route: StudentPurchasePackageCourseRoute,
+  },
+  {
+    path: '/payment',
+    route: PaymentRoute,
+  },
+  {
+    path: '/login_history',
+    route: UserLoginHistoryRoutes,
+  },
+  {
+    path: '/course-cart',
+    route: CourseCartRoute,
+  },
+  {
+    path: '/upload',
+    route: CourseCartRoute,
   },
 ];
 

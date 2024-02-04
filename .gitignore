@@ -6,7 +6,10 @@ node_modules
 
 .vercel
 
-# logger
+logger
 
 dist
 /dist
+
+kartick_education_server.zip
+.vscode

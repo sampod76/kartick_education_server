@@ -1,26 +1,30 @@
 import { Schema, model } from 'mongoose';
 import { STATUS_ARRAY } from '../../../constant/globalConstant';
 import { CategoryModel, ICategory } from './interface.category';
-const modelObject={
-  title: {
-    type: String,
-    required: true,
-    //unique: true,
-    trim: true,
-    index: true,
-  },
-  img: {
-    type: String,
-    trim: true,
-  },
-  status: {
-    type: String,
-    enum: STATUS_ARRAY,
-    default: 'active',
-  },
-}
 const CategorySchema = new Schema<ICategory, CategoryModel>(
-  modelObject,
+  {
+    title: {
+      type: String,
+      required: true,
+      //unique: true,
+      trim: true,
+      index: true,
+    },
+    img: {
+      type: String,
+      trim: true,
+    },
+    status: {
+      type: String,
+      enum: STATUS_ARRAY,
+      default: 'active',
+    },
+isDelete: {
+      type: String,
+      enum:["yes", "no"],
+      default: 'no',
+    },
+  },
   {
     timestamps: true,
     // strict: 'throw',
@@ -31,7 +35,24 @@ const CategorySchema = new Schema<ICategory, CategoryModel>(
 );
 
 const ArchivedCategorySchema=new Schema<ICategory, CategoryModel>(
-  modelObject,
+  {
+    title: {
+      type: String,
+      required: true,
+      //unique: true,
+      trim: true,
+      index: true,
+    },
+    img: {
+      type: String,
+      trim: true,
+    },
+    status: {
+      type: String,
+      enum: STATUS_ARRAY,
+      default: 'active',
+    },
+  },
   {
     timestamps: true,
     // strict: 'throw',

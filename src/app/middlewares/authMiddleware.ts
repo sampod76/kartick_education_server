@@ -6,8 +6,6 @@ import config from '../../config';
 import { jwtHelpers } from '../../helper/jwtHelpers';
 import ApiError from '../errors/ApiError';
 
-
-
 const authMiddleware =
   (...requiredRoles: string[]) =>
   async (req: Request, res: Response, next: NextFunction) => {
@@ -22,17 +20,23 @@ const authMiddleware =
 
       // verify token only general user
 
-      if (token) {
-        verifiedUser = jwtHelpers.verifyToken(
-          token,
-          config.jwt.secret as Secret
-        );
-        req.user = verifiedUser;
+      try {
+        if (token) {
+          verifiedUser = jwtHelpers.verifyToken(
+            token,
+            config.jwt.secret as Secret,
+          );
+          
+          req.user = verifiedUser;
+        }
+      } catch (error) {
+        throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden access');
       }
-    
+     
+
       // role diye guard korar jnno
       if (requiredRoles.length && !requiredRoles.includes(verifiedUser?.role)) {
-        throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden access');
+        throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized access');
       }
 
       //chack token user

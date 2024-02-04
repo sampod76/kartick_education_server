@@ -12,9 +12,7 @@ import { CourseService } from './course.service';
 // import { z } from 'zod'
 const createCourse = catchAsync(async (req: Request, res: Response) => {
   const { ...courseData } = req.body;
-
   const result = await CourseService.createCourseByDb(courseData);
-
   sendResponse<ICourse>(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -27,18 +25,34 @@ const getAllCourse = catchAsync(async (req: Request, res: Response) => {
   //****************search and filter start******* */
   // console.log(req.query);
   const queryObject = req.query;
- 
   const filters = pick(queryObject, COURSE_FILTERABLE_FIELDS);
-
   //****************pagination start************ */
-
   const paginationOptions = pick(queryObject, PAGINATION_FIELDS);
-
   const result = await CourseService.getAllCourseFromDb(
     filters,
     paginationOptions
   );
+  sendResponse<ICourse[]>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'successfull Get academic Course',
+    meta: result.meta,
+    data: result.data,
+  });
+  // next();
+});
 
+const getAllCourseMilestoneModuleList = catchAsync(async (req: Request, res: Response) => {
+  //****************search and filter start******* */
+  // console.log(req.query);
+  const queryObject = req.query;
+  const filters = pick(queryObject, COURSE_FILTERABLE_FIELDS);
+  //****************pagination start************ */
+  const paginationOptions = pick(queryObject, PAGINATION_FIELDS);
+  const result = await CourseService.getAllCourseMilestoneModuleListFromDb(
+    filters,
+    paginationOptions
+  );
   sendResponse<ICourse[]>(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -52,6 +66,17 @@ const getAllCourse = catchAsync(async (req: Request, res: Response) => {
 const getSingleCourse = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await CourseService.getSingleCourseFromDb(id);
+  sendResponse<ICourse>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'successfull get academic Course',
+    data: result,
+  });
+});
+
+const getSingleCourseModuleLessonQuiz = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await CourseService.getSingleCourseModuleLessonQuizDb(id);
   sendResponse<ICourse>(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -105,4 +130,6 @@ export const CourseController = {
   updateCourse,
   deleteCourse,
   courseReviewsByUser,
+  getAllCourseMilestoneModuleList,
+  getSingleCourseModuleLessonQuiz
 };

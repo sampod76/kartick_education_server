@@ -1,4 +1,5 @@
 import { Model, Types } from 'mongoose';
+import { IGender, IStatus } from '../../interface/globalTypes';
 
 export type UserName = {
   firstName: string;
@@ -7,14 +8,16 @@ export type UserName = {
 
 export type IAdmin = {
   name: UserName; //embedded object
-  gender: 'male' | 'female';
+  gender: IGender;
   dateOfBirth: string;
   email: string;
+  additionalRole: string;
   phoneNumber: string;
   bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
   address: string;
   courseId: Types.ObjectId;
   img: string;
+  isDelete: string;
 };
 
 export type AdminModel = Model<IAdmin, Record<string, unknown>>;
@@ -26,5 +29,7 @@ export type IAdminFilters = {
   email?: string;
   phoneNumber?: string;
   delete?: 'yes' | 'no';
-  status: 'active' | 'deactivate' | 'save' | 'disable';
+  status?: IStatus;
+  select?: string;
+  isDelete?: string;
 };

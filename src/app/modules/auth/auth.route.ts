@@ -1,22 +1,33 @@
 import express from 'express';
 
+import { ENUM_USER_ROLE } from '../../../enums/users';
+import authMiddleware from '../../middlewares/authMiddleware';
+import validateRequestZod from '../../middlewares/validateRequestZod';
 import { AuthController } from './auth.controller';
 import { AuthValidation } from './auth.validation';
-import validateRequestZod from '../../middlewares/validateRequestZod';
-import authMiddleware from '../../middlewares/authMiddleware';
-import { ENUM_USER_ROLE } from '../../../enums/users';
 const router = express.Router();
 
 router.post(
   '/login',
   validateRequestZod(AuthValidation.loginZodSchema),
-  AuthController.loginUser
+  AuthController.loginUser,
+);
+router.post(
+  '/log-out-history/:id', // id --> login history _id
+  authMiddleware(
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.MODERATOR,
+    ENUM_USER_ROLE.STUDENT,
+    ENUM_USER_ROLE.SELLER,
+  ),
+  // validateRequestZod(AuthValidation.refreshTokenZodSchema),
+  AuthController.logOut,
 );
 
 router.post(
   '/refresh-token',
   validateRequestZod(AuthValidation.refreshTokenZodSchema),
-  AuthController.refreshToken
+  AuthController.refreshToken,
 );
 
 router.post(
@@ -25,14 +36,33 @@ router.post(
   authMiddleware(
     ENUM_USER_ROLE.ADMIN,
     ENUM_USER_ROLE.MODERATOR,
-    ENUM_USER_ROLE.STUDENT
+    ENUM_USER_ROLE.STUDENT,
+    ENUM_USER_ROLE.SELLER,
   ),
-  AuthController.changePassword
+  AuthController.changePassword,
 );
-// router.post(
-//   '/forgot-password',
-//   AuthController.forgotPass
-// );
+router.post(
+  '/reset-password',
+  validateRequestZod(AuthValidation.changePasswordZodSchema),
+  AuthController.resetPassword,
+);
+
+router.get(
+  '/profile',
+  authMiddleware(
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.MODERATOR,
+    ENUM_USER_ROLE.STUDENT,
+    ENUM_USER_ROLE.SELLER,
+  ),
+  AuthController.profile,
+);
+
+router.post(
+  '/forgot-password',
+  validateRequestZod(AuthValidation.forgotPassword),
+  AuthController.forgotPass,
+);
 
 // router.post(
 //   '/reset-password',

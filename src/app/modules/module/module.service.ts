@@ -13,28 +13,23 @@ import { Module } from './module.model';
 
 const { ObjectId } = mongoose.Types;
 const createModuleByDb = async (payload: IModule): Promise<IModule> => {
-  const result = (await Module.create(payload)).populate([
-    {
-      path: 'author',
-      select: {
-        needsPasswordChange: 0,
-        createdAt: 0,
-        updatedAt: 0,
-        __v: 0,
-      },
-    },
-  ]);
+  const result = await Module.create(payload);
   return result;
 };
 
 //getAllModuleFromDb
 const getAllModuleFromDb = async (
   filters: IModuleFilters,
-  paginationOptions: IPaginationOption
+  paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<IModule[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-
+  filtersData.status = filtersData.status
+    ? filtersData.status
+    : ENUM_STATUS.ACTIVE;
+  filtersData.isDelete = filtersData.isDelete
+    ? filtersData.isDelete
+    : ENUM_YN.NO;
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -54,7 +49,7 @@ const getAllModuleFromDb = async (
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
           : {
               [field]: new RegExp(searchTerm, 'i'),
-            }
+            },
       ),
     });
   }
@@ -62,9 +57,13 @@ const getAllModuleFromDb = async (
   if (Object.keys(filtersData).length) {
     andConditions.push({
       $and: Object.entries(filtersData).map(([field, value]) =>
-         field === 'milestone'
+        field === 'category'
           ? { [field]: new Types.ObjectId(value) }
-          : { [field]: value }
+          : field === 'course'
+            ? { [field]: new Types.ObjectId(value) }
+            : field === 'milestone'
+              ? { [field]: new Types.ObjectId(value) }
+              : { [field]: value },
       ),
     });
   }
@@ -104,7 +103,12 @@ const getAllModuleFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [
+                  { $eq: ['$_id', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -120,7 +124,7 @@ const getAllModuleFromDb = async (
         as: 'milestoneDetails',
       },
     },
-    
+
     {
       $project: { milestone: 0 },
     },
@@ -135,14 +139,13 @@ const getAllModuleFromDb = async (
         },
       },
     },
-   
+
     {
       $project: { milestoneDetails: 0 },
     },
     {
       $unwind: '$milestone',
     },
-   
   ];
 
   let result = null;
@@ -167,11 +170,228 @@ const getAllModuleFromDb = async (
 
 // get single e form db
 const getSingleModuleFromDb = async (
-  id: string
+  id: string,
+  query: IModuleFilters,
 ): Promise<IModule | null> => {
-  const result = await Module.aggregate([
-    { $match: { _id: new ObjectId(id) } },
-  ]);
+  let result;
+  if (query['lesson_quiz'] === ENUM_YN.YES) {
+    result = await Module.aggregate([
+      { $match: { _id: new ObjectId(id) } },
+
+      {
+        $lookup: {
+          from: 'lessons',
+          let: { id: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$module', '$$id'] },
+                    { $eq: ['$isDelete', ENUM_YN.NO] },
+                  ],
+                },
+                // Additional filter conditions for collection2
+              },
+            },
+            // Additional stages for collection2
+            // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+            // {
+            //   $project: {
+            //     __v: 0,
+            //   },
+            // },
+          ],
+          as: 'lessons',
+        },
+      },
+      {
+        $lookup: {
+          from: 'quizzes',
+          let: { id: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$module', '$$id'] },
+                    { $eq: ['$isDelete', ENUM_YN.NO] },
+                  ],
+                },
+                // Additional filter conditions for collection2
+              },
+            },
+            // Additional stages for collection2
+            // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+            // {
+            //   $project: {
+            //     __v: 0,
+            //   },
+            // },
+          ],
+          as: 'quizzes',
+        },
+      },
+    ]);
+  } else {
+    result = await Module.aggregate([
+      { $match: { _id: new ObjectId(id) } },
+
+      {
+        $lookup: {
+          from: 'milestones',
+          let: { id: '$milestone' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$_id', '$$id'] },
+                    { $eq: ['$isDelete', ENUM_YN.NO] },
+                  ],
+                },
+                // Additional filter conditions for collection2
+              },
+            },
+            // Additional stages for collection2
+            {
+              $lookup: {
+                from: 'courses',
+                let: { id: '$course' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $and: [
+                          { $eq: ['$_id', '$$id'] },
+                          { $eq: ['$isDelete', ENUM_YN.NO] },
+                        ],
+                      },
+                      // Additional filter conditions for collection2
+                    },
+                  },
+                  // Additional stages for collection2
+                  {
+                    $lookup: {
+                      from: 'categories',
+                      let: { id: '$category' },
+                      pipeline: [
+                        {
+                          $match: {
+                            $expr: {
+                              $and: [
+                                { $eq: ['$_id', '$$id'] },
+                                { $eq: ['$isDelete', ENUM_YN.NO] },
+                              ],
+                            },
+                            // Additional filter conditions for collection2
+                          },
+                        },
+                        // Additional stages for collection2
+                        // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+                        {
+                          $project: {
+                            title: 1,
+                          },
+                        },
+                      ],
+                      as: 'categoryDetails',
+                    },
+                  },
+                  {
+                    $project: { category: 0 },
+                  },
+                  {
+                    $addFields: {
+                      category: {
+                        $cond: {
+                          if: { $eq: [{ $size: '$categoryDetails' }, 0] },
+                          then: [{}],
+                          else: '$categoryDetails',
+                        },
+                      },
+                    },
+                  },
+
+                  {
+                    $project: { categoryDetails: 0 },
+                  },
+                  {
+                    $unwind: '$category',
+                  },
+
+                  //! ///////
+
+                  {
+                    $project: {
+                      title: 1,
+                      category: 1,
+                    },
+                  },
+                ],
+                as: 'courseDetails',
+              },
+            },
+            {
+              $project: { milestone: 0 },
+            },
+            {
+              $addFields: {
+                course: {
+                  $cond: {
+                    if: { $eq: [{ $size: '$courseDetails' }, 0] },
+                    then: [{}],
+                    else: '$courseDetails',
+                  },
+                },
+              },
+            },
+
+            {
+              $project: { courseDetails: 0 },
+            },
+            {
+              $unwind: '$course',
+            },
+
+            //! ////////////////////////
+
+            {
+              $project: {
+                title: 1,
+                course: 1,
+                milestone_number: 1,
+              },
+            },
+          ],
+          as: 'milestoneDetails',
+        },
+      },
+      {
+        $project: { milestone: 0 },
+      },
+      {
+        $addFields: {
+          milestone: {
+            $cond: {
+              if: { $eq: [{ $size: '$milestoneDetails' }, 0] },
+              then: [{}],
+              else: '$milestoneDetails',
+            },
+          },
+        },
+      },
+      {
+        $project: { milestoneDetails: 0 },
+      },
+      {
+        $unwind: '$milestone',
+      },
+    ]);
+  }
 
   return result[0];
 };
@@ -179,7 +399,7 @@ const getSingleModuleFromDb = async (
 // update e form db
 const updateModuleFromDb = async (
   id: string,
-  payload: Partial<IModule>
+  payload: Partial<IModule>,
 ): Promise<IModule | null> => {
   const { demo_video, ...otherData } = payload;
   const updateData = { ...otherData };
@@ -204,13 +424,17 @@ const updateModuleFromDb = async (
 // delete e form db
 const deleteModuleByIdFromDb = async (
   id: string,
-  query: IModuleFilters
+  query: IModuleFilters,
 ): Promise<IModule | null> => {
   let result;
+  // result = await Module.findByIdAndDelete(id);
   if (query.delete === ENUM_YN.YES) {
     result = await Module.findByIdAndDelete(id);
   } else {
-    result = await Module.findOneAndUpdate({ status: ENUM_STATUS.DEACTIVATE });
+    result = await Module.findOneAndUpdate(
+      { _id: id },
+      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES },
+    );
   }
   return result;
 };
