@@ -21,9 +21,9 @@ export type ISkills_planSearchableField = {
 export type ISkills_plan = {
   title: string;
   imgs: string[];
-  imageTitle: string;
+  imgTitle: string;
   page?: string;
-  points: string[];
+  points: [{title:string}];
   details?: string;
   short_description?: string;
   author: Types.ObjectId;

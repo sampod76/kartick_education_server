@@ -6,7 +6,6 @@ import { ICourse } from '../course/course.interface';
 export type IShow_advance_classesFilters = {
   searchTerm?: string;
   title?: string;
-
   status?: string;
   page?: string;
   select?: string;
@@ -34,9 +33,9 @@ export type IShow_advance_classes = {
   page?: string;
   details?: string;
   short_description?: string;
-  author: Types.ObjectId;
-  // sub1_Show_advance_classes_category_id: Types.ObjectId;
   status: 'active' | 'deactivate' | 'save' | 'disable';
+  //!
+  author: Types.ObjectId;
   demo_video?: Record<string, string>;
   tags?: string[];
   isDelete: string;
