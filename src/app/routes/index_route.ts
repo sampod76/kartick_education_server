@@ -22,7 +22,9 @@ import { QuizRoute } from '../modules/quiz/quiz.route';
 import { QuizSubmitRoute } from '../modules/quizSubmit/quizSubmit.route';
 import { ResourceRoute } from '../modules/resource/resource.route';
 import { SellerRoutes } from '../modules/seller/seller.route';
+import { Show_advance_classesRoute } from '../modules/show_advance_classes/route.show_advance_classes';
 import { SingleQuizRoute } from '../modules/single_quiz/single_quiz.route';
+import { Skills_planRoute } from '../modules/skills_plan/skills_plan.route';
 import { StudentRoutes } from '../modules/student/student.route';
 import { TrainerRoutes } from '../modules/trainer/trainer.route';
 import { UserRoutes } from '../modules/user/user.route';
@@ -132,6 +134,14 @@ const moduleRoutes = [
   {
     path: '/upload',
     route: CourseCartRoute,
+  },
+  {
+    path: '/show_advance_classes',
+    route: Show_advance_classesRoute,
+  },
+  {
+    path: '/skills_plan',
+    route: Skills_planRoute,
   },
 ];
 
