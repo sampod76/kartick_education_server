@@ -6,11 +6,16 @@ const createSkills_planZodSchema = z.object({
     title: z.string({ required_error: 'title field is required' }),
     imgs: z.array(z.string({ required_error: 'image is required' }).url()),
     imgTitle: z.string({ required_error: 'title field is required' }),
-    points: z.array(z.string()),
+    points: z.array(
+      z.object({
+        title: z.string({ required_error: 'Point title is required' }),
+      }),
+    ),
     page: z.string({ required_error: 'Page field is required' }),
     //
     details: z.string().optional(),
     short_description: z.string().optional(),
+    //
     author: z.string().optional(),
     status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
     demo_video: z.object({}).optional(),
@@ -24,7 +29,11 @@ const updateSkills_planZodSchema = z.object({
     imgs: z.array(z.string().url().optional()).optional(),
     imgTitle: z.string().optional(),
     page: z.string().optional(),
-    points: z.array(z.string()).optional(),
+    points: z.array(
+      z.object({
+        title: z.string().optional(),
+      }),
+    ),
     //
     details: z.string().optional(),
     short_description: z.string().optional(),

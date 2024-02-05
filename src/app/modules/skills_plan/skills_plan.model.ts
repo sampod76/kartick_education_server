@@ -18,10 +18,14 @@ const Skills_planSchema = new Schema<ISkills_plan, Skills_planModel>(
     ],
     points: [
       {
-        type: String,
-        trim: true,
+        title: String,
+        
       },
     ],
+    imgTitle: {
+      type: String,
+      trim: true,
+    },
     details: {
       type: String,
       trim: true,
@@ -85,4 +89,7 @@ Skills_planSchema.statics.isSkills_planExistMethod = async function ({
   return result;
 };
 
-export const Skills_plan = model<ISkills_plan, Skills_planModel>('Skills_plan', Skills_planSchema);
+export const Skills_plan = model<ISkills_plan, Skills_planModel>(
+  'Skills_plan',
+  Skills_planSchema,
+);
