@@ -28,6 +28,7 @@ import { Skills_planRoute } from '../modules/skills_plan/skills_plan.route';
 import { StudentRoutes } from '../modules/student/student.route';
 import { TrainerRoutes } from '../modules/trainer/trainer.route';
 import { UserRoutes } from '../modules/user/user.route';
+import { Short_overviewRoute } from '../modules/short_overview/short_overview.route';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -142,6 +143,10 @@ const moduleRoutes = [
   {
     path: '/skills_plan',
     route: Skills_planRoute,
+  },
+  {
+    path: '/short_overview',
+    route: Short_overviewRoute,
   },
 ];
 
