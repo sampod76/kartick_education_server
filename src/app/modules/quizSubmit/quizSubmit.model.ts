@@ -44,6 +44,11 @@ const quizSubmitSchema = new Schema<IQuizSubmit, QuizSubmitModel>(
       enum: ['yes', 'no'],
       default: 'no',
     },
+    isCorrect: {
+      type: String,
+      enum: ['yes', 'no'],
+      default: 'no',
+    },
     singleQuiz: { type: Schema.Types.ObjectId, ref: 'SingleQuiz' },
     submitAnswers: [String],
     singleAnswer: String,
