@@ -202,7 +202,7 @@ const deleteShort_overviewByIdFromDb = async (
   query: IShort_overviewFilters,
 ): Promise<IShort_overview | null> => {
   let result;
-  result = await Short_overview.findByIdAndDelete(id);
+  // result = await Short_overview.findByIdAndDelete(id);
   if (query.delete === ENUM_YN.YES) {
     result = await Short_overview.findByIdAndDelete(id);
   } else {

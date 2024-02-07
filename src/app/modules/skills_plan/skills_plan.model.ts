@@ -33,6 +33,7 @@ const Skills_planSchema = new Schema<ISkills_plan, Skills_planModel>(
     page: {
       type: String,
       trim: true,
+      default:"home"
     },
     short_description: {
       type: String,

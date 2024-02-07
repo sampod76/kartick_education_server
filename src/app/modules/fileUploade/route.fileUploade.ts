@@ -25,6 +25,17 @@ router.route('/upload-single-image').post(
   FileUploadeController.uploadeSingleFileByServer,
   // FileUploadHelper.uploadToCloudinary,
 );
+router.route('/upload-single-image-ant-form').post(
+  authMiddleware(
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.SELLER,
+    ENUM_USER_ROLE.STUDENT,
+  ),
+  // uploadSingleImage,
+  FileUploadHelper.upload.single('image'),
+  FileUploadeController.uploadeSingleFileByServer,
+  // FileUploadHelper.uploadToCloudinary,
+);
 
 router
   .route('/upload-profile-image')

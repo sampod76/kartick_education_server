@@ -202,7 +202,7 @@ const deleteSkills_planByIdFromDb = async (
   query: ISkills_planFilters,
 ): Promise<ISkills_plan | null> => {
   let result;
-  result = await Skills_plan.findByIdAndDelete(id);
+  // result = await Skills_plan.findByIdAndDelete(id);
   if (query.delete === ENUM_YN.YES) {
     result = await Skills_plan.findByIdAndDelete(id);
   } else {

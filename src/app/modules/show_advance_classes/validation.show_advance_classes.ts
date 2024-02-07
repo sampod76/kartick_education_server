@@ -4,7 +4,7 @@ import { STATUS_ARRAY } from '../../../constant/globalConstant';
 const createShow_advance_classesZodSchema = z.object({
   body: z.object({
     title: z.string({ required_error: 'title field is required' }),
-    buttonLink: z.string().url().optional(),
+    buttonLink: z.string().optional(),
     classes: z.array(
       z.object({
         title: z.string({ required_error: 'Class title is required' }),
@@ -13,10 +13,10 @@ const createShow_advance_classesZodSchema = z.object({
           required_error: 'Class short description is required',
         }),
         course: z.string().optional(),
-        buttonLink: z.string().url().optional(),
+        buttonLink: z.string().optional(),
       }),
     ),
-    page: z.string({ required_error: 'Page field is required' }),
+    page: z.string({ required_error: 'Page field is required' }).optional(),
     //
     details: z.string().optional(),
     short_description: z.string().optional(),
@@ -30,14 +30,14 @@ const createShow_advance_classesZodSchema = z.object({
 const updateShow_advance_classesZodSchema = z.object({
   body: z.object({
     title: z.string().optional(),
-    buttonLink: z.string().url().optional(),
+    buttonLink: z.string().optional(),
     classes: z.array(
       z.object({
         title: z.string().optional(),
         img: z.string().optional(),
         course: z.string().optional(),
         short_description: z.string().optional(),
-        buttonLink: z.string().url().optional(),
+        buttonLink: z.string().optional(),
       }),
     ),
     page: z.string().optional(),
