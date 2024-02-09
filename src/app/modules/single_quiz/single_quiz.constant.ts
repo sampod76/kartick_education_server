@@ -7,6 +7,7 @@ export const SINGLE_QUIZ_TYPE = [
   'find',
   'drag',
   'audio'
+
 ];
 
 // category?: string;
