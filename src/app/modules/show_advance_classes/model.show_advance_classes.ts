@@ -33,6 +33,7 @@ const Show_advance_classesSchema = new Schema<
     page: {
       type: String,
       trim: true,
+      default:"home"
     },
     details: {
       type: String,

@@ -43,6 +43,9 @@ export type ISingleQuiz = {
   details?: string;
   short_description?: string;
   hints?: string;
+  quizData?: {
+    link?: string;
+  };
   serialNumber?: number;
   time_duration?: number; // milliseconds
   answers?: Array<{

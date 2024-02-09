@@ -29,6 +29,7 @@ const Short_overviewSchema = new Schema<IShort_overview, Short_overviewModel>(
     page: {
       type: String,
       trim: true,
+      default:"home"
     },
     short_description: {
       type: String,

@@ -108,7 +108,7 @@ const downloadFunction: RequestHandler = (req, res, next) => {
     // console.log('first');
     // next();
   } catch (error) {
-    res.status(500).end({message:'File not found'});
+    res.status(500).end({ message: 'File not found' });
   }
 };
 
@@ -133,6 +133,9 @@ app.use(
 app.use(
   '/pdfs/:filename',
   run,
+  // (req, res, next) => {
+  //   req.customData &&  req.customData.downloadType = 'pdf';
+  // },
   downloadFunction,
   // express.static(path.join(__dirname, `../../uploadFile/pdfs/`)),
 );

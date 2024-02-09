@@ -202,7 +202,7 @@ const deleteShow_advance_classesByIdFromDb = async (
   query: IShow_advance_classesFilters,
 ): Promise<IShow_advance_classes | null> => {
   let result;
-  result = await Show_advance_classes.findByIdAndDelete(id);
+  // result = await Show_advance_classes.findByIdAndDelete(id);
   if (query.delete === ENUM_YN.YES) {
     result = await Show_advance_classes.findByIdAndDelete(id);
   } else {

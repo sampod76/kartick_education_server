@@ -11,6 +11,9 @@ const singleQuizSchema = new Schema<ISingleQuiz, SingleQuizModel>(
       required: true,
       index: true,
     },
+    quizData: {
+      link: String,
+    },
     answers: [
       {
         title: {
@@ -103,7 +106,7 @@ const singleQuizSchema = new Schema<ISingleQuiz, SingleQuizModel>(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-   //
+    //
 
     status: {
       type: String,
@@ -111,9 +114,9 @@ const singleQuizSchema = new Schema<ISingleQuiz, SingleQuizModel>(
       default: 'active',
     },
 
-isDelete: {
+    isDelete: {
       type: String,
-      enum:["yes", "no"],
+      enum: ['yes', 'no'],
       default: 'no',
     },
     demo_video: {
@@ -129,10 +132,10 @@ isDelete: {
     toJSON: {
       virtuals: true,
     },
-  }
+  },
 );
 
 export const SingleQuiz = model<ISingleQuiz, SingleQuizModel>(
   'SingleQuiz',
-  singleQuizSchema
+  singleQuizSchema,
 );
