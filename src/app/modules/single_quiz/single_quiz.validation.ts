@@ -6,6 +6,7 @@ const createSingleQuizZodSchema = z.object({
   body: z.object({
     title: z.string({ required_error: 'title field is required' }),
     imgs: z.array(z.string().url().optional()).optional(),
+    quizData:z.object({link:z.string().optional()}).optional(),
     details: z.string().optional(),
     hints: z.string().optional(),
     short_description: z.string().optional(),
@@ -44,6 +45,7 @@ const updateSingleQuizZodSchema = z.object({
     title: z.string().optional(),
     imgs: z.array(z.string().url().optional()).optional(),
     details: z.string().optional(),
+    quizData:z.object({link:z.string().optional()}).optional(),
     short_description: z.string().optional(),
     hints: z.string().optional(),
     serialNumber: z.number().min(0).optional(),
