@@ -14,7 +14,8 @@ export type IQUIZ_TYPE =
   | 'multiple_select'
   | 'text'
   | 'find'
-  | 'drag';
+  | 'drag'
+  | 'audio';
 
 export type ISingleQuizFilters = {
   searchTerm?: string;
