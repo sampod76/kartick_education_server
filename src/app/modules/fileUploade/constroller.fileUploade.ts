@@ -25,7 +25,7 @@ const uploadeSingleFileByServer = catchAsync(
     const data = await FileUploadeService.createFileUploadeByDb({
       user: req?.user?.id,
       category: 'admin',
-      server_url: 'uploadFile/pdfs/' + req?.file?.filename,
+      server_url: 'uploadFile/images/' + req?.file?.filename,
       fileType: req?.file?.mimetype || 'image',
       ...result,
     });
@@ -62,7 +62,7 @@ const uploadeMultipalFileByServer = catchAsync(
         user: req?.user?.id,
         category: 'admin',
         fileType: req?.file?.mimetype || 'image',
-        server_url: 'uploadFile/pdfs/' + file?.filename,
+        server_url: 'uploadFile/images/' + file?.filename,
         path: 'uploadFile/images',
       })),
     );
@@ -84,8 +84,8 @@ const uploadePdfFileByServer = catchAsync(
       fileType: fileDetails?.mimetype || 'pdf',
       user: req?.user?.id,
       category: 'dashboard',
-      path: 'uploadFile/pdfs',
-      server_url: 'uploadFile/pdfs/' + fileDetails?.filename,
+      path: 'uploadFile/images',
+      server_url: 'uploadFile/images/' + fileDetails?.filename,
       size: fileDetails?.size,
     };
     const data = await FileUploadeService.createFileUploadeByDb(file);

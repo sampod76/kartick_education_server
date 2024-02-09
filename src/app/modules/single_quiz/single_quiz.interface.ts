@@ -14,7 +14,8 @@ export type IQUIZ_TYPE =
   | 'multiple_select'
   | 'text'
   | 'find'
-  | 'drag';
+  | 'drag'
+  | 'audio';
 
 export type ISingleQuizFilters = {
   searchTerm?: string;
@@ -42,6 +43,9 @@ export type ISingleQuiz = {
   details?: string;
   short_description?: string;
   hints?: string;
+  quizData?: {
+    link?: string;
+  };
   serialNumber?: number;
   time_duration?: number; // milliseconds
   answers?: Array<{

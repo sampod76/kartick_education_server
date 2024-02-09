@@ -12,7 +12,7 @@ const createShort_overviewZodSchema = z.object({
         short_description: z.string().optional(),
       }),
     ),
-    page: z.string({ required_error: 'Page field is required' }),
+    page: z.string({ required_error: 'Page field is required' }).optional(),
     //
     details: z.string().optional(),
     short_description: z.string().optional(),
