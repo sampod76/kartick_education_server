@@ -127,18 +127,18 @@ const refreshToken = async (
 
   const isUserExist = await User.findById(id);
   if (!isUserExist) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist');
+    throw new ApiError(403, 'User does not exist');
   }
   //generate new token
   if (isUserExist.status === ENUM_STATUS.DEACTIVATE) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Your account is deactivated');
+    throw new ApiError(403, 'Your account is deactivated');
   } else if (isUserExist.status === ENUM_STATUS.BLOCK) {
     throw new ApiError(
-      httpStatus.NOT_FOUND,
+      403,
       `Your account is blocked ${isUserExist?.blockingTimeout}`,
     );
   } else if (isUserExist.isDelete === ENUM_YN.YES) {
-    throw new ApiError(httpStatus.NOT_FOUND, `Your account is delete`);
+    throw new ApiError(403, `Your account is delete`);
   }
   const user_agent = req.headers['user-agent'];
   const checkLoginHistory = await UserLoginHistory.findOne({
@@ -160,7 +160,7 @@ const refreshToken = async (
       email: isUserExist.email,
       role: isUserExist.role,
       id: isUserExist._id,
-    },
+    }, 
     config.jwt.secret as Secret,
     config.jwt.expires_in as string,
   );
