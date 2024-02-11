@@ -10,6 +10,7 @@ import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 import { IAdmin } from '../admin/admin.interface';
 import { Admin } from '../admin/admin.model';
+import { UserLoginHistory } from '../loginHistory/loginHistory.model';
 import { ISeller } from '../seller/seller.interface';
 import { Seller } from '../seller/seller.model';
 import { IStudent } from '../student/student.interface';
@@ -26,9 +27,7 @@ const getAllUsers = async (
   paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<IUser[] | null>> => {
   const { searchTerm, multipleRole, ...filtersData } = filters;
-  filtersData.status = filtersData.status
-    ? filtersData.status
-    : ENUM_STATUS.ACTIVE;
+
   filtersData.isDelete = filtersData.isDelete
     ? filtersData.isDelete
     : ENUM_YN.NO;
@@ -168,6 +167,61 @@ const deleteSingleUsersFormDb = async (
       });
     }
   }
+  return data;
+};
+
+const updateUserSingleUsersFormDb = async (
+  id: string,
+  bodyData: IUser,
+  req: Request | any,
+): Promise<IUser | null> => {
+  const isExist = await User.findById(id).lean();
+
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  if (
+    isExist?.author?.toString() !== id &&
+    req?.user?.role !== ENUM_USER_ROLE.ADMIN &&
+    isExist?.author?.toString() !== req?.user?.id
+  ) {
+    throw new ApiError(500, 'Unauthorize user');
+  }
+  const data = await User.findByIdAndUpdate(id, {
+    ...bodyData,
+  });
+  const find = await UserLoginHistory.find({ user: new Types.ObjectId(id) });
+  console.log('🚀 ~ find:', find);
+  if (data && bodyData?.status === ENUM_STATUS.DEACTIVATE) {
+    await UserLoginHistory.updateMany(
+      { user: new Types.ObjectId(id) },
+      { status: ENUM_STATUS.DEACTIVATE },
+    );
+  } else if (data && bodyData?.status === ENUM_STATUS.ACTIVE) {
+    await UserLoginHistory.updateMany(
+      { user: new Types.ObjectId(id) },
+      { status: ENUM_STATUS.ACTIVE },
+    );
+  }
+  if (isExist.role === ENUM_USER_ROLE.ADMIN) {
+    await Admin.findByIdAndUpdate(id, {
+      ...bodyData,
+    });
+  } else if (isExist.role === ENUM_USER_ROLE.SELLER) {
+    await Seller.findByIdAndUpdate(id, {
+      ...bodyData,
+    });
+  } else if (isExist.role === ENUM_USER_ROLE.TRAINER) {
+    await Trainer.findByIdAndUpdate(id, {
+      ...bodyData,
+    });
+  } else if (isExist.role === ENUM_USER_ROLE.STUDENT) {
+    await Student.findByIdAndUpdate(id, {
+      ...bodyData,
+    });
+  }
+
   return data;
 };
 
@@ -312,7 +366,7 @@ const createStudentByOtherMemberService = async (
     user.password = config.default_student_pass as string;
   }
   const uid = new ShortUniqueId({ length: 8 });
-  const userId = student?.userId || `S${uid.rnd()}.`;
+  const userId = student?.userId || `S${uid.rnd()}`;
   user.userId = userId;
   student.userId = userId;
 
@@ -322,8 +376,8 @@ const createStudentByOtherMemberService = async (
   // }
   // set role
   user.role = ENUM_USER_ROLE.STUDENT;
-  user.email = userId + student?.email;
-  student.email = userId + student?.email;
+  user.email = userId + '.' + student?.email;
+  student.email = userId + '.' + student?.email;
 
   let newUserAllData = null;
   const newStudent = await Student.create(student);
@@ -506,4 +560,5 @@ export const UserService = {
   getSingleUsers,
   deleteSingleUsersFormDb,
   createStudentByOtherMemberService,
+  updateUserSingleUsersFormDb,
 };

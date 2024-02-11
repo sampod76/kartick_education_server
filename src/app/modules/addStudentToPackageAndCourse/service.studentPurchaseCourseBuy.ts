@@ -273,15 +273,19 @@ const updateStudentPurchasePackageCourseFromDb = async (
   payload: Partial<IStudentPurchasePackageCourse>,
   req: any,
 ): Promise<IStudentPurchasePackageCourse | null> => {
-  if (req?.user?.role !== ENUM_USER_ROLE.ADMIN) {
-    const find = await StudentPurchasePackageCourse.findOne({
-      author: req?.user?.id,
-      _id: id,
-    });
-    console.log("🚀 ~ find:", find)
-    if (!find) {
-      throw new ApiError(400, 'Unauthorize');
-    }
+  const find = await StudentPurchasePackageCourse.findOne({
+    author: req?.user?.id,
+    _id: id,
+  });
+  console.log("🚀 ~ find:", find)
+  if (!find) {
+    throw new ApiError(400, 'Not Found');
+  }
+  if (
+    req?.user?.role !== ENUM_USER_ROLE.ADMIN &&
+    find?.author?.toString() !== req?.user?.id
+  ) {
+    throw new ApiError(400, 'Unauthorize');
   }
   const result = await StudentPurchasePackageCourse.findOneAndUpdate(
     { _id: id },

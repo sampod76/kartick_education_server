@@ -53,7 +53,6 @@ const createStudent = catchAsync(async (req: Request, res: Response) => {
   student.author = req?.user?.id;
   const result = await UserService.createStudentService(student, userData);
 
-
   sendResponse<IUser>(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -133,6 +132,19 @@ const createTrainer = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const updateUser = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const updatedData = req.body;
+
+  const result = await UserService.updateUserSingleUsersFormDb(id, updatedData,req);
+
+  sendResponse<IUser>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Student updated successfully !',
+    data: result,
+  });
+});
 
 export const UserController = {
   createStudent,
@@ -144,4 +156,5 @@ export const UserController = {
   getSingleUser,
   deleteSingleUser,
   createStudentByAuthor,
+  updateUser
 };
