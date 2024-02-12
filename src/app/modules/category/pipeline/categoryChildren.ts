@@ -470,13 +470,13 @@ const categoryCourseMileston = ({
 };
 
 const categoryCourse = ({
-  whereConditions,
-  sortConditions,
+  whereConditions, sortConditions,limit ,skip
 }: IMilestonePipeline) => {
   const pipeline: PipelineStage[] = [
     { $match: whereConditions },
     { $sort: sortConditions },
-
+    { $skip: Number(skip) || 0 },
+    { $limit: Number(limit) || 90000 },
     {
       $lookup: {
         from: 'courses',

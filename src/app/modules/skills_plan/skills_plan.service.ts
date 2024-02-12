@@ -34,7 +34,7 @@ const getAllSkills_planFromDb = async (
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
-    console.log(select);
+   
     const fieldNames = select?.split(',').map(field => field.trim());
     // Create the projection object
     fieldNames.forEach(field => {

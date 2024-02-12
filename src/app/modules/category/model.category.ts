@@ -14,14 +14,19 @@ const CategorySchema = new Schema<ICategory, CategoryModel>(
       type: String,
       trim: true,
     },
+    serial_number: {
+      type: Number,
+     
+      default:9999,
+    },
     status: {
       type: String,
       enum: STATUS_ARRAY,
       default: 'active',
     },
-isDelete: {
+    isDelete: {
       type: String,
-      enum:["yes", "no"],
+      enum: ['yes', 'no'],
       default: 'no',
     },
   },
@@ -31,10 +36,10 @@ isDelete: {
     toJSON: {
       virtuals: true,
     },
-  }
+  },
 );
 
-const ArchivedCategorySchema=new Schema<ICategory, CategoryModel>(
+const ArchivedCategorySchema = new Schema<ICategory, CategoryModel>(
   {
     title: {
       type: String,
@@ -59,7 +64,7 @@ const ArchivedCategorySchema=new Schema<ICategory, CategoryModel>(
     toJSON: {
       virtuals: true,
     },
-  }
+  },
 );
 
 // CategorySchema.pre('findOneAndDelete', async function (next) {
@@ -84,9 +89,9 @@ const ArchivedCategorySchema=new Schema<ICategory, CategoryModel>(
 
 export const Category = model<ICategory, CategoryModel>(
   'Category',
-  CategorySchema
+  CategorySchema,
 );
 export const ArchivedCategory = model<ICategory, CategoryModel>(
   'ArchivedCategory',
-  ArchivedCategorySchema
+  ArchivedCategorySchema,
 );

@@ -160,7 +160,7 @@ const getAllGlossaryFromDb = async (
 const getSingleGlossaryFromDb = async (
   id: string
 ): Promise<IGlossary | null> => {
-  console.log("🚀 ~ id:", id)
+
   const result = await Glossary.aggregate([
     { $match: { _id: new ObjectId(id) } },
     // {
@@ -206,7 +206,7 @@ const getSingleGlossaryFromDb = async (
     //   $unwind: '$module',
     // },
   ]);
-  console.log("🚀 ~ result:", result)
+  
 
   return result[0];
 };

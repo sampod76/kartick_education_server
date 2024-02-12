@@ -768,7 +768,7 @@ const updateCourseFromDb = async (
 ): Promise<ICourse | null> => {
   const { demo_video, ...otherData } = payload;
   const updateData = { ...otherData };
-  console.log(updateData, id);
+ 
   if (demo_video && Object.keys(demo_video).length > 0) {
     Object.keys(demo_video).forEach(key => {
       const demo_videoKey = `demo_video.${key}`; // `demo_video.status`

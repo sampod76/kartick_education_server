@@ -5,6 +5,7 @@ export type ICategoryFilters = {
   searchTerm?: string;
   title?: string;
   status?: IStatus;
+  serial_number?: number;
   delete?: 'yes' | 'no';
   children?: string;
   isDelete?: string;
@@ -14,6 +15,7 @@ export type ICategory = {
   title: string;
   img?: string;
   status: IStatus;
+  serial_number?:number;
   isDelete: string;
 };
 

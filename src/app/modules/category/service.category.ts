@@ -74,7 +74,7 @@ const getAllCategoryFromDb = async (
     { $match: whereConditions },
     { $sort: sortConditions },
     { $skip: Number(skip) || 0 },
-    // { $limit: Number(limit) || 15 },
+    { $limit: Number(limit) || 99999 },
   ];
 
   // console.log(pipeline);
@@ -159,7 +159,7 @@ const getAllCategoryChildrenTitleFromDb = async (
   //****************search and filters end**********/
 
   //****************pagination start **************/
-  const { page, limit, sortBy, sortOrder } =
+  const { page, limit, sortBy, sortOrder,skip } =
     paginationHelper.calculatePagination(paginationOptions);
 
   const sortConditions: { [key: string]: 1 | -1 } = {};
@@ -178,24 +178,24 @@ const getAllCategoryChildrenTitleFromDb = async (
   //   .limit(Number(limit));
   const pipeline: PipelineStage[] =
     children === 'course'
-      ? categoryPipeline.categoryCourse({ whereConditions, sortConditions })
+      ? categoryPipeline.categoryCourse({ whereConditions, sortConditions,limit,skip})
       : children === 'course-milestone'
       ? categoryPipeline.categoryCourseMileston({
           whereConditions,
-          sortConditions,
+          sortConditions,limit,skip
         })
       : children === 'course-milestone-module'
       ? categoryPipeline.categoryCourseMilestonModule({
           whereConditions,
-          sortConditions,
+          sortConditions,limit,skip
         })
       : children === 'course-milestone-module-lessons'
       ? categoryPipeline.categoryCourseMilestonModuleLesson({
           whereConditions,
-          sortConditions,
+          sortConditions,limit,skip
         })
       : children === 'course-milestone-module-lessons-quiz'
-      ? categoryPipeline.all({ whereConditions, sortConditions })
+      ? categoryPipeline.all({ whereConditions, sortConditions,limit,skip})
       : categoryPipeline.all({ whereConditions, sortConditions });
 
   // console.log(pipeline);

@@ -15,7 +15,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   const { refreshToken, userData, ...result } = await AuthService.loginUser(
     req.body,
   );
-  console.log('🚀 ~ loginUser ~ refreshToken:', refreshToken);
+
 
   if (req?.cookies?.refreshToken) {
     const checkLoginHistory = await UserLoginHistory.findOne({
@@ -24,7 +24,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
       user_agent: req.headers['user-agent'],
       token: req?.cookies?.refreshToken,
     });
-    console.log('🚀 ~ loginUser ~ checkLoginHistory:', checkLoginHistory);
+
     if (checkLoginHistory) {
       const ip = req.clientIp;
       await UserLoginHistory.findOneAndUpdate(
@@ -69,7 +69,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
 
     // ! -------------- set login history function end --------------
   }
-  console.log(config.env);
+ 
   const cookieOptions = {
     // secure: config.env === 'development' ? false : true,
     secure: false,

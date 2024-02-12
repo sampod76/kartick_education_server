@@ -24,7 +24,7 @@ const createStudentPurchasePackageCourseByDb = async (
     user: payload.user,
     isDelete: ENUM_YN.NO,
   });
-  console.log('🚀 ~ findPackage:', findPackage);
+
 
   let result;
   if (findPackage) {
@@ -34,7 +34,7 @@ const createStudentPurchasePackageCourseByDb = async (
       _id: payload.sellerPackage,
       user: payload.author,
     });
-    console.log('🚀 ~ findSellerPackage:', findSellerPackage);
+
 
     if (
       findSellerPackage &&
@@ -48,7 +48,7 @@ const createStudentPurchasePackageCourseByDb = async (
     ) {
       throw new ApiError(400, 'Your Student limit has over');
     } else {
-      const incressSeller = await PurchasePackage.findOneAndUpdate(
+  await PurchasePackage.findOneAndUpdate(
         {
           _id: payload.sellerPackage,
           user: payload.author,
@@ -57,7 +57,7 @@ const createStudentPurchasePackageCourseByDb = async (
           $push: { students: { $each: [payload.user] } },
         },
       );
-      console.log('🚀 ~ incressSeller:', incressSeller);
+    
       result = await StudentPurchasePackageCourse.create({ ...payload });
     }
   }

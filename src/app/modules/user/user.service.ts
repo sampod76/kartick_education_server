@@ -191,8 +191,8 @@ const updateUserSingleUsersFormDb = async (
   const data = await User.findByIdAndUpdate(id, {
     ...bodyData,
   });
-  const find = await UserLoginHistory.find({ user: new Types.ObjectId(id) });
-  console.log('🚀 ~ find:', find);
+await UserLoginHistory.find({ user: new Types.ObjectId(id) });
+
   if (data && bodyData?.status === ENUM_STATUS.DEACTIVATE) {
     await UserLoginHistory.updateMany(
       { user: new Types.ObjectId(id) },
@@ -360,7 +360,7 @@ const createStudentByOtherMemberService = async (
   student: IStudent,
   user: IUser,
 ): Promise<IUser | null> => {
-  console.log('🚀 ~ user:', user);
+
   // default password
   if (!user.password) {
     user.password = config.default_student_pass as string;

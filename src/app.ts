@@ -23,29 +23,28 @@ ffmpeg.setFfmpegPath(ffmpegPath.path);
 
 import fs from 'fs';
 import routers from './app/routes/index_route';
+import config from './config';
 const app: Application = express();
 // app.use(cors());
 
 app.use(helmetOriginal());
 app.use(requestIp.mw());
 
-// app.use(
-//   cors({
-//     origin:
-//       config.env === 'development'
-//         ? [
-//             'http://localhost:3000',
-//             'http://127.0.0.1:3000',
-//             'http://192.168.0.101:3000',
-//           ]
-//         : ['https://iblossomlearn.org'],
-//     credentials: true,
-//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-//   }),
-// );
 app.use(
-  cors(),
+  cors({
+    origin:
+      config.env === 'development'
+        ? [
+            'http://localhost:3000',
+            'http://127.0.0.1:3000',
+            'http://192.168.0.101:3000',
+          ]
+        : ['https://iblossomlearn.org'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  }),
 );
+// app.use(cors());
 
 // app.use(cors(corsOptions));
 
@@ -166,59 +165,24 @@ app.get(
   '/api/v1/paly-audio/:filename',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log(req.params?.filename)
+    
       const filePath = path.resolve(
         __dirname,
         `../../uploadFile/audios/${req.params?.filename}`,
       );
-      console.log("🚀 ~ filePath:", filePath)
-
-      fs.stat(filePath, (err, stats) => {
-        if (err) {
-          console.error(err);
-          res.status(404).send('File not found');
-          return;
-        }
-    
-        const range = req.headers.range;
-        const fileSize = stats.size;
-        const chunkSize = 1024 * 1024;
-        let start = 0;
-        let end = fileSize - 1;
-    
-        if (range) {
-          const parts = range.replace(/bytes=/, "").split("-");
-          start = parseInt(parts[0], 10);
-          end = parts[1] ? parseInt(parts[1], 10) : end;
-        }
-    
-        const headers = {
-          "Content-Type": "audio/mp3",
-          "Content-Length": end - start + 1,
-          "Content-Range": `bytes ${start}-${end}/${fileSize}`,
-          "Accept-Ranges": "bytes",
-        };
-    
-        res.writeHead(206, headers);
-    
-        const fileStream = fs.createReadStream(filePath, { start, end });
-    
-        const ffmpegStream = ffmpeg(fileStream)
-          .noVideo() // Remove video stream
-          .audioCodec('libmp3lame') // Use MP3 audio codec
-          .format('mp3') // Set output format to MP3
-          .audioBitrate(128) // Set audio bitrate
-          .on('end', () => {
-            console.log('Streaming finished');
-          })
-          .on('error', (err) => {
-            console.error(err);
-          });
-    
-        ffmpegStream.pipe(res);
+      return res.sendFile(filePath);
+    } catch (error: any) {
+      // next(error);
+      return res.status(500).send({
+        success: false,
+        message: error?.message || 'Internal Server Error',
+        errorMessages: [
+          {
+            path: '',
+            message: error?.message || 'Internal Server Error',
+          },
+        ],
       });
-    } catch (error) {
-      next(error);
     }
     // res.send('server is running');
   },
@@ -244,26 +208,7 @@ const test = async () => {
   // const getData = "U2FsdGVkX19dOA/shL0SLR2JyDtmLpQJy88CwzgKP18YXxHGl5lrNcVpYOzLeI6ITy/cWRTBrTK0V6PkGhbl1Ik fBtfhZUFBsLHrZmvFNuC4OpxwvY79/xToKurgOskLiz7aazvvxeghiVMtnRfEw==".split(" ").join("+")
   // const verify = decryptCryptoData(getData,config.encryptCrypto as string)
   // console.log(verify);
-  // const result = await PurchasePackage.updateMany(
-  //   {},
-  //   [
-  //     {
-  //       $set: {
-  //         total_price: {
-  //           $sum: [
-  //             '$purchase.price',
-  //             {
-  //               $multiply: [
-  //                 '$purchase.each_student_increment',
-  //                 '$total_purchase_student',
-  //               ],
-  //             },
-  //           ],
-  //         },
-  //       },
-  //     },
-  //   ]
-  // );
+  // const result = await Category.updateMany({serial_number:{$exists:false}},{$set:{serial_number:999}})
   // console.log("🚀 ~ test ~ result:", result)
 };
 test();
