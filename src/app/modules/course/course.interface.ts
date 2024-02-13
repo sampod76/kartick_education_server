@@ -7,6 +7,7 @@ export type ICourseFilters = {
   price?: number;
   duration?: string;
   level?: string;
+ 
   status?: string;
   price_type?: string;
   category?: string;
@@ -36,6 +37,7 @@ export type ICourse = {
   vat?: number;
   duration?: string[];
   level?: string;
+  level_showing_number?: number;
   price_type: 'free' | 'paid' | 'closed' | 'recurring';
   status: 'active' | 'deactivate' | 'save' | 'disable';
   showing_number?: number;

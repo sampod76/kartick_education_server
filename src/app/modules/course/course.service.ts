@@ -14,6 +14,13 @@ import { generateCourseId } from './course.utils';
 
 const { ObjectId } = mongoose.Types;
 const createCourseByDb = async (payload: ICourse): Promise<ICourse> => {
+  const find = await Course.find({
+    level: payload.level,
+    category: new Types.ObjectId(payload.category),
+  });
+  if (find) {
+    throw new ApiError(500, 'This Level is already available for this subject');
+  }
   payload.snid = await generateCourseId();
   const result = await Course.create(payload);
   return result;
@@ -261,6 +268,111 @@ const getAllCourseFromDb = async (
       },
     },
     { $project: { totalStudents: 0 } },
+  ];
+
+  let result = null;
+  if (select) {
+    result = await Course.find(whereConditions)
+      .sort({ ...sortConditions })
+      .skip(Number(skip))
+      .limit(Number(limit))
+      .select({ ...projection });
+  } else {
+    result = await Course.aggregate(pipeline);
+  }
+
+  const total = await Course.countDocuments(whereConditions);
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
+const getAllCourseLevelFromDb = async (
+  filters: ICourseFilters,
+  paginationOptions: IPaginationOption,
+): Promise<IGenericResponse<ICourse[]>> => {
+  //****************search and filters start************/
+  const { searchTerm, select, ...filtersData } = filters;
+
+  filtersData.isDelete = filtersData.isDelete
+    ? filtersData.isDelete
+    : ENUM_YN.NO;
+
+  // Split the string and extract field names
+  const projection: { [key: string]: number } = {};
+  if (select) {
+    console.log(select);
+    const fieldNames = select?.split(',').map(field => field.trim());
+    // Create the projection object
+    fieldNames.forEach(field => {
+      projection[field] = 1;
+    });
+  }
+
+  const andConditions = [];
+  if (searchTerm) {
+    andConditions.push({
+      $or: COURSE_SEARCHABLE_FIELDS.map(field =>
+        //search array value
+        field === 'tags'
+          ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
+          : {
+              [field]: new RegExp(searchTerm, 'i'),
+            },
+      ),
+    });
+  }
+
+  if (Object.keys(filtersData).length) {
+    andConditions.push({
+      $and: Object.entries(filtersData).map(([field, value]) =>
+        field === 'price'
+          ? { [field]: { $gte: parseInt(value as string) } }
+          : field === 'author'
+            ? { [field]: new Types.ObjectId(value) }
+            : field === 'category'
+              ? { [field]: new Types.ObjectId(value) }
+              : { [field]: value },
+      ),
+    });
+  }
+
+  //****************search and filters end**********/
+
+  //****************pagination start **************/
+
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationHelper.calculatePagination(paginationOptions);
+
+  const sortConditions: { [key: string]: 1 | -1 } = {};
+  if (sortBy && sortOrder) {
+    sortConditions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+  }
+
+  //****************pagination end ***************/
+
+  const whereConditions =
+    andConditions.length > 0 ? { $and: andConditions } : {};
+
+  /* 
+  const result = await Course.find(whereConditions)
+    .sort(sortConditions)
+    .skip(Number(skip))
+    .limit(Number(limit)); 
+  */
+  const pipeline: PipelineStage[] = [
+    { $sort: sortConditions },
+    { $skip: Number(skip) || 0 },
+    { $limit: Number(limit) || 999999999 },
+    { $group: { 
+      _id: { level: '$level', category: '$category' },
+      // levels:{$push:"$_id"}
+    
+    } },
   ];
 
   let result = null;
@@ -768,7 +880,7 @@ const updateCourseFromDb = async (
 ): Promise<ICourse | null> => {
   const { demo_video, ...otherData } = payload;
   const updateData = { ...otherData };
- 
+
   if (demo_video && Object.keys(demo_video).length > 0) {
     Object.keys(demo_video).forEach(key => {
       const demo_videoKey = `demo_video.${key}`; // `demo_video.status`
@@ -813,6 +925,7 @@ export const CourseService = {
   createCourseByDb,
   getAllCourseFromDb,
   getSingleCourseFromDb,
+  getAllCourseLevelFromDb,
   getAllCourseMilestoneModuleListFromDb,
   updateCourseFromDb,
   deleteCourseByIdFromDb,

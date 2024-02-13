@@ -19,6 +19,9 @@ router
 router
   .route('/course-milestone-module')
   .get(CourseController.getAllCourseMilestoneModuleList)
+router
+  .route('/course-level')
+  .get(CourseController.getAllCourseLevel)
 
 router
   .route('/course-modulesize-lessonsize-quizsize/:id')
