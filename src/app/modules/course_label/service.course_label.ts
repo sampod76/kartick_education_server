@@ -5,25 +5,25 @@ import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 
 import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
-import { CATEGORY_SEARCHABLE_FIELDS } from './consent.category';
-import { ICategory, ICategoryFilters } from './interface.category';
-import { Category } from './model.category';
-import { categoryPipeline } from './pipeline/categoryChildren';
+import { Course_label_SEARCHABLE_FIELDS } from './consent.course_label';
+import { ICourse_label, ICourse_labelFilters } from './interface.course_label';
+import { Course_label } from './model.course_label';
+import { Course_labelPipeline } from './pipeline/Course_labelChildren';
 
-const createCategoryByDb = async (payload: ICategory): Promise<ICategory> => {
-  // const find = await Category.findOne({ title: payload.title, isDelete: true });
+const createCourse_labelByDb = async (payload: ICourse_label): Promise<ICourse_label> => {
+  // const find = await Course_label.findOne({ title: payload.title, isDelete: true });
   // if (find) {
-  //   throw new ApiError(400, 'This Category All Ready Exist');
+  //   throw new ApiError(400, 'This Course_label All Ready Exist');
   // }
-  const result = await Category.create(payload);
+  const result = await Course_label.create(payload);
   return result;
 };
 
-//getAllCategoryFromDb
-const getAllCategoryFromDb = async (
-  filters: ICategoryFilters,
+//getAllCourse_labelFromDb
+const getAllCourse_labelFromDb = async (
+  filters: ICourse_labelFilters,
   paginationOptions: IPaginationOption
-): Promise<IGenericResponse<ICategory[]>> => {
+): Promise<IGenericResponse<ICourse_label[]>> => {
   //****************search and filters start************/
   const { searchTerm, ...filtersData } = filters;
   filtersData.status = filtersData.status
@@ -33,7 +33,7 @@ const getAllCategoryFromDb = async (
   const andConditions = [];
   if (searchTerm) {
     andConditions.push({
-      $or: CATEGORY_SEARCHABLE_FIELDS.map(field => ({
+      $or: Course_label_SEARCHABLE_FIELDS.map(field => ({
         [field]: {
           $regex: searchTerm,
           $options: 'i',
@@ -65,7 +65,7 @@ const getAllCategoryFromDb = async (
   const whereConditions =
     andConditions.length > 0 ? { $and: andConditions } : {};
 
-  // const result = await Category.find(whereConditions)
+  // const result = await Course_label.find(whereConditions)
   //   .populate('thumbnail')
   //   .sort(sortConditions)
   //   .skip(Number(skip))
@@ -78,9 +78,9 @@ const getAllCategoryFromDb = async (
   ];
 
   // console.log(pipeline);
-  const result = await Category.aggregate(pipeline);
+  const result = await Course_label.aggregate(pipeline);
   // console.log(result, 127);
-  const total = await Category.countDocuments(whereConditions);
+  const total = await Course_label.countDocuments(whereConditions);
   return {
     meta: {
       page,
@@ -91,47 +91,47 @@ const getAllCategoryFromDb = async (
   };
 };
 
-// get single Categorye form db
-const getSingleCategoryFromDb = async (
+// get single Course_labele form db
+const getSingleCourse_labelFromDb = async (
   id: string
-): Promise<ICategory | null> => {
+): Promise<ICourse_label | null> => {
   const pipeline: PipelineStage[] = [
     { $match: { _id: new Types.ObjectId(id) } },
     ///***************** */ images field ******start
   ];
 
-  const result = await Category.aggregate(pipeline);
+  const result = await Course_label.aggregate(pipeline);
 
   return result[0];
 };
 
-// update Categorye form db
-const updateCategoryFromDb = async (
+// update Course_labele form db
+const updateCourse_labelFromDb = async (
   id: string,
-  payload: Partial<ICategory>
-): Promise<ICategory | null> => {
-  const result = await Category.findOneAndUpdate({ _id: id }, payload, {
+  payload: Partial<ICourse_label>
+): Promise<ICourse_label | null> => {
+  const result = await Course_label.findOneAndUpdate({ _id: id }, payload, {
     new: true,
   });
   return result;
 };
 
-// delete Categorye form db
-const deleteCategoryByIdFromDb = async (
+// delete Course_labele form db
+const deleteCourse_labelByIdFromDb = async (
   id: string
-): Promise<ICategory | null> => {
-  const result = await Category.findOneAndDelete({ _id: id });
+): Promise<ICourse_label | null> => {
+  const result = await Course_label.findOneAndDelete({ _id: id });
   return result;
 };
 //
 
-//getAllCategoryChildrenFromDb
-const getAllCategoryChildrenTitleFromDb = async (
-  filters: ICategoryFilters,
+//getAllCourse_labelChildrenFromDb
+const getAllCourse_labelChildrenTitleFromDb = async (
+  filters: ICourse_labelFilters,
   paginationOptions: IPaginationOption
-): Promise<IGenericResponse<ICategory[]>> => {
+): Promise<IGenericResponse<ICourse_label[]>> => {
   //****************search and filters start************/
-  const { searchTerm, children, ...filtersData } = filters;
+  const { searchTerm, ...filtersData } = filters;
   filtersData.status = filtersData.status
     ? filtersData.status
     : ENUM_STATUS.ACTIVE;
@@ -139,7 +139,7 @@ const getAllCategoryChildrenTitleFromDb = async (
   const andConditions = [];
   if (searchTerm) {
     andConditions.push({
-      $or: CATEGORY_SEARCHABLE_FIELDS.map(field => ({
+      $or: Course_label_SEARCHABLE_FIELDS.map(field => ({
         [field]: {
           $regex: searchTerm,
           $options: 'i',
@@ -171,37 +171,18 @@ const getAllCategoryChildrenTitleFromDb = async (
   const whereConditions =
     andConditions.length > 0 ? { $and: andConditions } : {};
 
-  // const result = await Category.find(whereConditions)
+  // const result = await Course_label.find(whereConditions)
   //   .populate('thumbnail')
   //   .sort(sortConditions)
   //   .skip(Number(skip))
   //   .limit(Number(limit));
   const pipeline: PipelineStage[] =
-    children === 'course'
-      ? categoryPipeline.categoryCourse({ whereConditions, sortConditions,limit,skip})
-      : children === 'course-milestone'
-      ? categoryPipeline.categoryCourseMileston({
-          whereConditions,
-          sortConditions,limit,skip
-        })
-      : children === 'course-milestone-module'
-      ? categoryPipeline.categoryCourseMilestonModule({
-          whereConditions,
-          sortConditions,limit,skip
-        })
-      : children === 'course-milestone-module-lessons'
-      ? categoryPipeline.categoryCourseMilestonModuleLesson({
-          whereConditions,
-          sortConditions,limit,skip
-        })
-      : children === 'course-milestone-module-lessons-quiz'
-      ? categoryPipeline.all({ whereConditions, sortConditions,limit,skip})
-      : categoryPipeline.all({ whereConditions, sortConditions });
+     Course_labelPipeline.all({ whereConditions, sortConditions,skip,limit });
 
   // console.log(pipeline);
-  const result = await Category.aggregate(pipeline);
+  const result = await Course_label.aggregate(pipeline);
   // console.log(result, 127);
-  const total = await Category.countDocuments(whereConditions);
+  const total = await Course_label.countDocuments(whereConditions);
   return {
     meta: {
       page,
@@ -212,11 +193,11 @@ const getAllCategoryChildrenTitleFromDb = async (
   };
 };
 
-export const CategoryService = {
-  createCategoryByDb,
-  getAllCategoryFromDb,
-  getSingleCategoryFromDb,
-  updateCategoryFromDb,
-  deleteCategoryByIdFromDb,
-  getAllCategoryChildrenTitleFromDb,
+export const Course_labelService = {
+  createCourse_labelByDb,
+  getAllCourse_labelFromDb,
+  getSingleCourse_labelFromDb,
+  updateCourse_labelFromDb,
+  deleteCourse_labelByIdFromDb,
+  getAllCourse_labelChildrenTitleFromDb,
 };

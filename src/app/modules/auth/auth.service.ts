@@ -100,7 +100,7 @@ const loginOutFromDb = async (
   }
 
   // const result = await UserLoginHistory.findByIdAndDelete(id);
-  console.log('🚀 ~ result:', result);
+  
   return result;
 };
 

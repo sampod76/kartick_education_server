@@ -1,7 +1,7 @@
 import { Model } from 'mongoose';
 import { IStatus } from '../../interface/globalTypes';
 
-export type ICategoryFilters = {
+export type ICourse_labelFilters = {
   searchTerm?: string;
   title?: string;
   status?: IStatus;
@@ -11,7 +11,7 @@ export type ICategoryFilters = {
   isDelete?: string;
 };
 
-export type ICategory = {
+export type ICourse_label = {
   title: string;
   img?: string;
   status: IStatus;
@@ -19,4 +19,4 @@ export type ICategory = {
   isDelete: string;
 };
 
-export type CategoryModel = Model<ICategory, Record<string, unknown>>;
+export type Course_labelModel = Model<ICourse_label, Record<string, unknown>>;

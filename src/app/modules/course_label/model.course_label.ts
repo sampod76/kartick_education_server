@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 import { STATUS_ARRAY } from '../../../constant/globalConstant';
-import { CategoryModel, ICategory } from './interface.category';
-const CategorySchema = new Schema<ICategory, CategoryModel>(
+import { Course_labelModel, ICourse_label } from './interface.course_label';
+const Course_labelSchema = new Schema<ICourse_label, Course_labelModel>(
   {
     title: {
       type: String,
@@ -39,7 +39,7 @@ const CategorySchema = new Schema<ICategory, CategoryModel>(
   },
 );
 
-const ArchivedCategorySchema = new Schema<ICategory, CategoryModel>(
+const ArchivedCourse_labelSchema = new Schema<ICourse_label, Course_labelModel>(
   {
     title: {
       type: String,
@@ -67,17 +67,17 @@ const ArchivedCategorySchema = new Schema<ICategory, CategoryModel>(
   },
 );
 
-// CategorySchema.pre('findOneAndDelete', async function (next) {
+// Course_labelSchema.pre('findOneAndDelete', async function (next) {
 //   try {
 //     // eslint-disable-next-line @typescript-eslint/no-this-alias
 //     const dataId = this.getFilter();
 //     console.log(dataId);
 //     const { _id, ...data } = (await this.model.findOne({ _id: dataId?._id?._id }).lean()) as { _id: mongoose.Schema.Types.ObjectId; data: any };
-//     console.log("🚀 ~ file: model.category.ts:40 ~ _id:", data)
+//     console.log("🚀 ~ file: model.Course_label.ts:40 ~ _id:", data)
 //     if (_id) {
-//      await ArchivedCategory.create(data);
+//      await ArchivedCourse_label.create(data);
 //       // or
-//       // const result = await DeleteCategory.create(data);
+//       // const result = await DeleteCourse_label.create(data);
 //     }else{
 //       throw new ApiError(400,"Not found this item")
 //     }
@@ -87,11 +87,11 @@ const ArchivedCategorySchema = new Schema<ICategory, CategoryModel>(
 //   }
 // });
 
-export const Category = model<ICategory, CategoryModel>(
-  'Category',
-  CategorySchema,
+export const Course_label = model<ICourse_label, Course_labelModel>(
+  'Course_label',
+  Course_labelSchema,
 );
-export const ArchivedCategory = model<ICategory, CategoryModel>(
-  'ArchivedCategory',
-  ArchivedCategorySchema,
+export const ArchivedCourse_label = model<ICourse_label, Course_labelModel>(
+  'ArchivedCourse_label',
+  ArchivedCourse_labelSchema,
 );

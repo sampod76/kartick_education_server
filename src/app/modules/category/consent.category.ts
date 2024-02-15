@@ -5,5 +5,6 @@ export const CATEGORY_FILTERABLE_FIELDS = [
   'status',
   'delete',
   'children',
+  'serial_number',
   "isDelete"
 ];

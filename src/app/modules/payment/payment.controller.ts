@@ -200,7 +200,7 @@ const createPaymentPaypal = catchAsync(async (req: Request, res: Response) => {
 
   paypal.payment.create(payment, (error: any, payment: any) => {
     if (error) {
-      console.log(error, 'ddd');
+    
       // errorLogger.error(error)
       return res.status(404).send({
         success: false,
@@ -397,7 +397,7 @@ const createPaymentPaypalByCourse = catchAsync(
 
     paypal.payment.create(payment, (error: any, payment: any) => {
       if (error) {
-        console.log(error, 'ddd');
+       
         // errorLogger.error(error)
         return res.status(404).send({
           success: false,

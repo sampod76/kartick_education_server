@@ -10,6 +10,7 @@ import { MilestoneRoute } from '../modules/milestone/milestone.route';
 
 import { StudentPurchasePackageCourseRoute } from '../modules/addStudentToPackageAndCourse/route.studentPurchaseCourseBuy';
 import { CourseCartRoute } from '../modules/courseCart/courseCart.route';
+import { Course_labelRoute } from '../modules/course_label/route.course_label';
 import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 import { GlossaryRoute } from '../modules/glossary/glossary.route';
 import { UserLoginHistoryRoutes } from '../modules/loginHistory/loginHistory.route';
@@ -22,13 +23,13 @@ import { QuizRoute } from '../modules/quiz/quiz.route';
 import { QuizSubmitRoute } from '../modules/quizSubmit/quizSubmit.route';
 import { ResourceRoute } from '../modules/resource/resource.route';
 import { SellerRoutes } from '../modules/seller/seller.route';
+import { Short_overviewRoute } from '../modules/short_overview/short_overview.route';
 import { Show_advance_classesRoute } from '../modules/show_advance_classes/route.show_advance_classes';
 import { SingleQuizRoute } from '../modules/single_quiz/single_quiz.route';
 import { Skills_planRoute } from '../modules/skills_plan/skills_plan.route';
 import { StudentRoutes } from '../modules/student/student.route';
 import { TrainerRoutes } from '../modules/trainer/trainer.route';
 import { UserRoutes } from '../modules/user/user.route';
-import { Short_overviewRoute } from '../modules/short_overview/short_overview.route';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -147,6 +148,10 @@ const moduleRoutes = [
   {
     path: '/short_overview',
     route: Short_overviewRoute,
+  },
+  {
+    path: '/course_label',
+    route: Course_labelRoute,
   },
 ];
 

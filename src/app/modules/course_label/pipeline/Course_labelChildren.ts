@@ -511,7 +511,7 @@ const categoryCourse = ({
   return pipeline;
 };
 
-export const categoryPipeline = {
+export const Course_labelPipeline = {
   all,
   categoryCourse,
   categoryCourseMileston,

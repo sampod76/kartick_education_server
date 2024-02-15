@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const createCategoryZodSchema = z.object({
+const createCourse_labelZodSchema = z.object({
   body: z.object({
     title: z.string({
       required_error: 'Title is required',
@@ -11,7 +11,7 @@ const createCategoryZodSchema = z.object({
     isDelete: z.string().optional(),
   }),
 });
-const updateCategoryZodSchema = z.object({
+const updateCourse_labelZodSchema = z.object({
   body: z.object({
     title: z.string().optional(),
     thumbnail: z.string().optional(),
@@ -21,7 +21,7 @@ const updateCategoryZodSchema = z.object({
   }),
 });
 
-export const CategoryValidation = {
-  createCategoryZodSchema,
-  updateCategoryZodSchema,
+export const Course_labelValidation = {
+  createCourse_labelZodSchema,
+  updateCourse_labelZodSchema,
 };
