@@ -46,6 +46,10 @@ app.use(
 );
 // app.use(cors());
 
+// app.use(
+//   cors(),
+// );
+
 // app.use(cors(corsOptions));
 
 //  app.use(function (req, res, next) {
