@@ -14,13 +14,6 @@ import { generateCourseId } from './course.utils';
 
 const { ObjectId } = mongoose.Types;
 const createCourseByDb = async (payload: ICourse): Promise<ICourse> => {
-  const find = await Course.find({
-    level: payload.level,
-    category: new Types.ObjectId(payload.category),
-  });
-  if (find) {
-    throw new ApiError(500, 'This Level is already available for this subject');
-  }
   payload.snid = await generateCourseId();
   const result = await Course.create(payload);
   return result;
@@ -76,7 +69,9 @@ const getAllCourseFromDb = async (
             ? { [field]: new Types.ObjectId(value) }
             : field === 'category'
               ? { [field]: new Types.ObjectId(value) }
-              : { [field]: value },
+              : field === 'label_id'
+                ? { [field]: new Types.ObjectId(value) }
+                : { [field]: value },
       ),
     });
   }
@@ -368,11 +363,12 @@ const getAllCourseLevelFromDb = async (
     { $sort: sortConditions },
     { $skip: Number(skip) || 0 },
     { $limit: Number(limit) || 999999999 },
-    { $group: { 
-      _id: { level: '$level', category: '$category' },
-      // levels:{$push:"$_id"}
-    
-    } },
+    {
+      $group: {
+        _id: { level: '$level', category: '$category' },
+        // levels:{$push:"$_id"}
+      },
+    },
   ];
 
   let result = null;
@@ -741,6 +737,50 @@ const getSingleCourseFromDb = async (id: string): Promise<ICourse | null> => {
     },
     {
       $unwind: '$category',
+    },
+
+    //
+
+    {
+      $lookup: {
+        from: 'course_labels',
+        let: { id: '$label_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$_id', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+          {
+            $project: {
+              password: 0,
+            },
+          },
+        ],
+        as: 'label',
+      },
+    },
+
+    {
+      $addFields: {
+        labelDetails: {
+          $cond: {
+            if: { $eq: [{ $size: '$label' }, 0] },
+            then: [{}],
+            else: '$label',
+          },
+        },
+      },
+    },
+    {
+      $project: { label: 0 },
+    },
+    {
+      $unwind: '$labelDetails',
     },
   ]);
 
