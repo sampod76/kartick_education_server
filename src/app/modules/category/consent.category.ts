@@ -6,5 +6,6 @@ export const CATEGORY_FILTERABLE_FIELDS = [
   'delete',
   'children',
   'serial_number',
-  "isDelete"
+  'isDelete',
+  'sampod',
 ];

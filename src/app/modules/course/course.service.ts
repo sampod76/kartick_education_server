@@ -263,6 +263,49 @@ const getAllCourseFromDb = async (
       },
     },
     { $project: { totalStudents: 0 } },
+    //
+
+    {
+      $lookup: {
+        from: 'course_labels',
+        let: { id: '$label_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$_id', '$$id'] },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+          {
+            $project: {
+              password: 0,
+            },
+          },
+        ],
+        as: 'label',
+      },
+    },
+
+    {
+      $addFields: {
+        labelDetails: {
+          $cond: {
+            if: { $eq: [{ $size: '$label' }, 0] },
+            then: [{}],
+            else: '$label',
+          },
+        },
+      },
+    },
+    {
+      $project: { label: 0 },
+    },
+    {
+      $unwind: '$labelDetails',
+    },
   ];
 
   let result = null;

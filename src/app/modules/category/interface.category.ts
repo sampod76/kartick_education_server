@@ -9,6 +9,7 @@ export type ICategoryFilters = {
   delete?: 'yes' | 'no';
   children?: string;
   isDelete?: string;
+  sampod?:boolean
 };
 
 export type ICategory = {
