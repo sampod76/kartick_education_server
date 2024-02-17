@@ -5,6 +5,7 @@ const createCourse_labelZodSchema = z.object({
     title: z.string({
       required_error: 'Title is required',
     }),
+    category: z.string({required_error: 'Category/subject is required'}),
     thumbnail: z.string().optional(),
     status: z.string().optional(),
     serial_number: z.number().optional(),
@@ -16,6 +17,7 @@ const updateCourse_labelZodSchema = z.object({
     title: z.string().optional(),
     thumbnail: z.string().optional(),
     status: z.string().optional(),
+    category: z.string().optional(),
     serial_number: z.number().optional(),
     isDelete: z.string().optional(),
   }),

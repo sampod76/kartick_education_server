@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, Types, model } from 'mongoose';
 import { STATUS_ARRAY } from '../../../constant/globalConstant';
 import { Course_labelModel, ICourse_label } from './interface.course_label';
 const Course_labelSchema = new Schema<ICourse_label, Course_labelModel>(
@@ -14,10 +14,14 @@ const Course_labelSchema = new Schema<ICourse_label, Course_labelModel>(
       type: String,
       trim: true,
     },
+    category: {
+      type: Types.ObjectId,
+      ref: 'Category',
+    },
     serial_number: {
       type: Number,
-     
-      default:9999,
+
+      default: 9999,
     },
     status: {
       type: String,

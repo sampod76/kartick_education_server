@@ -10,6 +10,7 @@ export const COURSE_FILTERABLE_FIELDS = [
   'level',
   'status',
   'price_type',
+  'label_id',
   'delete',
   'select',
   'category',

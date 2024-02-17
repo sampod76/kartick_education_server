@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, Types, model } from 'mongoose';
 import { STATUS_ARRAY, YN_ARRAY } from '../../../constant/globalConstant';
 import { COURSE_TYPES } from './course.constant';
 import { CourseModel, ICourse } from './course.interface';
@@ -47,6 +47,10 @@ const courseSchema = new Schema<ICourse, CourseModel>(
     },
     level: {
       type: String,
+    },
+    label_id: {
+      type: Types.ObjectId,
+      ref:"Course_label"
     },
     price_type: {
       type: String,
