@@ -165,7 +165,6 @@ app.get(
   '/api/v1/paly-audio/:filename',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-    
       const filePath = path.resolve(
         __dirname,
         `../../uploadFile/audios/${req.params?.filename}`,
