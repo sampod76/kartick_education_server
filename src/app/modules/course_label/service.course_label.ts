@@ -85,6 +85,34 @@ const getAllCourse_labelFromDb = async (
     { $sort: sortConditions },
     { $skip: Number(skip) || 0 },
     { $limit: Number(limit) || 99999 },
+      ///***************** */ category field ******start
+      {
+        $lookup: {
+          from: 'categories',
+          let: { conditionField: '$category' }, // The field to match from the current collection
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$_id', '$$conditionField'], // The condition to match the fields
+                },
+              },
+            },
+  
+            // Additional pipeline stages for the second collection (optional)
+            {
+              $project: {
+                createdAt: 0,
+                updatedAt: 0,
+              },
+            },
+          ],
+          as: 'categoryDetails', // The field to store the matched results from the second collection
+        },
+      },
+     
+      {$unwind:"$categoryDetails"}
+      //
   ];
 
   // console.log(pipeline);
@@ -107,7 +135,31 @@ const getSingleCourse_labelFromDb = async (
 ): Promise<ICourse_label | null> => {
   const pipeline: PipelineStage[] = [
     { $match: { _id: new Types.ObjectId(id) } },
-    ///***************** */ images field ******start
+    {
+      $lookup: {
+        from: 'categories',
+        let: { conditionField: '$category' }, // The field to match from the current collection
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ['$_id', '$$conditionField'], // The condition to match the fields
+              },
+            },
+          },
+
+          // Additional pipeline stages for the second collection (optional)
+          {
+            $project: {
+              createdAt: 0,
+              updatedAt: 0,
+            },
+          },
+        ],
+        as: 'categoryDetails', // The field to store the matched results from the second collection
+      },
+    },
+    {$unwind:"$categoryDetails"}
   ];
 
   const result = await Course_label.aggregate(pipeline);
