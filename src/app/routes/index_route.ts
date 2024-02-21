@@ -8,7 +8,7 @@ import { CourseRoute } from '../modules/course/course.route';
 import { LessonRoute } from '../modules/lesson/lesson.route';
 import { MilestoneRoute } from '../modules/milestone/milestone.route';
 
-import { StudentPurchasePackageCourseRoute } from '../modules/addStudentToPackageAndCourse/route.studentPurchaseCourseBuy';
+import { StudentPurchasePackageCategoryCourseRoute } from '../modules/addStudentToPackageAndCourse/route.studentPurchaseCourseBuy';
 import { CourseCartRoute } from '../modules/courseCart/courseCart.route';
 import { Course_labelRoute } from '../modules/course_label/route.course_label';
 import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
@@ -119,7 +119,7 @@ const moduleRoutes = [
   },
   {
     path: '/student_purchase_packages_course',
-    route: StudentPurchasePackageCourseRoute,
+    route: StudentPurchasePackageCategoryCourseRoute,
   },
   {
     path: '/payment',

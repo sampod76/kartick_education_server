@@ -5,23 +5,23 @@ import { PAGINATION_FIELDS } from '../../../constant/pagination';
 import catchAsync from '../../share/catchAsync';
 import pick from '../../share/pick';
 import sendResponse from '../../share/sendResponse';
-import { IStudentPurchasePackageCourse } from './interface.studentPurchaseCourseBuy';
-import { StudentPurchasePackageCourseService } from './service.studentPurchaseCourseBuy';
+import { IStudentPurchasePackageCategoryCourse } from './interface.studentPurchaseCourseBuy';
+import { StudentPurchasePackageCategoryCourseService } from './service.studentPurchaseCourseBuy';
 
 import { ENUM_USER_ROLE } from '../../../enums/users';
-import { student_purchase_course_FILTERABLE_FIELDS } from './constant.studentPurchaseCourseBuy';
+import { student_purchase_category_course_FILTERABLE_FIELDS } from './constant.studentPurchaseCourseBuy';
 
 // import { z } from 'zod'
-const createStudentPurchasePackageCourse = catchAsync(
+const createStudentPurchasePackageCategoryCourse = catchAsync(
   async (req: Request, res: Response) => {
     const { ...PackageData } = req.body;
 
     const result =
-      await StudentPurchasePackageCourseService.createStudentPurchasePackageCourseByDb(
+      await StudentPurchasePackageCategoryCourseService.createStudentPurchasePackageCategoryCourseByDb(
         PackageData,
       );
 
-    sendResponse<IStudentPurchasePackageCourse>(res, {
+    sendResponse<IStudentPurchasePackageCategoryCourse>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: 'successfull create Package',
@@ -30,7 +30,7 @@ const createStudentPurchasePackageCourse = catchAsync(
   },
 );
 
-const getAllStudentPurchasePackageCourse = catchAsync(
+const getAllStudentPurchasePackageCategoryCourse = catchAsync(
   async (req: Request, res: Response) => {
     //****************search and filter start******* */
     // console.log(req.query);
@@ -38,7 +38,7 @@ const getAllStudentPurchasePackageCourse = catchAsync(
 
     const filters = pick(
       queryObject,
-      student_purchase_course_FILTERABLE_FIELDS,
+      student_purchase_category_course_FILTERABLE_FIELDS,
     );
 
     if (req?.user?.role === ENUM_USER_ROLE.STUDENT) {
@@ -50,12 +50,12 @@ const getAllStudentPurchasePackageCourse = catchAsync(
     const paginationOptions = pick(queryObject, PAGINATION_FIELDS);
 
     const result =
-      await StudentPurchasePackageCourseService.getAllStudentPurchasePackageCourseFromDb(
+      await StudentPurchasePackageCategoryCourseService.getAllStudentPurchasePackageCategoryCourseFromDb(
         filters,
         paginationOptions,
       );
 
-    sendResponse<IStudentPurchasePackageCourse[]>(res, {
+    sendResponse<IStudentPurchasePackageCategoryCourse[]>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: 'successfull Get Purchase Package',
@@ -67,14 +67,14 @@ const getAllStudentPurchasePackageCourse = catchAsync(
   },
 );
 
-const getSingleStudentPurchasePackageCourse = catchAsync(
+const getSingleStudentPurchasePackageCategoryCourse = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const result =
-      await StudentPurchasePackageCourseService.getStudentPurchasePackageCourseSingelFromDb(
+      await StudentPurchasePackageCategoryCourseService.getStudentPurchasePackageCategoryCourseSingelFromDb(
         id,
       );
-    sendResponse<IStudentPurchasePackageCourse>(res, {
+    sendResponse<IStudentPurchasePackageCategoryCourse>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: 'successfull get  Package',
@@ -83,15 +83,15 @@ const getSingleStudentPurchasePackageCourse = catchAsync(
   },
 );
 
-const getVerifyStudentPurchasePackageCourse = catchAsync(
+const getVerifyStudentPurchasePackageCategoryCourse = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const result =
-      await StudentPurchasePackageCourseService.getStudentPurchasePackageCourseVerifyFromDb(
+      await StudentPurchasePackageCategoryCourseService.getStudentPurchasePackageCategoryCourseVerifyFromDb(
         id,
         req.user,
       );
-    sendResponse<IStudentPurchasePackageCourse[]>(res, {
+    sendResponse<IStudentPurchasePackageCategoryCourse[]>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: 'successfull get  Package',
@@ -100,16 +100,16 @@ const getVerifyStudentPurchasePackageCourse = catchAsync(
   },
 );
 
-const updateStudentPurchasePackageCourse = catchAsync(
+const updateStudentPurchasePackageCategoryCourse = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const result =
-      await StudentPurchasePackageCourseService.updateStudentPurchasePackageCourseFromDb(
+      await StudentPurchasePackageCategoryCourseService.updateStudentPurchasePackageCategoryCourseFromDb(
         id,
         req.body,
-        req
+        req,
       );
-    sendResponse<IStudentPurchasePackageCourse>(res, {
+    sendResponse<IStudentPurchasePackageCategoryCourse>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: 'successfull get  Package',
@@ -118,16 +118,16 @@ const updateStudentPurchasePackageCourse = catchAsync(
   },
 );
 
-const deleteStudentPurchasePackageCourse = catchAsync(
+const deleteStudentPurchasePackageCategoryCourse = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const result =
-      await StudentPurchasePackageCourseService.deleteStudentPurchasePackageCourseByIdFromDb(
+      await StudentPurchasePackageCategoryCourseService.deleteStudentPurchasePackageCategoryCourseByIdFromDb(
         id,
         req.query,
-        req?.user
+        req?.user,
       );
-    sendResponse<IStudentPurchasePackageCourse>(res, {
+    sendResponse<IStudentPurchasePackageCategoryCourse>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: 'successfull delete  Package',
@@ -136,11 +136,11 @@ const deleteStudentPurchasePackageCourse = catchAsync(
   },
 );
 
-export const StudentPurchasePackageCourseController = {
-  createStudentPurchasePackageCourse,
-  deleteStudentPurchasePackageCourse,
-  getVerifyStudentPurchasePackageCourse,
-  getSingleStudentPurchasePackageCourse,
-  getAllStudentPurchasePackageCourse,
-  updateStudentPurchasePackageCourse,
+export const StudentPurchasePackageCategoryCourseController = {
+  createStudentPurchasePackageCategoryCourse,
+  deleteStudentPurchasePackageCategoryCourse,
+  getVerifyStudentPurchasePackageCategoryCourse,
+  getSingleStudentPurchasePackageCategoryCourse,
+  getAllStudentPurchasePackageCategoryCourse,
+  updateStudentPurchasePackageCategoryCourse,
 };
