@@ -31,6 +31,7 @@ import { StudentRoutes } from '../modules/student/student.route';
 import { TrainerRoutes } from '../modules/trainer/trainer.route';
 import { UserRoutes } from '../modules/user/user.route';
 import { Purchase_categoryRoute } from '../modules/purchase_category/purchase_category.route';
+import { ContactMailRoute } from '../modules/contactMail/route.contactMail';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -157,6 +158,10 @@ const moduleRoutes = [
   {
     path: '/course_label',
     route: Course_labelRoute,
+  },
+  {
+    path: '/contact_mail',
+    route: ContactMailRoute,
   },
 ];
 
