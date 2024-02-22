@@ -31,27 +31,6 @@ const createQuizSubmitByDb = async (
     );
   }
 
-  // if (findSubmitQuiz) {
-  //   // Use findOneAndUpdate to update and get the updated document
-  //   // const findExisting = findSubmitQuiz?.userSubmitQuizzes?.find(
-  //   //   (data: any) =>
-  //   //     data?.singleQuizId === payload.userSubmitQuizzes[0]?.singleQuizId
-  //   // );
-
-  //   // let updateResult;
-  //   // if (!findExisting) {
-  //   //   updateResult = await QuizSubmit.findOneAndUpdate(
-  //   //     { _id: findSubmitQuiz._id },
-  //   //     { $push: { userSubmitQuizzes: { $each: payload.userSubmitQuizzes } } },
-  //   //     { new: true } // Return the updated document
-  //   //   ).populate('userSubmitQuizzes.singleQuizId');
-  //   // }
-  //   // result = updateResult || null; // If updateResult is null, set result to null
-  // } else {
-  //   result = (await QuizSubmit.create({ ...payload, user: user.id })).populate(
-  //     'userSubmitQuizzes.singleQuizId'
-  //   );
-  // }
 
   return result;
 };
@@ -105,6 +84,8 @@ const getAllQuizSubmitFromDb = async (
               : field === 'module'
                 ? { [field]: new Types.ObjectId(value) }
                 : field === 'lesson'
+                  ? { [field]: new Types.ObjectId(value) }
+                  : field === 'user'
                   ? { [field]: new Types.ObjectId(value) }
                   : field === 'quiz'
                     ? { [field]: new Types.ObjectId(value) }
