@@ -7,5 +7,7 @@ export const CATEGORY_FILTERABLE_FIELDS = [
   'children',
   'serial_number',
   'isDelete',
-  'sampod',
+  //
+  'author', // for student add seller category
+  'category', // category _id
 ];

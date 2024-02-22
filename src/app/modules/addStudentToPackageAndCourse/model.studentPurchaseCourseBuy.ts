@@ -9,12 +9,12 @@ const StudentPurchasePackageCategoryCourseSchema = new Schema<
   StudentPurchasePackageCategoryCourseModel
 >(
   {
-    // for -
+    // for -not use
     purchaseCourse: {
       type: Schema.Types.ObjectId,
       ref: 'PurchaseCourse',
     },
-    // when seller by single category then add
+    //! when seller by single category then add not use
     purchaseCategory: {
       type: Schema.Types.ObjectId,
       ref: 'PurchaseCategory',

@@ -30,6 +30,7 @@ import { Skills_planRoute } from '../modules/skills_plan/skills_plan.route';
 import { StudentRoutes } from '../modules/student/student.route';
 import { TrainerRoutes } from '../modules/trainer/trainer.route';
 import { UserRoutes } from '../modules/user/user.route';
+import { Purchase_categoryRoute } from '../modules/purchase_category/purchase_category.route';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -116,6 +117,10 @@ const moduleRoutes = [
   {
     path: '/purchase_courses',
     route: PurchaseCourseRoute,
+  },
+  {
+    path: '/purchase_categories',
+    route: Purchase_categoryRoute,
   },
   {
     path: '/student_purchase_packages_course',
