@@ -9,14 +9,16 @@ export type ICategoryFilters = {
   delete?: 'yes' | 'no';
   children?: string;
   isDelete?: string;
-  sampod?:boolean
+  // only
+  author?: string;
+  category?: string;
 };
 
 export type ICategory = {
   title: string;
   img?: string;
   status: IStatus;
-  serial_number?:number;
+  serial_number?: number;
   isDelete: string;
 };
 
