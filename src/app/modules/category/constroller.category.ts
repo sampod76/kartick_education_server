@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { PAGINATION_FIELDS } from '../../../constant/pagination';
@@ -7,13 +8,17 @@ import catchAsync from '../../share/catchAsync';
 import pick from '../../share/pick';
 import sendResponse from '../../share/sendResponse';
 
-import mongoose, { Types } from 'mongoose';
+import { Types } from 'mongoose';
+
 import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import { ENUM_USER_ROLE } from '../../../enums/users';
 import ApiError from '../../errors/ApiError';
 import { StudentPurchasePackageCategoryCourse } from '../addStudentToPackageAndCourse/model.studentPurchaseCourseBuy';
 import { Purchase_category } from '../purchase_category/purchase_category.model';
 import { PurchasePackage } from '../purchase_package/purchase_package.model';
+
+import { User } from '../user/user.model';
+
 import { CATEGORY_FILTERABLE_FIELDS } from './consent.category';
 import { ICategory } from './interface.category';
 import { CategoryService } from './service.category';
@@ -66,25 +71,15 @@ const getAllCategory = catchAsync(async (req: Request, res: Response) => {
 });
 const checkPurchaseCategory = catchAsync(
   async (req: Request, res: Response) => {
-    //****************search and filter start******* */
-    const queryObject = req.query;
 
-    const filters = pick(queryObject, CATEGORY_FILTERABLE_FIELDS);
 
-    //****************pagination start************ */
-    // const paginationOptions = pick(queryObject, PAGINATION_FIELDS);
-
-    // const result = await CategoryService.checkPurchaseCategoryFromDb(
-    //   filters,
-    //   paginationOptions,
-    // );
-
-    let result2;
+    let result2 = false;
 
     if (req?.user?.role === ENUM_USER_ROLE.STUDENT) {
       const checkCategory = await Purchase_category.findOne({
-        category: new mongoose.Schema.Types.ObjectId(req.params.id),
-        user: new mongoose.Schema.Types.ObjectId(req.user.id),
+        category: new Types.ObjectId(req.params.id),
+        user: new Types.ObjectId(req.user.id),
+
         isDelete: ENUM_YN.NO,
         status: ENUM_STATUS.ACTIVE,
       });
@@ -97,14 +92,27 @@ const checkPurchaseCategory = catchAsync(
       }
       if (!result2) {
         const query: any = {};
-        if (filters.author) {
-          query.author = new Types.ObjectId(filters.author as string);
+
+      
+        const getAuthor = await User.findOne({
+          _id: req?.user?.id,
+          isDelete: ENUM_YN.NO,
+          status: ENUM_STATUS.ACTIVE,
+        });
+        console.log("🚀 ~ getAuthor:", getAuthor)
+        if (getAuthor?.author) {
+          //@ts-ignore
+          query.author = getAuthor?.author
         }
+        
         const checkPackage = await StudentPurchasePackageCategoryCourse.find({
           ...query,
+          user: getAuthor?._id,
           isDelete: ENUM_YN.NO,
           status: ENUM_STATUS.ACTIVE,
         }).populate('sellerPackage');
+        console.log("🚀 ~ checkPackage:", checkPackage)
+
 
         if (checkPackage.length) {
           checkPackage.forEach((data: any) => {
@@ -114,8 +122,10 @@ const checkPurchaseCategory = catchAsync(
             if (
               new Date(data?.sellerPackage?.expiry_date)?.getTime() > Date.now()
             ) {
-              data?.sellerPackage?.categories?.forEach((category: any) => {
-                if (category?._id?.toString() === req.params.id) {
+
+              data?.sellerPackage?.categories?.forEach((data: any) => {
+                if (data?.category?.toString() === req.params.id) {
+
                   result2 = true;
                 }
               });
@@ -125,12 +135,12 @@ const checkPurchaseCategory = catchAsync(
       }
     } else if (req?.user?.role === ENUM_USER_ROLE.SELLER) {
       const checkPackage = await PurchasePackage.find({
-        user: new mongoose.Schema.Types.ObjectId(req?.user?.id),
+
+        user: new Types.ObjectId(req?.user?.id),
         isDelete: ENUM_YN.NO,
         status: ENUM_STATUS.ACTIVE,
-        categories: {
-          $in: [new mongoose.Schema.Types.ObjectId(req.params.id)],
-        },
+        'categories.category': new Types.ObjectId(req.params.id),
+
       });
       console.log('🚀 ~ checkPackage:', checkPackage);
       if (checkPackage.length) {

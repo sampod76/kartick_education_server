@@ -23,7 +23,9 @@ router
   .get(CategoryController.getAllCategoryChildrenTitle);
 
 router
-  .route('/check-purchase')
+
+  .route('/check-purchase/:id')
+
   // This route is open
   .get(
     authMiddleware(
