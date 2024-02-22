@@ -3,8 +3,9 @@ import { Model, Types } from 'mongoose';
 import { IPackage } from '../package/package.interface';
 import { IPurchaseCourse } from '../purchase_courses/purchase_courses.interface';
 import { IUser } from '../user/user.interface';
+import { IPurchase_category } from '../purchase_category/purchase_category.interface';
 
-export type IStudentPurchasePackageCourseFilters = {
+export type IStudentPurchasePackageCategoryCourseFilters = {
   searchTerm?: string;
   status?: string;
   select?: string;
@@ -15,12 +16,14 @@ export type IStudentPurchasePackageCourseFilters = {
   isDelete?: string;
 };
 
-export type IStudentPurchasePackageCourseSearchableField = {
+export type IStudentPurchasePackageCategoryCourseSearchableField = {
   title?: string;
 };
 
-export type IStudentPurchasePackageCourse = {
+export type IStudentPurchasePackageCategoryCourse = {
   purchaseCourse: Types.ObjectId | IPurchaseCourse | string;
+  // when seller by single category then add
+  purchaseCategory: Types.ObjectId | IPurchase_category | string;
   sellerPackage: Types.ObjectId | IPackage | string;
   user: Types.ObjectId | IUser | string;
   author: Types.ObjectId | IUser | string;
@@ -28,7 +31,7 @@ export type IStudentPurchasePackageCourse = {
   isDelete: string;
 };
 
-export type StudentPurchasePackageCourseModel = Model<
-  IStudentPurchasePackageCourse,
+export type StudentPurchasePackageCategoryCourseModel = Model<
+  IStudentPurchasePackageCategoryCourse,
   Record<string, unknown>
 >;

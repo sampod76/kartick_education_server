@@ -8,7 +8,7 @@ import { CourseRoute } from '../modules/course/course.route';
 import { LessonRoute } from '../modules/lesson/lesson.route';
 import { MilestoneRoute } from '../modules/milestone/milestone.route';
 
-import { StudentPurchasePackageCourseRoute } from '../modules/addStudentToPackageAndCourse/route.studentPurchaseCourseBuy';
+import { StudentPurchasePackageCategoryCourseRoute } from '../modules/addStudentToPackageAndCourse/route.studentPurchaseCourseBuy';
 import { CourseCartRoute } from '../modules/courseCart/courseCart.route';
 import { Course_labelRoute } from '../modules/course_label/route.course_label';
 import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
@@ -30,6 +30,7 @@ import { Skills_planRoute } from '../modules/skills_plan/skills_plan.route';
 import { StudentRoutes } from '../modules/student/student.route';
 import { TrainerRoutes } from '../modules/trainer/trainer.route';
 import { UserRoutes } from '../modules/user/user.route';
+import { Purchase_categoryRoute } from '../modules/purchase_category/purchase_category.route';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -118,8 +119,12 @@ const moduleRoutes = [
     route: PurchaseCourseRoute,
   },
   {
+    path: '/purchase_categories',
+    route: Purchase_categoryRoute,
+  },
+  {
     path: '/student_purchase_packages_course',
-    route: StudentPurchasePackageCourseRoute,
+    route: StudentPurchasePackageCategoryCourseRoute,
   },
   {
     path: '/payment',
