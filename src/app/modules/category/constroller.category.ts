@@ -9,13 +9,16 @@ import pick from '../../share/pick';
 import sendResponse from '../../share/sendResponse';
 
 import { Types } from 'mongoose';
+
 import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import { ENUM_USER_ROLE } from '../../../enums/users';
 import ApiError from '../../errors/ApiError';
 import { StudentPurchasePackageCategoryCourse } from '../addStudentToPackageAndCourse/model.studentPurchaseCourseBuy';
 import { Purchase_category } from '../purchase_category/purchase_category.model';
 import { PurchasePackage } from '../purchase_package/purchase_package.model';
+
 import { User } from '../user/user.model';
+
 import { CATEGORY_FILTERABLE_FIELDS } from './consent.category';
 import { ICategory } from './interface.category';
 import { CategoryService } from './service.category';
@@ -69,12 +72,14 @@ const getAllCategory = catchAsync(async (req: Request, res: Response) => {
 const checkPurchaseCategory = catchAsync(
   async (req: Request, res: Response) => {
 
+
     let result2 = false;
 
     if (req?.user?.role === ENUM_USER_ROLE.STUDENT) {
       const checkCategory = await Purchase_category.findOne({
         category: new Types.ObjectId(req.params.id),
         user: new Types.ObjectId(req.user.id),
+
         isDelete: ENUM_YN.NO,
         status: ENUM_STATUS.ACTIVE,
       });
@@ -87,6 +92,7 @@ const checkPurchaseCategory = catchAsync(
       }
       if (!result2) {
         const query: any = {};
+
       
         const getAuthor = await User.findOne({
           _id: req?.user?.id,
@@ -107,6 +113,7 @@ const checkPurchaseCategory = catchAsync(
         }).populate('sellerPackage');
         console.log("🚀 ~ checkPackage:", checkPackage)
 
+
         if (checkPackage.length) {
           checkPackage.forEach((data: any) => {
             // if (data?.sellerPackage && new Date(data.sellerPackage?.expiry_date)?.getTime() < Date.now()) {
@@ -115,8 +122,10 @@ const checkPurchaseCategory = catchAsync(
             if (
               new Date(data?.sellerPackage?.expiry_date)?.getTime() > Date.now()
             ) {
+
               data?.sellerPackage?.categories?.forEach((data: any) => {
                 if (data?.category?.toString() === req.params.id) {
+
                   result2 = true;
                 }
               });
@@ -126,10 +135,12 @@ const checkPurchaseCategory = catchAsync(
       }
     } else if (req?.user?.role === ENUM_USER_ROLE.SELLER) {
       const checkPackage = await PurchasePackage.find({
+
         user: new Types.ObjectId(req?.user?.id),
         isDelete: ENUM_YN.NO,
         status: ENUM_STATUS.ACTIVE,
         'categories.category': new Types.ObjectId(req.params.id),
+
       });
       console.log('🚀 ~ checkPackage:', checkPackage);
       if (checkPackage.length) {
