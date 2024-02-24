@@ -11,15 +11,15 @@ import ApiError from '../../errors/ApiError';
 import { PurchasePackage } from '../purchase_package/purchase_package.model';
 import { student_purchase_category_course_SEARCHABLE_FIELDS } from './constant.studentPurchaseCourseBuy';
 import {
-  IStudentPurchasePackageCategoryCourse,
-  IStudentPurchasePackageCategoryCourseFilters,
+    IStudentPurchasePackageCategoryCourse,
+    IStudentPurchasePackageCategoryCourseFilters,
 } from './interface.studentPurchaseCourseBuy';
-import { StudentPurchasePackageCategoryCourse } from './model.studentPurchaseCourseBuy';
+import { AddSellerStudentPurchasePackageCategoryCourse } from './model.studentPurchaseCourseBuy';
 
 const createStudentPurchasePackageCategoryCourseByDb = async (
   payload: IStudentPurchasePackageCategoryCourse,
 ): Promise<IStudentPurchasePackageCategoryCourse | null> => {
-  const findPackage = await StudentPurchasePackageCategoryCourse.findOne({
+  const findPackage = await AddSellerStudentPurchasePackageCategoryCourse.findOne({
     sellerPackage: payload.sellerPackage,
     user: payload.user,
     isDelete: ENUM_YN.NO,
@@ -56,13 +56,13 @@ const createStudentPurchasePackageCategoryCourseByDb = async (
         },
       );
 
-      result = await StudentPurchasePackageCategoryCourse.create({
+      result = await AddSellerStudentPurchasePackageCategoryCourse.create({
         ...payload,
       });
     }
   }
 
-  // const result = await StudentPurchasePackageCategoryCourse.create({ ...payload });
+  // const result = await AddSellerStudentPurchasePackageCategoryCourse.create({ ...payload });
   return result;
 };
 
@@ -136,7 +136,7 @@ const getAllStudentPurchasePackageCategoryCourseFromDb = async (
   const whereConditions =
     andConditions.length > 0 ? { $and: andConditions } : {};
 
-  // const result = await StudentPurchasePackageCategoryCourse.find(whereConditions)
+  // const result = await AddSellerStudentPurchasePackageCategoryCourse.find(whereConditions)
   //   .sort(sortConditions)
   //   .skip(Number(skip))
   //   .limit(Number(limit))
@@ -223,15 +223,15 @@ const getAllStudentPurchasePackageCategoryCourseFromDb = async (
 
   let result = null;
   if (select) {
-    result = await StudentPurchasePackageCategoryCourse.find({})
+    result = await AddSellerStudentPurchasePackageCategoryCourse.find({})
       .sort({ title: 1 })
       .select({ ...projection });
   } else {
-    result = await StudentPurchasePackageCategoryCourse.aggregate(pipeline);
+    result = await AddSellerStudentPurchasePackageCategoryCourse.aggregate(pipeline);
   }
 
   const total =
-    await StudentPurchasePackageCategoryCourse.countDocuments(whereConditions);
+    await AddSellerStudentPurchasePackageCategoryCourse.countDocuments(whereConditions);
   return {
     meta: {
       page,
@@ -247,7 +247,7 @@ const getStudentPurchasePackageCategoryCourseVerifyFromDb = async (
   id: string,
   user: any,
 ): Promise<IStudentPurchasePackageCategoryCourse[] | null> => {
-  const findSubmitQuiz = await StudentPurchasePackageCategoryCourse.find({
+  const findSubmitQuiz = await AddSellerStudentPurchasePackageCategoryCourse.find({
     quiz: new Types.ObjectId(id as string),
     user: new Types.ObjectId(user.id as string),
   });
@@ -257,12 +257,12 @@ const getStudentPurchasePackageCategoryCourseVerifyFromDb = async (
 const getStudentPurchasePackageCategoryCourseSingelFromDb = async (
   id: string,
 ): Promise<IStudentPurchasePackageCategoryCourse | null> => {
-  // const result = await StudentPurchasePackageCategoryCourse.aggregate([
+  // const result = await AddSellerStudentPurchasePackageCategoryCourse.aggregate([
   //   { $match: { _id: new ObjectId(id) } },
   // ]);
 
   // return result[0];
-  const result = await StudentPurchasePackageCategoryCourse.findById(id)
+  const result = await AddSellerStudentPurchasePackageCategoryCourse.findById(id)
     .populate('user')
     .populate('author')
     .populate('sellerPackage')
@@ -275,7 +275,7 @@ const updateStudentPurchasePackageCategoryCourseFromDb = async (
   payload: Partial<IStudentPurchasePackageCategoryCourse>,
   req: any,
 ): Promise<IStudentPurchasePackageCategoryCourse | null> => {
-  const find = await StudentPurchasePackageCategoryCourse.findOne({
+  const find = await AddSellerStudentPurchasePackageCategoryCourse.findOne({
     author: req?.user?.id,
     _id: id,
   });
@@ -289,7 +289,7 @@ const updateStudentPurchasePackageCategoryCourseFromDb = async (
   ) {
     throw new ApiError(400, 'Unauthorize');
   }
-  const result = await StudentPurchasePackageCategoryCourse.findOneAndUpdate(
+  const result = await AddSellerStudentPurchasePackageCategoryCourse.findOneAndUpdate(
     { _id: id },
     payload,
     {
@@ -309,7 +309,7 @@ const deleteStudentPurchasePackageCategoryCourseByIdFromDb = async (
   user?: any,
 ): Promise<IStudentPurchasePackageCategoryCourse | null> => {
   if (user.role !== ENUM_USER_ROLE.ADMIN) {
-    const find = await StudentPurchasePackageCategoryCourse.findOne({
+    const find = await AddSellerStudentPurchasePackageCategoryCourse.findOne({
       author: user.id,
       _id: id,
     });
@@ -319,9 +319,9 @@ const deleteStudentPurchasePackageCategoryCourseByIdFromDb = async (
   }
   let result;
   if (query.delete === ENUM_YN.YES) {
-    result = await StudentPurchasePackageCategoryCourse.findByIdAndDelete(id);
+    result = await AddSellerStudentPurchasePackageCategoryCourse.findByIdAndDelete(id);
   } else {
-    result = await StudentPurchasePackageCategoryCourse.findOneAndUpdate(
+    result = await AddSellerStudentPurchasePackageCategoryCourse.findOneAndUpdate(
       { _id: id },
       { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES },
     );
