@@ -48,7 +48,7 @@ const StudentPurchasePackageCategoryCourseSchema = new Schema<
   },
 );
 
-export const StudentPurchasePackageCategoryCourse = model<
+export const AddSellerStudentPurchasePackageCategoryCourse = model<
   IStudentPurchasePackageCategoryCourse,
   StudentPurchasePackageCategoryCourseModel
 >(

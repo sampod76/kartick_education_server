@@ -10,4 +10,5 @@ export const CATEGORY_FILTERABLE_FIELDS = [
   //
   'author', // for student add seller category
   'category', // category _id
+  'course'
 ];

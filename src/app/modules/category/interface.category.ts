@@ -12,6 +12,7 @@ export type ICategoryFilters = {
   // only
   author?: string;
   category?: string;
+  course?: string;
 };
 
 export type ICategory = {

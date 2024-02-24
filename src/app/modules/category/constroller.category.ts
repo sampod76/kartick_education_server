@@ -13,12 +13,12 @@ import { Types } from 'mongoose';
 import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import { ENUM_USER_ROLE } from '../../../enums/users';
 import ApiError from '../../errors/ApiError';
-import { StudentPurchasePackageCategoryCourse } from '../addStudentToPackageAndCourse/model.studentPurchaseCourseBuy';
-import { Purchase_category } from '../purchase_category/purchase_category.model';
 import { PurchasePackage } from '../purchase_package/purchase_package.model';
 
 import { User } from '../user/user.model';
 
+import { AddSellerStudentPurchasePackageCategoryCourse } from '../addStudentToPackageAndCourse/model.studentPurchaseCourseBuy';
+import { PurchaseCourse } from '../purchase_courses/purchase_courses.model';
 import { CATEGORY_FILTERABLE_FIELDS } from './consent.category';
 import { ICategory } from './interface.category';
 import { CategoryService } from './service.category';
@@ -75,16 +75,27 @@ const checkPurchaseCategory = catchAsync(
 
     let result2 = false;
 
+    //!---- student -----
     if (req?.user?.role === ENUM_USER_ROLE.STUDENT) {
-      const checkCategory = await Purchase_category.findOne({
-        category: new Types.ObjectId(req.params.id),
+      // const checkCategory = await Purchase_category.findOne({
+      //   category: new Types.ObjectId(req.params.id),
+      //   user: new Types.ObjectId(req.user.id),
+      //   isDelete: ENUM_YN.NO,
+      //   status: ENUM_STATUS.ACTIVE,
+      // });
+      const filter:any ={
+        
         user: new Types.ObjectId(req.user.id),
-
         isDelete: ENUM_YN.NO,
         status: ENUM_STATUS.ACTIVE,
-      });
-      if (checkCategory) {
-        if (new Date(checkCategory?.expiry_date)?.getTime() < Date.now()) {
+      }
+      if(req?.query?.course){
+       filter.course = new Types.ObjectId(req?.query?.course as string)
+      }
+      const checkCourse = await PurchaseCourse.findOne(filter);
+      console.log("🚀 ~ checkCourse:", checkCourse)
+      if (checkCourse) {
+        if (new Date(checkCourse?.expiry_date)?.getTime() < Date.now()) {
           throw new ApiError(400, 'Your package has expired please Renew it');
         } else {
           result2 = true;
@@ -105,14 +116,13 @@ const checkPurchaseCategory = catchAsync(
           query.author = getAuthor?.author
         }
         
-        const checkPackage = await StudentPurchasePackageCategoryCourse.find({
+        const checkPackage = await AddSellerStudentPurchasePackageCategoryCourse.find({
           ...query,
           user: getAuthor?._id,
           isDelete: ENUM_YN.NO,
           status: ENUM_STATUS.ACTIVE,
         }).populate('sellerPackage');
         console.log("🚀 ~ checkPackage:", checkPackage)
-
 
         if (checkPackage.length) {
           checkPackage.forEach((data: any) => {
@@ -133,6 +143,8 @@ const checkPurchaseCategory = catchAsync(
           });
         }
       }
+
+      //! ---- student ----
     } else if (req?.user?.role === ENUM_USER_ROLE.SELLER) {
       const checkPackage = await PurchasePackage.find({
 
