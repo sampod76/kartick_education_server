@@ -21,8 +21,12 @@ import { sendEmail } from './sendResetMail';
 
 const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   const { email, password } = payload;
+  console.log('🚀 ~ loginUser ~ password:', password);
 
-  const isUserExist = await User.findOne({ email, isDelete: ENUM_YN.NO });
+  const isUserExist = await User.findOne({
+    email,
+    isDelete: ENUM_YN.NO,
+  }).select('+password');
 
   if (!isUserExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist');
@@ -100,7 +104,7 @@ const loginOutFromDb = async (
   }
 
   // const result = await UserLoginHistory.findByIdAndDelete(id);
-  
+
   return result;
 };
 
@@ -160,7 +164,7 @@ const refreshToken = async (
       email: isUserExist.email,
       role: isUserExist.role,
       id: isUserExist._id,
-    }, 
+    },
     config.jwt.secret as Secret,
     config.jwt.expires_in as string,
   );
@@ -190,12 +194,6 @@ const changePassword = async (
   }
 
   // checking old password
-  if (
-    isUserExist.password &&
-    !(await User.isPasswordMatchMethod(oldPassword, isUserExist.password))
-  ) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'Old Password is incorrect');
-  }
   if (isUserExist.status === ENUM_STATUS.DEACTIVATE) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Your account is deactivated');
   } else if (isUserExist.status === ENUM_STATUS.BLOCK) {
@@ -204,6 +202,13 @@ const changePassword = async (
       `Your account is blocked ${isUserExist?.blockingTimeout}`,
     );
   }
+  if (
+    isUserExist.password &&
+    !(await User.isPasswordMatchMethod(oldPassword, isUserExist.password))
+  ) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Old Password is incorrect');
+  }
+
   // // hash password before saving
   // const newHashedPassword = await bcrypt.hash(
   //   newPassword,
