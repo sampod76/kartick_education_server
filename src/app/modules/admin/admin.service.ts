@@ -17,10 +17,12 @@ const getAllAdminsDB = async (
   paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<IAdmin[]>> => {
   const { searchTerm, select, ...filtersData } = filters;
-  filtersData.status = filtersData.status
-    ? filtersData.status
-    : ENUM_STATUS.ACTIVE;
-    filtersData.isDelete = filtersData.isDelete ? filtersData.isDelete : ENUM_YN.NO;
+  // filtersData.status = filtersData.status
+  //   ? filtersData.status
+  //   : ENUM_STATUS.ACTIVE;
+  filtersData.isDelete = filtersData.isDelete
+    ? filtersData.isDelete
+    : ENUM_YN.NO;
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {

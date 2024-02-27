@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { GENDER_ARRAY } from '../../../constant/globalConstant';
+import { GENDER_ARRAY, STATUS_ARRAY } from '../../../constant/globalConstant';
 import { ISeller, SellerModel } from './seller.interface';
 
 const SellerSchema = new Schema<ISeller, SellerModel>(
@@ -56,6 +56,11 @@ const SellerSchema = new Schema<ISeller, SellerModel>(
       type: String,
       enum: ['yes', 'no'],
       default: 'no',
+    },
+    status: {
+      type: String,
+      enum: STATUS_ARRAY,
+      default: 'active',
     },
   },
   {

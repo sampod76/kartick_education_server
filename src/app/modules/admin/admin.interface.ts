@@ -18,6 +18,7 @@ export type IAdmin = {
   courseId: Types.ObjectId;
   img: string;
   isDelete: string;
+  status: IStatus;
 };
 
 export type AdminModel = Model<IAdmin, Record<string, unknown>>;

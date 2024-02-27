@@ -7,27 +7,33 @@ import { SellerController } from './seller.controller';
 import { SellerValidation } from './seller.validation';
 const router = express.Router();
 
-router
-  .route('/')
-  .get(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-    SellerController.getAllSellers
-  );
+router.route('/').get(
+  // authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  SellerController.getAllSellers,
+);
 
 router
   .route('/:id')
   .get(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN,ENUM_USER_ROLE.SELLER),
-    SellerController.getSingleSeller
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+    ),
+    SellerController.getSingleSeller,
   )
   .patch(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN,ENUM_USER_ROLE.SELLER),
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+    ),
     validateRequestZod(SellerValidation.updateSeller),
-    SellerController.updateSeller
+    SellerController.updateSeller,
   )
   .delete(
     authMiddleware(ENUM_USER_ROLE.SUPER_ADMIN),
-    SellerController.deleteSeller
+    SellerController.deleteSeller,
   );
 
 export const SellerRoutes = router;
