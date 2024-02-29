@@ -264,7 +264,7 @@ const forgotPass = async (payload: { email: string }) => {
   const resetLink: string =
     config.resetlink + `${profile._id}?token=${passResetToken}`;
 
-  console.log('profile: ', profile);
+  // console.log('profile: ', profile);
   await sendEmail(
     profile.email,
     `<body style="font-family: 'Arial', sans-serif; line-height: 1.6; background-color: #f4f4f4; margin: 0; padding: 0;">
@@ -309,11 +309,11 @@ const resetPassword = async (
     throw new ApiError(httpStatus.BAD_REQUEST, 'User not found!');
   }
 
-  const isVarified = await jwtHelpers.verifyToken(
+  await jwtHelpers.verifyToken(
     token,
     config.jwt.secret as string,
   );
-  console.log(isVarified);
+  // console.log(isVarified);
 
   const password = await bcrypt.hash(
     newPassword,

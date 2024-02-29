@@ -5,7 +5,7 @@ import { SINGLE_QUIZ_TYPE } from './single_quiz.constant';
 const createSingleQuizZodSchema = z.object({
   body: z.object({
     title: z.string({ required_error: 'title field is required' }),
-    imgs: z.array(z.string().url().optional()).optional(),
+    imgs: z.array(z.string().optional()).optional(),
     quizData:z.object({link:z.string().optional()}).optional(),
     details: z.string().optional(),
     hints: z.string().optional(),
@@ -18,7 +18,7 @@ const createSingleQuizZodSchema = z.object({
           title: z.string(),
           serialNumber: z.number().min(0).optional(),
           correct: z.boolean().optional(),
-          img: z.string().url().optional(),
+          img: z.string().optional(),
         })
       )
       .optional(),
@@ -43,7 +43,7 @@ const createSingleQuizZodSchema = z.object({
 const updateSingleQuizZodSchema = z.object({
   body: z.object({
     title: z.string().optional(),
-    imgs: z.array(z.string().url().optional()).optional(),
+    imgs: z.array(z.string().optional()).optional(),
     details: z.string().optional(),
     quizData:z.object({link:z.string().optional()}).optional(),
     short_description: z.string().optional(),
@@ -56,7 +56,7 @@ const updateSingleQuizZodSchema = z.object({
           title: z.string().optional(),
           serialNumber: z.number().min(0).optional(),
           correct: z.boolean().optional(),
-          imgs: z.array(z.string().url().optional()).optional(),
+          imgs: z.array(z.string().optional()).optional(),
           status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
         })
       )

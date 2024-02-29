@@ -23,24 +23,30 @@ ffmpeg.setFfmpegPath(ffmpegPath.path);
 
 import fs from 'fs';
 import routers from './app/routes/index_route';
-import config from './config';
 const app: Application = express();
 // app.use(cors());
 
 app.use(helmetOriginal());
 app.use(requestIp.mw());
 
+// app.use(
+//   cors({
+//     origin:
+//       config.env === 'development'
+//         ? [
+//             'http://localhost:3000',
+//             'http://127.0.0.1:3000',
+//             'http://192.168.0.101:3000',
+//             'http://192.168.10.60:3000∏',
+//           ]
+//         : ['https://iblossomlearn.org'],
+//     credentials: true,
+//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+//   }),
+// );
 app.use(
   cors({
-    origin:
-      config.env === 'development'
-        ? [
-            'http://localhost:3000',
-            'http://127.0.0.1:3000',
-            'http://192.168.0.101:3000',
-            'http://192.168.10.60:3000∏',
-          ]
-        : ['https://iblossomlearn.org'],
+    origin:true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   }),

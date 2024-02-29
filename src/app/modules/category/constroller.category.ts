@@ -93,7 +93,7 @@ const checkPurchaseCategory = catchAsync(
        filter.course = new Types.ObjectId(req?.query?.course as string)
       }
       const checkCourse = await PurchaseCourse.findOne(filter);
-      console.log("🚀 ~ checkCourse:", checkCourse)
+      // console.log("🚀 ~ checkCourse:", checkCourse)
       if (checkCourse) {
         if (new Date(checkCourse?.expiry_date)?.getTime() < Date.now()) {
           throw new ApiError(400, 'Your package has expired please Renew it');
@@ -110,7 +110,7 @@ const checkPurchaseCategory = catchAsync(
           isDelete: ENUM_YN.NO,
           status: ENUM_STATUS.ACTIVE,
         });
-        console.log("🚀 ~ getAuthor:", getAuthor)
+        // console.log("🚀 ~ getAuthor:", getAuthor)
         if (getAuthor?.author) {
           //@ts-ignore
           query.author = getAuthor?.author
@@ -122,7 +122,7 @@ const checkPurchaseCategory = catchAsync(
           isDelete: ENUM_YN.NO,
           status: ENUM_STATUS.ACTIVE,
         }).populate('sellerPackage');
-        console.log("🚀 ~ checkPackage:", checkPackage)
+        // console.log("🚀 ~ checkPackage:", checkPackage)
 
         if (checkPackage.length) {
           checkPackage.forEach((data: any) => {
@@ -165,7 +165,7 @@ const checkPurchaseCategory = catchAsync(
     } else if (req?.user?.role === ENUM_USER_ROLE.ADMIN) {
       result2 = true;
     }
-    console.log('🚀 ~ result2:', result2);
+    // console.log('🚀 ~ result2:', result2);
 
     sendResponse<any>(res, {
       success: true,
