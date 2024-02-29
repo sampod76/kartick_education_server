@@ -49,7 +49,7 @@ const getAllSellersDB = async (
   }
   const whereConditions =
     andConditions.length > 0 ? { $and: andConditions } : {};
-  console.log('🚀 ~ whereConditions:', whereConditions);
+  // console.log('🚀 ~ whereConditions:', whereConditions);
 
   const result = await Seller.find(whereConditions)
     .sort(sortConditions)

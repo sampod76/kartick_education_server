@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import { AnyZodObject, ZodEffects } from 'zod';
+import { errorLogger } from '../share/logger';
 
 //
 const validateRequestZod =
   (schema: AnyZodObject | ZodEffects<AnyZodObject>) =>
   async (req: Request, res: Response, next: NextFunction) => {
-
+errorLogger.log(req.body)
     try {
       await schema.parseAsync({
         body: req.body,

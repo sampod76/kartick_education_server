@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Request, Response } from 'express';
 
-import config from '../../../config';
 import { ENUM_YN } from '../../../enums/globalEnums';
 import { getDeviceInfo } from '../../../helper/getDeviceInfo';
 import catchAsync from '../../share/catchAsync';
@@ -116,10 +115,10 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
     //   // maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'),
     // };
 
-    secure: config.env === 'production' ? true : false,
+    secure: false,
     httpOnly: true,
     // when my site is same url example: frontend ->sampodnath.com , backend ->sampodnath-api.com. then sameSite lagba na, when frontend ->sampodnath.com , but backend api.sampodnath.com then  sameSite: 'none',
-    sameSite: 'none', // or remove this line for testing
+   
     maxAge: 31536000000,
     // maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'),
   };
