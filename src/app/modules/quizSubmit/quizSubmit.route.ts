@@ -16,7 +16,7 @@ router
       ENUM_USER_ROLE.STUDENT,
       ENUM_USER_ROLE.SELLER,
     ),
-    QuizSubmitController.getVerifyQuizSubmit
+    QuizSubmitController.getVerifyQuizSubmit,
   );
 router
   .route('/')
@@ -30,20 +30,36 @@ router
       ENUM_USER_ROLE.SELLER,
     ),
     validateRequestZod(QuizSubmitValidation.createQuizSubmitZodSchema),
-    QuizSubmitController.createQuizSubmit
+    QuizSubmitController.createQuizSubmit,
+  );
+
+router
+  .route('/analytics')
+  .get(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.TEACHER,
+      ENUM_USER_ROLE.STUDENT,
+      ENUM_USER_ROLE.SELLER,
+    ),
+    QuizSubmitController.getQuizSubmitAnalytics,
   );
 
 router
   .route('/:id')
-  .get(  authMiddleware(
-    ENUM_USER_ROLE.ADMIN,
-    ENUM_USER_ROLE.SUPER_ADMIN,
-    ENUM_USER_ROLE.STUDENT,
-    ENUM_USER_ROLE.SELLER,
-  ),QuizSubmitController.getSingleQuizSubmit)
+  .get(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.STUDENT,
+      ENUM_USER_ROLE.SELLER,
+    ),
+    QuizSubmitController.getSingleQuizSubmit,
+  )
   .delete(
     authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-    QuizSubmitController.deleteQuizSubmit
+    QuizSubmitController.deleteQuizSubmit,
   );
 
 export const QuizSubmitRoute = router;
