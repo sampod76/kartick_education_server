@@ -16,7 +16,7 @@ const createQuizSubmit = catchAsync(async (req: Request, res: Response) => {
 
   const result = await QuizSubmitService.createQuizSubmitByDb(
     QuizSubmitData,
-    req.user
+    req.user,
   );
 
   sendResponse<IQuizSubmit>(res, {
@@ -40,7 +40,7 @@ const getAllQuizSubmit = catchAsync(async (req: Request, res: Response) => {
 
   const result = await QuizSubmitService.getAllQuizSubmitFromDb(
     filters,
-    paginationOptions
+    paginationOptions,
   );
 
   sendResponse<IQuizSubmit[]>(res, {
@@ -52,6 +52,33 @@ const getAllQuizSubmit = catchAsync(async (req: Request, res: Response) => {
   });
   // next();
 });
+const getQuizSubmitAnalytics = catchAsync(
+  async (req: Request, res: Response) => {
+    //****************search and filter start******* */
+    // console.log(req.query);
+    const queryObject = req.query;
+
+    const filters = pick(queryObject, QUIZ_SUBMIT_FILTERABLE_FIELDS);
+
+    //****************pagination start************ */
+
+    const paginationOptions = pick(queryObject, PAGINATION_FIELDS);
+
+    const result = await QuizSubmitService.getQuizSubmitAnalyticsFromDb(
+      filters,
+      paginationOptions,
+    );
+
+    sendResponse<IQuizSubmit[]>(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'successfull Get  QuizSubmit',
+      meta: result.meta,
+      data: result.data,
+    });
+    // next();
+  },
+);
 
 const getSingleQuizSubmit = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -66,7 +93,10 @@ const getSingleQuizSubmit = catchAsync(async (req: Request, res: Response) => {
 
 const getVerifyQuizSubmit = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await QuizSubmitService.getQuizSubmitVerifyFromDb(id, req.user);
+  const result = await QuizSubmitService.getQuizSubmitVerifyFromDb(
+    id,
+    req.user,
+  );
   sendResponse<IQuizSubmit[]>(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -79,7 +109,7 @@ const deleteQuizSubmit = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await QuizSubmitService.deleteQuizSubmitByIdFromDb(
     id,
-    req.query
+    req.query,
   );
   sendResponse<IQuizSubmit>(res, {
     success: true,
@@ -94,5 +124,6 @@ export const QuizSubmitController = {
   getAllQuizSubmit,
   getSingleQuizSubmit,
   deleteQuizSubmit,
-  getVerifyQuizSubmit
+  getVerifyQuizSubmit,
+  getQuizSubmitAnalytics,
 };
