@@ -10,11 +10,9 @@ import ApiError from '../../errors/ApiError';
 import { COURSE_SEARCHABLE_FIELDS } from './course.constant';
 import { ICourse, ICourseFilters } from './course.interface';
 import { Course } from './course.model';
-import { generateCourseId } from './course.utils';
 
 const { ObjectId } = mongoose.Types;
 const createCourseByDb = async (payload: ICourse): Promise<ICourse> => {
-  payload.snid = await generateCourseId();
   const result = await Course.create(payload);
   return result;
 };
@@ -26,10 +24,6 @@ const getAllCourseFromDb = async (
 ): Promise<IGenericResponse<ICourse[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-
-  filtersData.status = filtersData.status
-    ? filtersData.status
-    : ENUM_STATUS.ACTIVE;
 
   filtersData.isDelete = filtersData.isDelete
     ? filtersData.isDelete
@@ -441,9 +435,7 @@ const getAllCourseMilestoneModuleListFromDb = async (
 ): Promise<IGenericResponse<ICourse[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-  filtersData.status = filtersData.status
-    ? filtersData.status
-    : ENUM_STATUS.ACTIVE;
+
   filtersData.isDelete = filtersData.isDelete
     ? filtersData.isDelete
     : ENUM_YN.NO;
@@ -961,16 +953,9 @@ const updateCourseFromDb = async (
   id: string,
   payload: Partial<ICourse>,
 ): Promise<ICourse | null> => {
-  const { demo_video, ...otherData } = payload;
+  const { ...otherData } = payload;
   const updateData = { ...otherData };
 
-  if (demo_video && Object.keys(demo_video).length > 0) {
-    Object.keys(demo_video).forEach(key => {
-      const demo_videoKey = `demo_video.${key}`; // `demo_video.status`
-      (updateData as any)[demo_videoKey] =
-        demo_video[key as keyof typeof demo_video];
-    });
-  }
   const result = await Course.findOneAndUpdate({ _id: id }, updateData, {
     new: true,
     runValidators: true,
@@ -993,7 +978,7 @@ const deleteCourseByIdFromDb = async (
   } else {
     result = await Course.findOneAndUpdate(
       { _id: id },
-      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES },
+      { status: ENUM_STATUS.INACTIVE, isDelete: ENUM_YN.YES },
     );
   }
   return result;

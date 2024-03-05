@@ -16,7 +16,6 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     req.body,
   );
 
-
   if (req?.cookies?.refreshToken) {
     const checkLoginHistory = await UserLoginHistory.findOne({
       //@ts-ignore
@@ -69,15 +68,21 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
 
     // ! -------------- set login history function end --------------
   }
- 
+
   const cookieOptions = {
     // secure: config.env === 'development' ? false : true,
     secure: false,
     httpOnly: true,
     // maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'),
-    
+
     maxAge: 31536000000,
   };
+
+  if (config.env === 'production') {
+    console.log(config.env);
+    //@ts-ignore
+    cookieOptions.sameSite = 'none';
+  }
 
   /* 
       
@@ -119,10 +124,14 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
     secure: config.env === 'production' ? true : false,
     httpOnly: true,
     // when my site is same url example: frontend ->sampodnath.com , backend ->sampodnath-api.com. then sameSite lagba na, when frontend ->sampodnath.com , but backend api.sampodnath.com then  sameSite: 'none',
-    sameSite: 'none', // or remove this line for testing
+
     maxAge: 31536000000,
     // maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'),
   };
+  if (config.env === 'production') {
+    //@ts-ignore
+    cookieOptions.sameSite = 'none';
+  }
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
   res.cookie('refreshToken', refreshToken, cookieOptions);

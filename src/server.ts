@@ -28,10 +28,10 @@ async function connection() {
     app.listen(config.port, (): void => {
       config.env === 'production'
         ? logger.info(
-            `Server is listening on port ${config.port}`.red.underline.bold
+            `Server is listening on port ${config.port}`.red.underline.bold,
           )
         : console.log(
-            `Server is listening on port ${config.port}`.red.underline.bold
+            `Server is listening on port ${config.port}`.red.underline.bold,
           );
     });
   } catch (error) {
@@ -40,9 +40,7 @@ async function connection() {
       : console.log(`Failed to connect database: ${error}`.red.bold);
   }
 
-  //যদি এমন কোন error হয় যেটা আমি জানি না ওটার জন্য এটি
   process.on('unhandledRejection', error => {
-    //এখানে চেক করবে আগে আমার সার্ভারে কোন কাজ চলতেছে কিনা যদি কোন কাজ চলে তাহলে সে হঠাৎ করে বন্ধ করবে না
     if (server) {
       server.close(() => {
         config.env === 'production'

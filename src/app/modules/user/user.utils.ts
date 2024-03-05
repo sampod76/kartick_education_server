@@ -1,12 +1,17 @@
-import { ENUM_USER_ROLE } from "../../../enums/users";
-import { User } from "./user.model";
+import { User } from './user.model';
 
-export const findLastStudentId = async () => {
-    const lastUser = await User.findOne(
-      { role: ENUM_USER_ROLE.STUDENT },
-      { userId: 1, _id: 0 }
-    )
-      .sort({ createdAt: -1 })
-      .lean();
-    return lastUser?.userId ? lastUser.userId.substring(4) : undefined;
-  };
+export const findLastUserId = async () => {
+  const lastUser = await User.findOne({}, { userId: 1, _id: 0 })
+    .sort({
+      createdAt: -1,
+    })
+    .lean();
+  return lastUser?.userId;
+};
+
+export const generateUserId = async () => {
+  const currentId = (await findLastUserId()) || (0).toString().padStart(5, '0');
+  // increment by 1
+  const incrementedId = (parseInt(currentId) + 1).toString().padStart(5, '0');
+  return incrementedId;
+};

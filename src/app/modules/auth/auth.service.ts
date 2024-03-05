@@ -44,7 +44,7 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   //     null
   // }
 
-  if (isUserExist.status === ENUM_STATUS.DEACTIVATE) {
+  if (isUserExist.status === ENUM_STATUS.INACTIVE) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Your account is deactivated');
   } else if (isUserExist.status === ENUM_STATUS.BLOCK) {
     throw new ApiError(
@@ -134,7 +134,7 @@ const refreshToken = async (
     throw new ApiError(403, 'User does not exist');
   }
   //generate new token
-  if (isUserExist.status === ENUM_STATUS.DEACTIVATE) {
+  if (isUserExist.status === ENUM_STATUS.INACTIVE) {
     throw new ApiError(403, 'Your account is deactivated');
   } else if (isUserExist.status === ENUM_STATUS.BLOCK) {
     throw new ApiError(
@@ -194,7 +194,7 @@ const changePassword = async (
   }
 
   // checking old password
-  if (isUserExist.status === ENUM_STATUS.DEACTIVATE) {
+  if (isUserExist.status === ENUM_STATUS.INACTIVE) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Your account is deactivated');
   } else if (isUserExist.status === ENUM_STATUS.BLOCK) {
     throw new ApiError(

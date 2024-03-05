@@ -1,8 +1,7 @@
 export enum ENUM_STATUS {
   ACTIVE = 'active',
-  DEACTIVATE = 'deactivate',
-  SAVE = 'save',
-  BLOCK = 'block'
+  INACTIVE = 'inactive',
+  BLOCK = 'block',
 }
 export enum ENUM_YN {
   YES = 'yes',
@@ -13,4 +12,10 @@ export enum ENUM_VIDEO_PLATFORM {
   VIMEO = 'vimeo',
   YOUTUBE = 'youtube',
   FACEBOOK = 'facebook',
+}
+
+export enum ENUM_FC {
+  BREAKFAST = 'breakfast',
+  LAUNCH = 'launch',
+  DINNER = 'dinner',
 }

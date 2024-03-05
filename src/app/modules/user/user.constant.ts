@@ -1,3 +1,7 @@
-export const userSearchableFields = ['email'];
+import { IUserAccountStatus } from './user.interface';
 
-export const userFilterableFields = ['searchTerm', 'role','delete','multipleRole','author'];
+export const userAccountStatus: IUserAccountStatus[] = [
+  'active',
+  'inactive',
+  'block',
+];

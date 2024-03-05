@@ -39,6 +39,7 @@ router.post(
     ENUM_USER_ROLE.STUDENT,
     ENUM_USER_ROLE.SELLER,
   ),
+
   AuthController.changePassword,
 );
 router.post(

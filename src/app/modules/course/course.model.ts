@@ -1,86 +1,32 @@
-import { Schema, Types, model } from 'mongoose';
-import { STATUS_ARRAY, YN_ARRAY } from '../../../constant/globalConstant';
-import { COURSE_TYPES } from './course.constant';
+import { Schema, model } from 'mongoose';
+import { STATUS_ARRAY } from '../../../constant/globalConstant';
+import { ENUM_STATUS } from '../../../enums/globalEnums';
 import { CourseModel, ICourse } from './course.interface';
 
 const courseSchema = new Schema<ICourse, CourseModel>(
   {
-    title: {
-      type: String,
-      trim: true,
-      index: true,
-      required: true,
-    },
-    snid: {
-      type: String,
-    },
-    img: {
-      type: String,
-    },
-    details: {
-      type: String,
-      trim: true,
-    },
-    short_description: {
-      type: String,
-      trim: true,
-    },
     author: {
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    category: {
-      type: Schema.Types.ObjectId,
-      ref: 'Category',
-      required: true,
-    },
-    // sub1_course_category_id: {
-    //   type: Schema.Types.ObjectId,
-    //   ref: 'Category',
-    // },
-    price: {
-      type: Number,
-      min: 0,
-    },
+
     duration: {
       type: [Date],
     },
     level: {
       type: String,
     },
-    label_id: {
-      type: Types.ObjectId,
-      ref:"Course_label"
-    },
-    price_type: {
-      type: String,
-      enum: COURSE_TYPES,
-      default: 'paid',
-    },
+
     status: {
       type: String,
       enum: STATUS_ARRAY,
-      default: 'active',
+      default: ENUM_STATUS.ACTIVE,
     },
-isDelete: {
+    isDelete: {
       type: String,
-      enum:["yes", "no"],
+      enum: ['yes', 'no'],
       default: 'no',
     },
-    demo_video: {
-      type: Object,
-      default: {},
-    },
-
-    showing_number: {
-      type: Number,
-    },
-    favorite: {
-      type: String,
-      enum: YN_ARRAY,
-      default: 'no',
-    },
-    tags: [String],
   },
   {
     timestamps: true,
@@ -88,27 +34,7 @@ isDelete: {
     toJSON: {
       virtuals: true,
     },
-  }
+  },
 );
-courseSchema.statics.isCourseExistMethod = async function ({
-  id,
-  title,
-}: {
-  id?: string;
-  title?: string;
-}): Promise<Pick<ICourse, 'title'> | null> {
-  let result = null;
-  if (id) {
-    result = await Course.findById(id);
-  }
-  if (title) {
-    result = await Course.findOne(
-      { title: new RegExp(title, 'i') },
-      { title: 1 }
-    );
-  }
 
-  return result;
-};
-
-export const Course = model<ICourse, CourseModel>('Course', courseSchema);
+export const Course = model<ICourse, CourseModel>('course', courseSchema);
