@@ -57,7 +57,7 @@ connection();
 
 process.on('SIGTERM', () => {
   // logger.info('SIGTERM is received ....');
-  console.log('SIGTERM is received ....');
+  // console.log('SIGTERM is received ....');
   if (server) {
     server.close();
   }
