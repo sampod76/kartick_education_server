@@ -115,10 +115,79 @@ const getAllUsers = async (
   };
 };
 const getSingleUsers = async (id: string): Promise<IUser | null> => {
-  const data = await User.findById(id).populate(
-    'student admin seller trainer superAdmin',
-  );
-  return data;
+  // const data = await User.findById(id).populate(
+  //   'student admin seller trainer superAdmin',
+  // );
+  const result = await User.aggregate([
+    { $match: { _id: new Types.ObjectId(id) } },
+
+    {
+      $facet: {
+        studentInfo: [
+          {
+            $match: {
+              role: 'student',
+            },
+          },
+          {
+            $lookup: {
+              from: 'students',
+              localField: 'student',
+              foreignField: '_id',
+              as: 'roleInfo',
+            },
+          },
+        ],
+        adminInfo: [
+          {
+            $match: {
+              role: 'admin',
+            },
+          },
+          {
+            $lookup: {
+              from: 'admins',
+              localField: 'admin',
+              foreignField: '_id',
+              as: 'roleInfo',
+            },
+          },
+        ],
+        trainerInfo: [
+          {
+            $match: {
+              role: 'trainer',
+            },
+          },
+          {
+            $lookup: {
+              from: 'trainers',
+              localField: 'trainer',
+              foreignField: '_id',
+              as: 'roleInfo',
+            },
+          },
+        ],
+        // Add more facets for each role you want to include
+        // ...
+      },
+    },
+    {
+      $project: {
+        userData: {
+          $concatArrays: ['$studentInfo', '$adminInfo', '$trainerInfo'], // Concatenate arrays into a single array
+        },
+      },
+    },
+    {
+      $unwind: '$userData', // Unwind the array to separate documents
+    },
+    {
+      $replaceRoot: { newRoot: '$userData' }, // Replace the root with the documents from the array
+    },
+  ]);
+
+  return result[0];
 };
 const deleteSingleUsersFormDb = async (
   id: string,
@@ -191,7 +260,7 @@ const updateUserSingleUsersFormDb = async (
   const data = await User.findByIdAndUpdate(id, {
     ...bodyData,
   });
-await UserLoginHistory.find({ user: new Types.ObjectId(id) });
+  await UserLoginHistory.find({ user: new Types.ObjectId(id) });
 
   if (data && bodyData?.status === ENUM_STATUS.DEACTIVATE) {
     await UserLoginHistory.updateMany(
@@ -360,7 +429,6 @@ const createStudentByOtherMemberService = async (
   student: IStudent,
   user: IUser,
 ): Promise<IUser | null> => {
-
   // default password
   if (!user.password) {
     user.password = config.default_student_pass as string;

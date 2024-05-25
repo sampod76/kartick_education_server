@@ -18,190 +18,73 @@ const allUser = ({
     { $sort: sortConditions },
     { $skip: Number(skip) || 0 },
     { $limit: Number(limit) || 15 },
-    //admin
+
     {
-      $lookup: {
-        from: 'admins',
-        let: { id: '$admin' },
-        pipeline: [
+      $facet: {
+        studentInfo: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
-              // Additional filter conditions for collection2
+              role: 'student',
             },
           },
-          // Additional stages for collection2
-
           {
-            $project: {
-              // password: 0,
-              __v: 0,
+            $lookup: {
+              from: 'students',
+              localField: 'student',
+              foreignField: '_id',
+              as: 'roleInfo',
             },
           },
         ],
-        as: 'adminDetails',
+        adminInfo: [
+          {
+            $match: {
+              role: 'admin',
+            },
+          },
+          {
+            $lookup: {
+              from: 'admins',
+              localField: 'admin',
+              foreignField: '_id',
+              as: 'roleInfo',
+            },
+          },
+        ],
+        trainerInfo: [
+          {
+            $match: {
+              role: 'trainer',
+            },
+          },
+          {
+            $lookup: {
+              from: 'trainers',
+              localField: 'trainer',
+              foreignField: '_id',
+              as: 'roleInfo',
+            },
+          },
+        ],
+        // Add more facets for each role you want to include
+        // ...
       },
     },
     {
-      $project: { admin: 0 },
-    },
-    //মনে রাখতে হবে যদি এটি দেওয়া না হয় তাহলে সে যখন কোন একটি ক্যাটাগরির থাম্বেল না পাবে সে তাকে দেবে না
-    {
-      $addFields: {
-        admin: {
-          $cond: {
-            if: { $eq: [{ $size: '$adminDetails' }, 0] },
-            then: [{}],
-            else: '$adminDetails',
-          },
+      $project: {
+        userData: {
+          $concatArrays: ['$studentInfo', '$adminInfo', '$trainerInfo'], // Concatenate arrays into a single array
         },
       },
     },
     {
-      $project: { adminDetails: 0 },
+      $unwind: '$userData', // Unwind the array to separate documents
     },
     {
-      $unwind: '$admin',
+      $replaceRoot: { newRoot: '$userData' }, // Replace the root with the documents from the array
     },
-
-    // student
-    {
-      $lookup: {
-        from: 'students',
-        let: { id: '$student' },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
-              // Additional filter conditions for collection2
-            },
-          },
-          // Additional stages for collection2
-
-          {
-            $project: {
-              password: 0,
-              __v: 0,
-            },
-          },
-        ],
-        as: 'studentDetails',
-      },
-    },
-
-    {
-      $project: { student: 0 },
-    },
-    {
-      $addFields: {
-        student: {
-          $cond: {
-            if: { $eq: [{ $size: '$studentDetails' }, 0] },
-            then: [{}],
-            else: '$studentDetails',
-          },
-        },
-      },
-    },
-    {
-      $project: { studentDetails: 0 },
-    },
-    {
-      $unwind: '$student',
-    },
-    // trainer
-    {
-      $lookup: {
-        from: 'trainers',
-        let: { id: '$trainer' },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
-              // Additional filter conditions for collection2
-            },
-          },
-          // Additional stages for collection2
-
-          {
-            $project: {
-              password: 0,
-              __v: 0,
-            },
-          },
-        ],
-        as: 'trainerDetails',
-      },
-    },
-    {
-      $project: { trainer: 0 },
-    },
-    {
-      $addFields: {
-        trainer: {
-          $cond: {
-            if: { $eq: [{ $size: '$trainerDetails' }, 0] },
-            then: [{}],
-            else: '$trainerDetails',
-          },
-        },
-      },
-    },
-    {
-      $project: { trainerDetails: 0 },
-    },
-    {
-      $unwind: '$trainer',
-    },
-
-    // seller
-    {
-      $lookup: {
-        from: 'sellers',
-        let: { id: '$seller' },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
-              // Additional filter conditions for collection2
-            },
-          },
-          // Additional stages for collection2
-          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
-
-          {
-            $project: {
-              password: 0,
-              __v: 0,
-            },
-          },
-        ],
-        as: 'sellerDetails',
-      },
-    },
-    {
-      $project: { seller: 0 },
-    },
-    {
-      $addFields: {
-        seller: {
-          $cond: {
-            if: { $eq: [{ $size: '$sellerDetails' }, 0] },
-            then: [{}],
-            else: '$sellerDetails',
-          },
-        },
-      },
-    },
-    {
-      $project: { sellerDetails: 0 },
-    },
-    {
-      $unwind: '$seller',
-    },
-    {
-      $project: { password: 0 },
-    },
+     // it is must be dabble user included because use $facet is all add group in the role
+    { $sort: sortConditions },
   ];
   return pipeline;
 };
@@ -262,7 +145,7 @@ const author = ({
     {
       $unwind: '$admin',
     },
-    
+
     {
       $lookup: {
         from: 'trainers',
@@ -313,9 +196,7 @@ const author = ({
   return pipeline;
 };
 
-
-
 export const userPipeline = {
-    allUser,
-    author
+  allUser,
+  author,
 };
