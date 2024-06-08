@@ -13,6 +13,7 @@ import {
 } from '../../../utils/cryptoEncryptDecrypt';
 import ApiError from '../../errors/ApiError';
 import catchAsync from '../../share/catchAsync';
+import { Category } from '../category/model.category';
 import { Course } from '../course/course.model';
 import { Package } from '../package/package.model';
 import {
@@ -23,7 +24,6 @@ import {
   PendingPurchasePackage,
   PurchasePackage,
 } from '../purchase_package/purchase_package.model';
-import { Category } from '../category/model.category';
 
 // import { v4 as uuidv4 } from 'uuid';
 
@@ -59,15 +59,16 @@ const createPaymentStripe = catchAsync(async (req: Request, res: Response) => {
     payment_method_types: ['card'],
     line_items: lineItems,
     mode: 'payment',
-    success_url: config.payment_url.stripe_success_url,
+    success_url: config.payment_url.stripe_success_url + '?data=sampod',
     cancel_url: config.payment_url.stripe_cancel_url,
   });
+  console.log('🚀 ~ createPaymentStripe ~ session:', session);
   if (session?.id) {
     res.status(200).send({
       success: true,
       statusCode: 200,
       message: 'successfull get secret',
-      data: { id: session?.id },
+      data: { id: session?.id, url: session?.url },
     });
   } else {
     throw new ApiError(404, 'Payment failed');
@@ -201,7 +202,6 @@ const createPaymentPaypal = catchAsync(async (req: Request, res: Response) => {
 
   paypal.payment.create(payment, (error: any, payment: any) => {
     if (error) {
-    
       // errorLogger.error(error)
       return res.status(404).send({
         success: false,
@@ -398,7 +398,6 @@ const createPaymentPaypalByCourse = catchAsync(
 
     paypal.payment.create(payment, (error: any, payment: any) => {
       if (error) {
-       
         // errorLogger.error(error)
         return res.status(404).send({
           success: false,
@@ -528,7 +527,9 @@ const checkPaypalPaymentByCourse = catchAsync(
 const createPaymentPaypalByCategory = catchAsync(
   async (req: Request, res: Response) => {
     const { amount, item_list, description, data: categoryData } = req.body;
-    const findCategory = (await Category.findById(categoryData?.category)) as any;
+    const findCategory = (await Category.findById(
+      categoryData?.category,
+    )) as any;
     if (!findCategory) {
       throw new ApiError(404, 'Do not found category');
     }
@@ -596,7 +597,6 @@ const createPaymentPaypalByCategory = catchAsync(
 
     paypal.payment.create(payment, (error: any, payment: any) => {
       if (error) {
-       
         // errorLogger.error(error)
         return res.status(404).send({
           success: false,
