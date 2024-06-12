@@ -6,6 +6,7 @@ export const Course_label_FILTERABLE_FIELDS = [
   'delete',
   'children',
   'category',
+  'author',
   'serial_number',
-  "isDelete"
+  'isDelete',
 ];

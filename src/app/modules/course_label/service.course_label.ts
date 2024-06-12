@@ -52,11 +52,19 @@ const getAllCourse_labelFromDb = async (
 
   if (Object.keys(filtersData).length) {
     andConditions.push({
-      $and: Object.entries(filtersData).map(([field, value]) =>field === "category" ?   {
-        [field]: new Types.ObjectId(value),
-      }:  {
-        [field]: value,
-      }),
+      $and: Object.entries(filtersData).map(([field, value]) =>
+        field === 'category'
+          ? {
+              [field]: new Types.ObjectId(value),
+            }
+          : field === 'author'
+            ? {
+                [field]: new Types.ObjectId(value),
+              }
+            : {
+                [field]: value,
+              },
+      ),
     });
   }
 
@@ -85,34 +93,34 @@ const getAllCourse_labelFromDb = async (
     { $sort: sortConditions },
     { $skip: Number(skip) || 0 },
     { $limit: Number(limit) || 99999 },
-      ///***************** */ category field ******start
-      {
-        $lookup: {
-          from: 'categories',
-          let: { conditionField: '$category' }, // The field to match from the current collection
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $eq: ['$_id', '$$conditionField'], // The condition to match the fields
-                },
+    ///***************** */ category field ******start
+    {
+      $lookup: {
+        from: 'categories',
+        let: { conditionField: '$category' }, // The field to match from the current collection
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ['$_id', '$$conditionField'], // The condition to match the fields
               },
             },
-  
-            // Additional pipeline stages for the second collection (optional)
-            {
-              $project: {
-                createdAt: 0,
-                updatedAt: 0,
-              },
+          },
+
+          // Additional pipeline stages for the second collection (optional)
+          {
+            $project: {
+              createdAt: 0,
+              updatedAt: 0,
             },
-          ],
-          as: 'categoryDetails', // The field to store the matched results from the second collection
-        },
+          },
+        ],
+        as: 'categoryDetails', // The field to store the matched results from the second collection
       },
-     
-      {$unwind:"$categoryDetails"}
-      //
+    },
+
+    { $unwind: '$categoryDetails' },
+    //
   ];
 
   // console.log(pipeline);
@@ -159,7 +167,7 @@ const getSingleCourse_labelFromDb = async (
         as: 'categoryDetails', // The field to store the matched results from the second collection
       },
     },
-    {$unwind:"$categoryDetails"}
+    { $unwind: '$categoryDetails' },
   ];
 
   const result = await Course_label.aggregate(pipeline);

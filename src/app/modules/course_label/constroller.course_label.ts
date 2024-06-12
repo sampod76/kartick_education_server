@@ -13,8 +13,11 @@ import { Course_labelService } from './service.course_label';
 
 // import { z } from 'zod'
 const createCourse_label = catchAsync(async (req: Request, res: Response) => {
-  const { ...Course_labelData } = req.body;
-  const result = await Course_labelService.createCourse_labelByDb(Course_labelData);
+  if (req?.user?.id) {
+    req.body.author = req.user.id;
+  }
+
+  const result = await Course_labelService.createCourse_labelByDb(req.body);
 
   sendResponse<ICourse_label>(res, {
     success: true,
@@ -35,7 +38,7 @@ const getAllCourse_label = catchAsync(async (req: Request, res: Response) => {
   let queryObject = req.query;
   queryObject = Object.fromEntries(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    Object.entries(queryObject).filter(([_, value]) => Boolean(value))
+    Object.entries(queryObject).filter(([_, value]) => Boolean(value)),
   );
   const filters = pick(queryObject, Course_label_FILTERABLE_FIELDS);
 
@@ -45,7 +48,7 @@ const getAllCourse_label = catchAsync(async (req: Request, res: Response) => {
 
   const result = await Course_labelService.getAllCourse_labelFromDb(
     filters,
-    paginationOptions
+    paginationOptions,
   );
 
   sendResponse<ICourse_label[]>(res, {
@@ -63,7 +66,7 @@ const getAllCourse_labelChildrenTitle = catchAsync(
     let queryObject = req.query;
     queryObject = Object.fromEntries(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      Object.entries(queryObject).filter(([_, value]) => Boolean(value))
+      Object.entries(queryObject).filter(([_, value]) => Boolean(value)),
     );
     const filters = pick(queryObject, Course_label_FILTERABLE_FIELDS);
 
@@ -71,10 +74,11 @@ const getAllCourse_labelChildrenTitle = catchAsync(
 
     const paginationOptions = pick(queryObject, PAGINATION_FIELDS);
 
-    const result = await Course_labelService.getAllCourse_labelChildrenTitleFromDb(
-      filters,
-      paginationOptions
-    );
+    const result =
+      await Course_labelService.getAllCourse_labelChildrenTitleFromDb(
+        filters,
+        paginationOptions,
+      );
 
     sendResponse<ICourse_label[]>(res, {
       success: true,
@@ -84,28 +88,30 @@ const getAllCourse_labelChildrenTitle = catchAsync(
       data: result.data,
     });
     // next();
-  }
+  },
 );
 
-const getSingleCourse_label = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+const getSingleCourse_label = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
 
-  /*   if (!globalImport.ObjectId.isValid(id)) {
+    /*   if (!globalImport.ObjectId.isValid(id)) {
       throw new ApiError(400, 'invalid id sampod');
     } */
 
-  const result = await Course_labelService.getSingleCourse_labelFromDb(id);
+    const result = await Course_labelService.getSingleCourse_labelFromDb(id);
 
-  /* if (!result) {
+    /* if (!result) {
       throw new ApiError(400, 'No data found');
     } */
-  sendResponse<ICourse_label>(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: 'successfull get Course_label Course_label',
-    data: result,
-  });
-});
+    sendResponse<ICourse_label>(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'successfull get Course_label Course_label',
+      data: result,
+    });
+  },
+);
 const updateCourse_label = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const updateData = req.body;
@@ -113,7 +119,10 @@ const updateCourse_label = catchAsync(async (req: Request, res: Response) => {
       throw new ApiError(400, 'invalid id sampod');
     } */
 
-  const result = await Course_labelService.updateCourse_labelFromDb(id, updateData);
+  const result = await Course_labelService.updateCourse_labelFromDb(
+    id,
+    updateData,
+  );
 
   /* if (!result) {
       throw new ApiError(400, 'No data found');

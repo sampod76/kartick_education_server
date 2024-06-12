@@ -23,6 +23,10 @@ const Course_labelSchema = new Schema<ICourse_label, Course_labelModel>(
 
       default: 9999,
     },
+    author: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
     status: {
       type: String,
       enum: STATUS_ARRAY,

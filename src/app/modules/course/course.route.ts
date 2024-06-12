@@ -11,30 +11,31 @@ router
   .route('/')
   .get(CourseController.getAllCourse)
   .post(
-    authMiddleware(ENUM_USER_ROLE.ADMIN),
+    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SELLER),
     validateRequestZod(CourseValidation.createCourseZodSchema),
-    CourseController.createCourse
+    CourseController.createCourse,
   );
 
 router
   .route('/course-milestone-module')
-  .get(CourseController.getAllCourseMilestoneModuleList)
-router
-  .route('/course-level')
-  .get(CourseController.getAllCourseLevel)
+  .get(CourseController.getAllCourseMilestoneModuleList);
+router.route('/course-level').get(CourseController.getAllCourseLevel);
 
 router
   .route('/course-modulesize-lessonsize-quizsize/:id')
-  .get(CourseController.getSingleCourseModuleLessonQuiz)
- 
+  .get(CourseController.getSingleCourseModuleLessonQuiz);
+
 router
   .route('/:id')
   .get(CourseController.getSingleCourse)
   .patch(
-    authMiddleware(ENUM_USER_ROLE.ADMIN),
+    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SELLER),
     validateRequestZod(CourseValidation.updateCourseZodSchema),
-    CourseController.updateCourse
+    CourseController.updateCourse,
   )
-  .delete(authMiddleware(ENUM_USER_ROLE.ADMIN), CourseController.deleteCourse);
+  .delete(
+    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SELLER),
+    CourseController.deleteCourse,
+  );
 
 export const CourseRoute = router;

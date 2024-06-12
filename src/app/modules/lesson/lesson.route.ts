@@ -11,19 +11,34 @@ router
   .route('/')
   .get(LessonController.getAllLesson)
   .post(
-    authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+    ),
     validateRequestZod(LessonValidation.createLessonZodSchema),
-    LessonController.createLesson
+    LessonController.createLesson,
   );
 
 router
   .route('/:id')
   .get(LessonController.getSingleLesson)
   .patch(
-    authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+    ),
     validateRequestZod(LessonValidation.updateLessonZodSchema),
-    LessonController.updateLesson
+    LessonController.updateLesson,
   )
-  .delete(authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN), LessonController.deleteLesson);
+  .delete(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+    ),
+    LessonController.deleteLesson,
+  );
 
 export const LessonRoute = router;

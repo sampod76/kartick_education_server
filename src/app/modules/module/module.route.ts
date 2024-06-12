@@ -11,19 +11,34 @@ router
   .route('/')
   .get(ModuleController.getAllModule)
   .post(
-    authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+    ),
     validateRequestZod(moduleValidation.createModuleZodSchema),
-    ModuleController.createModule
+    ModuleController.createModule,
   );
 
 router
   .route('/:id')
   .get(ModuleController.getSingleModule)
   .patch(
-    authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+    ),
     validateRequestZod(moduleValidation.updateModuleZodSchema),
-    ModuleController.updateModule
+    ModuleController.updateModule,
   )
-  .delete(authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN), ModuleController.deleteModule);
+  .delete(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+    ),
+    ModuleController.deleteModule,
+  );
 
 export const ModuleRoute = router;
