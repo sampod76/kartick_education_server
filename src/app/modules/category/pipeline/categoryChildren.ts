@@ -1,14 +1,22 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { PipelineStage } from 'mongoose';
 import { ENUM_YN } from '../../../../enums/globalEnums';
+import { ICategoryFilters } from '../interface.category';
 
 export type IMilestonePipeline = {
   whereConditions: any;
   sortConditions: any;
   skip?: any;
   limit?: any;
+  query?: ICategoryFilters;
 };
 
-const all = ({ whereConditions, sortConditions }: IMilestonePipeline) => {
+const all = ({
+  whereConditions,
+  sortConditions,
+  query,
+}: IMilestonePipeline) => {
+  const condition = [{ $eq: ['$isDelete', ENUM_YN.NO] }];
   const pipeline: PipelineStage[] = [
     { $match: whereConditions },
     { $sort: sortConditions },
@@ -23,8 +31,8 @@ const all = ({ whereConditions, sortConditions }: IMilestonePipeline) => {
               $expr: {
                 $and: [
                   { $eq: ['$category', '$$id'] },
-
                   { $eq: ['$isDelete', ENUM_YN.NO] },
+                  // ...condition,
                 ], // The condition to match the fields
               },
             },
@@ -470,7 +478,10 @@ const categoryCourseMileston = ({
 };
 
 const categoryCourse = ({
-  whereConditions, sortConditions,limit ,skip
+  whereConditions,
+  sortConditions,
+  limit,
+  skip,
 }: IMilestonePipeline) => {
   const pipeline: PipelineStage[] = [
     { $match: whereConditions },

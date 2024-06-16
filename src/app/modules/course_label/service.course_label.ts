@@ -82,14 +82,14 @@ const getAllCourse_labelFromDb = async (
 
   const whereConditions =
     andConditions.length > 0 ? { $and: andConditions } : {};
-
+  const condition = [{ $eq: ['$isDelete', ENUM_YN.YES] }];
   // const result = await Course_label.find(whereConditions)
   //   .populate('thumbnail')
   //   .sort(sortConditions)
   //   .skip(Number(skip))
   //   .limit(Number(limit));
   const pipeline: PipelineStage[] = [
-    { $match: whereConditions },
+    { $match: { ...condition } },
     { $sort: sortConditions },
     { $skip: Number(skip) || 0 },
     { $limit: Number(limit) || 99999 },
