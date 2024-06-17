@@ -13,10 +13,11 @@ export type ILessonFilters = {
   //
   category?: string;
   course?: string;
+  author?: string;
   milestone?: string;
   module?: string;
   //
-  delete?: "yes" | "no" ;
+  delete?: 'yes' | 'no';
   isDelete?: string;
   // other query parameters
 };

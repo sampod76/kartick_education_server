@@ -9,7 +9,10 @@ import { ENUM_YN } from '../../../enums/globalEnums';
 import ApiError from '../../errors/ApiError';
 
 import { Short_overview_SEARCHABLE_FIELDS } from './short_overview.constant';
-import { IShort_overview, IShort_overviewFilters } from './short_overview.interface';
+import {
+  IShort_overview,
+  IShort_overviewFilters,
+} from './short_overview.interface';
 import { Short_overview } from './short_overview.model';
 
 const createShort_overviewByDb = async (
@@ -101,7 +104,9 @@ const getAllShort_overviewFromDb = async (
     //     pipeline: [
     //       {
     //         $match: {
-    //           $expr: { $eq: ['$_id', '$$id'] },
+    //           $expr: {
+    //   $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+    // },
     //           // Additional filter conditions for collection2
     //         },
     //       },
@@ -186,10 +191,14 @@ const updateShort_overviewFromDb = async (
         demo_video[key as keyof typeof demo_video];
     });
   }
-  const result = await Short_overview.findOneAndUpdate({ _id: id }, updateData, {
-    new: true,
-    runValidators: true,
-  });
+  const result = await Short_overview.findOneAndUpdate(
+    { _id: id },
+    updateData,
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
   if (!result) {
     throw new ApiError(500, 'Short_overview update fail!!😪😭😰');
   }

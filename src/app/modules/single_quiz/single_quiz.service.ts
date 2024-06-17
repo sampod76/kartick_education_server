@@ -13,7 +13,7 @@ import { SingleQuiz } from './single_quiz.model';
 
 const { ObjectId } = mongoose.Types;
 const createSingleQuizByDb = async (
-  payload: ISingleQuiz
+  payload: ISingleQuiz,
 ): Promise<ISingleQuiz> => {
   const result = await SingleQuiz.create(payload);
   return result;
@@ -22,14 +22,16 @@ const createSingleQuizByDb = async (
 //getAllSingleQuizFromDb
 const getAllSingleQuizFromDb = async (
   filters: ISingleQuizFilters,
-  paginationOptions: IPaginationOption
+  paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<ISingleQuiz[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
   filtersData.status = filtersData.status
     ? filtersData.status
     : ENUM_STATUS.ACTIVE;
-    filtersData.isDelete = filtersData.isDelete ? filtersData.isDelete : ENUM_YN.NO;
+  filtersData.isDelete = filtersData.isDelete
+    ? filtersData.isDelete
+    : ENUM_YN.NO;
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -49,7 +51,7 @@ const getAllSingleQuizFromDb = async (
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
           : {
               [field]: new RegExp(searchTerm, 'i'),
-            }
+            },
       ),
     });
   }
@@ -59,17 +61,19 @@ const getAllSingleQuizFromDb = async (
       $and: Object.entries(filtersData).map(([field, value]) =>
         field === 'category'
           ? { [field]: new Types.ObjectId(value) }
-          : field === 'course'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'milestone'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'module'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'lesson'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'quiz'
-          ? { [field]: new Types.ObjectId(value) }
-          : { [field]: value }
+          : field === 'author'
+            ? { [field]: new Types.ObjectId(value) }
+            : field === 'course'
+              ? { [field]: new Types.ObjectId(value) }
+              : field === 'milestone'
+                ? { [field]: new Types.ObjectId(value) }
+                : field === 'module'
+                  ? { [field]: new Types.ObjectId(value) }
+                  : field === 'lesson'
+                    ? { [field]: new Types.ObjectId(value) }
+                    : field === 'quiz'
+                      ? { [field]: new Types.ObjectId(value) }
+                      : { [field]: value },
       ),
     });
   }
@@ -109,7 +113,9 @@ const getAllSingleQuizFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -154,7 +160,9 @@ const getAllSingleQuizFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -207,7 +215,7 @@ const getAllSingleQuizFromDb = async (
 
 // get single e form db
 const getSingleSingleQuizFromDb = async (
-  id: string
+  id: string,
 ): Promise<ISingleQuiz | null> => {
   const result = await SingleQuiz.aggregate([
     { $match: { _id: new ObjectId(id) } },
@@ -218,7 +226,9 @@ const getSingleSingleQuizFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -256,7 +266,9 @@ const getSingleSingleQuizFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -293,7 +305,9 @@ const getSingleSingleQuizFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -330,7 +344,7 @@ const getSingleSingleQuizFromDb = async (
 // update e form db
 const updateSingleQuizFromDb = async (
   id: string,
-  payload: Partial<ISingleQuiz>
+  payload: Partial<ISingleQuiz>,
 ): Promise<ISingleQuiz | null> => {
   console.log('🚀 ~ file: single_quiz.service.ts:285 ~ id:', id);
   // const { /* demo_video,  */ ...otherData } = payload;
@@ -357,7 +371,7 @@ const updateSingleQuizFromDb = async (
 // delete e form db
 const deleteSingleQuizByIdFromDb = async (
   id: string,
-  query: ISingleQuizFilters
+  query: ISingleQuizFilters,
 ): Promise<ISingleQuiz | null> => {
   let result;
   if (query.delete === ENUM_YN.YES) {
@@ -367,7 +381,7 @@ const deleteSingleQuizByIdFromDb = async (
       { _id: id },
       {
         status: ENUM_STATUS.DEACTIVATE,
-      }
+      },
     );
   }
   return result;

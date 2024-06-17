@@ -12,10 +12,12 @@ import { Show_advance_classesService } from './service.show_advance_classes';
 // import { z } from 'zod'
 const createShow_advance_classes = catchAsync(
   async (req: Request, res: Response) => {
-    const { ...Show_advance_classesData } = req.body;
+    if (req?.user?.id) {
+      req.body.author = req.user.id;
+    }
     const result =
       await Show_advance_classesService.createShow_advance_classesByDb(
-        Show_advance_classesData,
+        req.body,
       );
     sendResponse<IShow_advance_classes>(res, {
       success: true,

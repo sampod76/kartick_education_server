@@ -9,6 +9,7 @@ export type IMilestoneFilters = {
   status?: string;
   //
   course?: string;
+  author?: string;
   category?: string;
   milestone?: string;
   //

@@ -19,6 +19,7 @@ export type IQuizSubmitFilters = {
   milestone?: string;
   module?: string;
   lesson?: string;
+  author?: string;
   //
   delete?: 'yes' | 'no';
   isCorrect?: 'yes' | 'no';

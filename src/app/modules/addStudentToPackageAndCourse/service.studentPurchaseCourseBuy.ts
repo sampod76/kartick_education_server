@@ -11,19 +11,20 @@ import ApiError from '../../errors/ApiError';
 import { PurchasePackage } from '../purchase_package/purchase_package.model';
 import { student_purchase_category_course_SEARCHABLE_FIELDS } from './constant.studentPurchaseCourseBuy';
 import {
-    IStudentPurchasePackageCategoryCourse,
-    IStudentPurchasePackageCategoryCourseFilters,
+  IStudentPurchasePackageCategoryCourse,
+  IStudentPurchasePackageCategoryCourseFilters,
 } from './interface.studentPurchaseCourseBuy';
 import { AddSellerStudentPurchasePackageCategoryCourse } from './model.studentPurchaseCourseBuy';
 
 const createStudentPurchasePackageCategoryCourseByDb = async (
   payload: IStudentPurchasePackageCategoryCourse,
 ): Promise<IStudentPurchasePackageCategoryCourse | null> => {
-  const findPackage = await AddSellerStudentPurchasePackageCategoryCourse.findOne({
-    sellerPackage: payload.sellerPackage,
-    user: payload.user,
-    isDelete: ENUM_YN.NO,
-  });
+  const findPackage =
+    await AddSellerStudentPurchasePackageCategoryCourse.findOne({
+      sellerPackage: payload.sellerPackage,
+      user: payload.user,
+      isDelete: ENUM_YN.NO,
+    });
 
   let result;
   if (findPackage) {
@@ -202,7 +203,9 @@ const getAllStudentPurchasePackageCategoryCourseFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -227,11 +230,14 @@ const getAllStudentPurchasePackageCategoryCourseFromDb = async (
       .sort({ title: 1 })
       .select({ ...projection });
   } else {
-    result = await AddSellerStudentPurchasePackageCategoryCourse.aggregate(pipeline);
+    result =
+      await AddSellerStudentPurchasePackageCategoryCourse.aggregate(pipeline);
   }
 
   const total =
-    await AddSellerStudentPurchasePackageCategoryCourse.countDocuments(whereConditions);
+    await AddSellerStudentPurchasePackageCategoryCourse.countDocuments(
+      whereConditions,
+    );
   return {
     meta: {
       page,
@@ -247,10 +253,11 @@ const getStudentPurchasePackageCategoryCourseVerifyFromDb = async (
   id: string,
   user: any,
 ): Promise<IStudentPurchasePackageCategoryCourse[] | null> => {
-  const findSubmitQuiz = await AddSellerStudentPurchasePackageCategoryCourse.find({
-    quiz: new Types.ObjectId(id as string),
-    user: new Types.ObjectId(user.id as string),
-  });
+  const findSubmitQuiz =
+    await AddSellerStudentPurchasePackageCategoryCourse.find({
+      quiz: new Types.ObjectId(id as string),
+      user: new Types.ObjectId(user.id as string),
+    });
 
   return findSubmitQuiz;
 };
@@ -262,7 +269,9 @@ const getStudentPurchasePackageCategoryCourseSingelFromDb = async (
   // ]);
 
   // return result[0];
-  const result = await AddSellerStudentPurchasePackageCategoryCourse.findById(id)
+  const result = await AddSellerStudentPurchasePackageCategoryCourse.findById(
+    id,
+  )
     .populate('user')
     .populate('author')
     .populate('sellerPackage')
@@ -289,14 +298,15 @@ const updateStudentPurchasePackageCategoryCourseFromDb = async (
   ) {
     throw new ApiError(400, 'Unauthorize');
   }
-  const result = await AddSellerStudentPurchasePackageCategoryCourse.findOneAndUpdate(
-    { _id: id },
-    payload,
-    {
-      new: true,
-      runValidators: true,
-    },
-  );
+  const result =
+    await AddSellerStudentPurchasePackageCategoryCourse.findOneAndUpdate(
+      { _id: id },
+      payload,
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
   if (!result) {
     throw new ApiError(500, 'Module update fail!!😪😭😰');
   }
@@ -319,12 +329,14 @@ const deleteStudentPurchasePackageCategoryCourseByIdFromDb = async (
   }
   let result;
   if (query.delete === ENUM_YN.YES) {
-    result = await AddSellerStudentPurchasePackageCategoryCourse.findByIdAndDelete(id);
+    result =
+      await AddSellerStudentPurchasePackageCategoryCourse.findByIdAndDelete(id);
   } else {
-    result = await AddSellerStudentPurchasePackageCategoryCourse.findOneAndUpdate(
-      { _id: id },
-      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES },
-    );
+    result =
+      await AddSellerStudentPurchasePackageCategoryCourse.findOneAndUpdate(
+        { _id: id },
+        { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES },
+      );
   }
   return result;
 };

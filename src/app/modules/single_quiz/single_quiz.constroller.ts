@@ -9,12 +9,13 @@ import { SINGLE_QUIZ_FILTERABLE_FIELDS } from './single_quiz.constant';
 import { SingleQuizService } from './single_quiz.service';
 import { ISingleQuiz } from './single_quiz.interface';
 
-
 // import { z } from 'zod'
 const createSingleQuiz = catchAsync(async (req: Request, res: Response) => {
-  const { ...SingleQuizData } = req.body;
+  if (req?.user?.id) {
+    req.body.author = req.user.id;
+  }
 
-  const result = await SingleQuizService.createSingleQuizByDb(SingleQuizData);
+  const result = await SingleQuizService.createSingleQuizByDb(req.body);
 
   sendResponse<ISingleQuiz>(res, {
     success: true,
@@ -37,7 +38,7 @@ const getAllSingleQuiz = catchAsync(async (req: Request, res: Response) => {
 
   const result = await SingleQuizService.getAllSingleQuizFromDb(
     filters,
-    paginationOptions
+    paginationOptions,
   );
 
   sendResponse<ISingleQuiz[]>(res, {
@@ -78,7 +79,7 @@ const deleteSingleQuiz = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await SingleQuizService.deleteSingleQuizByIdFromDb(
     id,
-    req.query
+    req.query,
   );
   sendResponse<ISingleQuiz>(res, {
     success: true,
@@ -100,7 +101,7 @@ const SingleQuizReviewsByUser = catchAsync(
       message: 'successfull update reviews',
       data: result,
     });
-  }
+  },
 );
 export const SingleQuizController = {
   createSingleQuiz,

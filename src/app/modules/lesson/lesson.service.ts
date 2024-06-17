@@ -13,21 +13,23 @@ import { Lesson } from './lesson.model';
 
 const { ObjectId } = mongoose.Types;
 const createLessonByDb = async (payload: ILesson): Promise<ILesson> => {
-  const result = (await Lesson.create(payload))
+  const result = await Lesson.create(payload);
   return result;
 };
 
 //getAllLessonFromDb
 const getAllLessonFromDb = async (
   filters: ILessonFilters,
-  paginationOptions: IPaginationOption
+  paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<ILesson[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
   filtersData.status = filtersData.status
     ? filtersData.status
     : ENUM_STATUS.ACTIVE;
-    filtersData.isDelete = filtersData.isDelete ? filtersData.isDelete : ENUM_YN.NO;
+  filtersData.isDelete = filtersData.isDelete
+    ? filtersData.isDelete
+    : ENUM_YN.NO;
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -47,7 +49,7 @@ const getAllLessonFromDb = async (
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
           : {
               [field]: new RegExp(searchTerm, 'i'),
-            }
+            },
       ),
     });
   }
@@ -58,16 +60,18 @@ const getAllLessonFromDb = async (
         field === 'category'
           ? { [field]: new Types.ObjectId(value) }
           : field === 'course'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'milestone'
-          ? { [field]: new Types.ObjectId(value) }
-          : field === 'module'
-          ? { [field]: new Types.ObjectId(value) }
-          : { [field]: value }
+            ? { [field]: new Types.ObjectId(value) }
+            : field === 'milestone'
+              ? { [field]: new Types.ObjectId(value) }
+              : field === 'author'
+                ? { [field]: new Types.ObjectId(value) }
+                : field === 'module'
+                  ? { [field]: new Types.ObjectId(value) }
+                  : { [field]: value },
       ),
     });
   }
-
+  console.log(JSON.stringify(andConditions));
   //****************search and filters end**********/
 
   //****************pagination start **************/
@@ -103,7 +107,6 @@ const getAllLessonFromDb = async (
         pipeline: [
           {
             $match: {
-            
               $expr: {
                 $and: [
                   { $eq: ['$_id', '$$id'] },
@@ -182,7 +185,9 @@ const getSingleLessonFromDb = async (id: string): Promise<ILesson | null> => {
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -193,7 +198,12 @@ const getSingleLessonFromDb = async (id: string): Promise<ILesson | null> => {
               pipeline: [
                 {
                   $match: {
-                    $expr: { $eq: ['$_id', '$$id'] },
+                    $expr: {
+                      $and: [
+                        { $ne: ['$$id', undefined] },
+                        { $eq: ['$_id', '$$id'] },
+                      ],
+                    },
                     // Additional filter conditions for collection2
                   },
                 },
@@ -205,7 +215,12 @@ const getSingleLessonFromDb = async (id: string): Promise<ILesson | null> => {
                     pipeline: [
                       {
                         $match: {
-                          $expr: { $eq: ['$_id', '$$id'] },
+                          $expr: {
+                            $and: [
+                              { $ne: ['$$id', undefined] },
+                              { $eq: ['$_id', '$$id'] },
+                            ],
+                          },
                           // Additional filter conditions for collection2
                         },
                       },
@@ -217,7 +232,12 @@ const getSingleLessonFromDb = async (id: string): Promise<ILesson | null> => {
                           pipeline: [
                             {
                               $match: {
-                                $expr: { $eq: ['$_id', '$$id'] },
+                                $expr: {
+                                  $and: [
+                                    { $ne: ['$$id', undefined] },
+                                    { $eq: ['$_id', '$$id'] },
+                                  ],
+                                },
                                 // Additional filter conditions for collection2
                               },
                             },
@@ -364,7 +384,7 @@ const getSingleLessonFromDb = async (id: string): Promise<ILesson | null> => {
 // update e form db
 const updateLessonFromDb = async (
   id: string,
-  payload: Partial<ILesson>
+  payload: Partial<ILesson>,
 ): Promise<ILesson | null> => {
   const { demo_video, ...otherData } = payload;
   const updateData = { ...otherData };
@@ -389,15 +409,15 @@ const updateLessonFromDb = async (
 // delete e form db
 const deleteLessonByIdFromDb = async (
   id: string,
-  query: ILessonFilters
+  query: ILessonFilters,
 ): Promise<ILesson | null> => {
   let result;
   if (query.delete === ENUM_YN.YES) {
     result = await Lesson.findByIdAndDelete(id);
   } else {
     result = await Lesson.findOneAndUpdate(
-     { _id: id },
-      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
+      { _id: id },
+      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES },
     );
   }
   return result;

@@ -188,7 +188,7 @@ const getAllCategoryChildrenTitleFromDb = async (
   paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<ICategory[]>> => {
   //****************search and filters start************/
-  const { searchTerm, children, ...filtersData } = filters;
+  const { searchTerm, author, children, ...filtersData } = filters;
   filtersData.status = filtersData.status
     ? filtersData.status
     : ENUM_STATUS.ACTIVE;
@@ -209,9 +209,11 @@ const getAllCategoryChildrenTitleFromDb = async (
 
   if (Object.keys(filtersData).length) {
     andConditions.push({
-      $and: Object.entries(filtersData).map(([field, value]) => ({
-        [field]: value,
-      })),
+      $and: Object.entries(filtersData).map(([field, value]) =>
+        field === 'admin'
+          ? { [field]: new Types.ObjectId(value) }
+          : { [field]: value },
+      ),
     });
   }
 
@@ -242,6 +244,7 @@ const getAllCategoryChildrenTitleFromDb = async (
           sortConditions,
           limit,
           skip,
+          option: { author },
         })
       : children === 'course-milestone'
         ? categoryPipeline.categoryCourseMileston({
@@ -249,6 +252,7 @@ const getAllCategoryChildrenTitleFromDb = async (
             sortConditions,
             limit,
             skip,
+            option: { author },
           })
         : children === 'course-milestone-module'
           ? categoryPipeline.categoryCourseMilestonModule({
@@ -256,6 +260,7 @@ const getAllCategoryChildrenTitleFromDb = async (
               sortConditions,
               limit,
               skip,
+              option: { author },
             })
           : children === 'course-milestone-module-lessons'
             ? categoryPipeline.categoryCourseMilestonModuleLesson({
@@ -263,6 +268,7 @@ const getAllCategoryChildrenTitleFromDb = async (
                 sortConditions,
                 limit,
                 skip,
+                option: { author },
               })
             : children === 'course-milestone-module-lessons-quiz'
               ? categoryPipeline.all({
@@ -270,8 +276,13 @@ const getAllCategoryChildrenTitleFromDb = async (
                   sortConditions,
                   limit,
                   skip,
+                  option: { author },
                 })
-              : categoryPipeline.all({ whereConditions, sortConditions });
+              : categoryPipeline.all({
+                  whereConditions,
+                  sortConditions,
+                  option: { author },
+                });
 
   // console.log(pipeline);
   const result = await Category.aggregate(pipeline);

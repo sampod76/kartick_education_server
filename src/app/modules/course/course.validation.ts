@@ -8,7 +8,7 @@ const createCourseZodSchema = z.object({
     img: z.string().url().optional(),
     details: z.string().optional(),
     short_description: z.string().optional(),
-    author: z.string({ required_error: 'author_id field is required' }),
+    author: z.string({ required_error: 'author field is required' }).optional(),
     category: z.string({
       required_error: 'main_course_category_id field is required',
     }),

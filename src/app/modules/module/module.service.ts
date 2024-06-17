@@ -61,9 +61,11 @@ const getAllModuleFromDb = async (
           ? { [field]: new Types.ObjectId(value) }
           : field === 'course'
             ? { [field]: new Types.ObjectId(value) }
-            : field === 'milestone'
+            : field === 'author'
               ? { [field]: new Types.ObjectId(value) }
-              : { [field]: value },
+              : field === 'milestone'
+                ? { [field]: new Types.ObjectId(value) }
+                : { [field]: value },
       ),
     });
   }

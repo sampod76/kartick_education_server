@@ -34,7 +34,6 @@ const getAllSkills_planFromDb = async (
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
-   
     const fieldNames = select?.split(',').map(field => field.trim());
     // Create the projection object
     fieldNames.forEach(field => {
@@ -101,7 +100,9 @@ const getAllSkills_planFromDb = async (
     //     pipeline: [
     //       {
     //         $match: {
-    //           $expr: { $eq: ['$_id', '$$id'] },
+    //           $expr: {
+    //   $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+    // },
     //           // Additional filter conditions for collection2
     //         },
     //       },

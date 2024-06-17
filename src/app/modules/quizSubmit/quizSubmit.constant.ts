@@ -5,11 +5,12 @@ export const QUIZ_SUBMIT_FILTERABLE_FIELDS = [
   'select',
   'category',
   'course',
+  'author',
   'milestone',
   'module',
   'lesson',
   'delete',
   'quiz',
   'singleQuiz',
-  'user'
+  'user',
 ];

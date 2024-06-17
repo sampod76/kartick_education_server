@@ -5,15 +5,16 @@ import { PAGINATION_FIELDS } from '../../../constant/pagination';
 import catchAsync from '../../share/catchAsync';
 import pick from '../../share/pick';
 import sendResponse from '../../share/sendResponse';
-import { MilestoneService } from './milestone.service';
 import { MILESTONE_FILTERABLE_FIELDS } from './milestone.constant';
 import { IMilestone } from './milestone.interface';
+import { MilestoneService } from './milestone.service';
 
 // import { z } from 'zod'
 const createMilestone = catchAsync(async (req: Request, res: Response) => {
-  const { ...MilestoneData } = req.body;
-
-  const result = await MilestoneService.createMilestoneByDb(MilestoneData);
+  if (req?.user?.id) {
+    req.body.author = req.user.id;
+  }
+  const result = await MilestoneService.createMilestoneByDb(req.body);
 
   sendResponse<IMilestone>(res, {
     success: true,
@@ -36,7 +37,7 @@ const getAllMilestone = catchAsync(async (req: Request, res: Response) => {
 
   const result = await MilestoneService.getAllMilestoneFromDb(
     filters,
-    paginationOptions
+    paginationOptions,
   );
 
   sendResponse<IMilestone[]>(res, {
@@ -77,7 +78,7 @@ const deleteMilestone = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await MilestoneService.deleteMilestoneByIdFromDb(
     id,
-    req.query
+    req.query,
   );
   sendResponse<IMilestone>(res, {
     success: true,
@@ -99,7 +100,7 @@ const MilestoneReviewsByUser = catchAsync(
       message: 'successfull update reviews',
       data: result,
     });
-  }
+  },
 );
 export const MilestoneController = {
   createMilestone,

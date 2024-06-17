@@ -11,9 +11,10 @@ import { ISkills_plan } from './skills_plan.interface';
 
 // import { z } from 'zod'
 const createSkills_plan = catchAsync(async (req: Request, res: Response) => {
-  const { ...Skills_planData } = req.body;
-  const result =
-    await Skills_planService.createSkills_planByDb(Skills_planData);
+  if (req?.user?.id) {
+    req.body.author = req.user.id;
+  }
+  const result = await Skills_planService.createSkills_planByDb(req.body);
   sendResponse<ISkills_plan>(res, {
     success: true,
     statusCode: httpStatus.OK,

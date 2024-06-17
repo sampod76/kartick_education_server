@@ -46,7 +46,7 @@ app.use(requestIp.mw());
 // );
 app.use(
   cors({
-    origin:true,
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   }),
@@ -195,27 +195,17 @@ app.get(
 );
 
 const test = async () => {
-  // const restul = await User.updateMany({}, { isDelete: ENUM_YN.NO });
-  // console.log(restul);
-  // const updateArray = await Course.find({});
-  // const promess: any = [];
-  // updateArray.forEach((data, index) => {
-  //   console.log(index);
-  //   promess.push(
-  //     Course.findByIdAndUpdate(data._id, {
-  //       courseId: `00${index + 1}`,
-  //     })
-  //   );
-  // });
-  // Promise.all(promess).then(values => {
-  //   console.log(values);
-  // });
   // const result = encryptCryptoData({id:"sdfjksdjfkl"},config.encryptCrypto as string)
   // const getData = "U2FsdGVkX19dOA/shL0SLR2JyDtmLpQJy88CwzgKP18YXxHGl5lrNcVpYOzLeI6ITy/cWRTBrTK0V6PkGhbl1Ik fBtfhZUFBsLHrZmvFNuC4OpxwvY79/xToKurgOskLiz7aazvvxeghiVMtnRfEw==".split(" ").join("+")
   // const verify = decryptCryptoData(getData,config.encryptCrypto as string)
   // console.log(verify);
   // const result = await Category.updateMany({serial_number:{$exists:false}},{$set:{serial_number:999}})
   // console.log("🚀 ~ test ~ result:", result)
+  // const res = await Lesson.updateMany(
+  //   {author:{$exists:false}},
+  //   { $set: { author: new Types.ObjectId('6593993eebee58320ec7cc9c') } },
+  // );
+  // console.log(res);
 };
 test();
 

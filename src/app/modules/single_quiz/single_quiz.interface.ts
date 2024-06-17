@@ -26,6 +26,7 @@ export type ISingleQuizFilters = {
   milestone?: string;
   module?: string;
   lesson?: string;
+  author?: string;
   quiz?: string;
   delete?: 'yes' | 'no';
   isDelete?: string;

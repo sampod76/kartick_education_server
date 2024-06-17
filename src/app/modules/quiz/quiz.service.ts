@@ -65,9 +65,11 @@ const getAllQuizFromDb = async (
               ? { [field]: new Types.ObjectId(value) }
               : field === 'module'
                 ? { [field]: new Types.ObjectId(value) }
-                : field === 'lesson'
+                : field === 'author'
                   ? { [field]: new Types.ObjectId(value) }
-                  : { [field]: value },
+                  : field === 'lesson'
+                    ? { [field]: new Types.ObjectId(value) }
+                    : { [field]: value },
       ),
     });
   }

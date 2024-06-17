@@ -11,9 +11,10 @@ import { Short_overviewService } from './short_overview.service';
 
 // import { z } from 'zod'
 const createShort_overview = catchAsync(async (req: Request, res: Response) => {
-  const { ...Short_overviewData } = req.body;
-  const result =
-    await Short_overviewService.createShort_overviewByDb(Short_overviewData);
+  if (req?.user?.id) {
+    req.body.author = req.user.id;
+  }
+  const result = await Short_overviewService.createShort_overviewByDb(req.body);
   sendResponse<IShort_overview>(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -43,16 +44,19 @@ const getAllShort_overview = catchAsync(async (req: Request, res: Response) => {
   // next();
 });
 
-const getSingleShort_overview = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const result = await Short_overviewService.getSingleShort_overviewFromDb(id);
-  sendResponse<IShort_overview>(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: 'successfull get academic Short_overview',
-    data: result,
-  });
-});
+const getSingleShort_overview = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result =
+      await Short_overviewService.getSingleShort_overviewFromDb(id);
+    sendResponse<IShort_overview>(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'successfull get academic Short_overview',
+      data: result,
+    });
+  },
+);
 
 const updateShort_overview = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;

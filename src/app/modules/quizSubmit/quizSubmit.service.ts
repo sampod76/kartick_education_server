@@ -375,7 +375,9 @@ const getQuizSubmitAnalyticsFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -524,7 +526,7 @@ const deleteQuizSubmitByIdFromDb = async (
   query: IQuizSubmitFilters,
 ): Promise<IQuizSubmit | null> => {
   let result;
-  console.log(query, 'query');
+  // console.log(query, 'query');
   if (query.delete === ENUM_YN.YES) {
     result = await QuizSubmit.findByIdAndDelete(id);
   } else {

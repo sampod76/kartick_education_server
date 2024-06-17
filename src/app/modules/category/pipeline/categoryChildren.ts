@@ -1,22 +1,26 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { PipelineStage } from 'mongoose';
+import { PipelineStage, Types } from 'mongoose';
 import { ENUM_YN } from '../../../../enums/globalEnums';
-import { ICategoryFilters } from '../interface.category';
 
 export type IMilestonePipeline = {
   whereConditions: any;
   sortConditions: any;
   skip?: any;
   limit?: any;
-  query?: ICategoryFilters;
+  option: { author?: string };
 };
 
 const all = ({
   whereConditions,
   sortConditions,
-  query,
+  option,
 }: IMilestonePipeline) => {
   const condition = [{ $eq: ['$isDelete', ENUM_YN.NO] }];
+  if (option.author) {
+    //@ts-ignore
+    condition.push({ $eq: ['$author', new Types.ObjectId(option.author)] });
+  }
   const pipeline: PipelineStage[] = [
     { $match: whereConditions },
     { $sort: sortConditions },
@@ -31,8 +35,8 @@ const all = ({
               $expr: {
                 $and: [
                   { $eq: ['$category', '$$id'] },
-                  { $eq: ['$isDelete', ENUM_YN.NO] },
-                  // ...condition,
+                  // { $eq: ['$isDelete', ENUM_YN.NO] },
+                  ...condition,
                 ], // The condition to match the fields
               },
             },
@@ -175,7 +179,13 @@ const all = ({
 const categoryCourseMilestonModuleLesson = ({
   whereConditions,
   sortConditions,
+  option,
 }: IMilestonePipeline) => {
+  const condition = [{ $eq: ['$isDelete', ENUM_YN.NO] }];
+  if (option.author) {
+    //@ts-ignore
+    condition.push({ $eq: ['$author', new Types.ObjectId(option.author)] });
+  }
   const pipeline: PipelineStage[] = [
     { $match: whereConditions },
     { $sort: sortConditions },
@@ -190,7 +200,8 @@ const categoryCourseMilestonModuleLesson = ({
               $expr: {
                 $and: [
                   { $eq: ['$category', '$$id'] },
-                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                  ...condition,
+                  // { $eq: ['$isDelete', ENUM_YN.NO] },
                 ], // The condition to match the fields
               },
             },
@@ -305,7 +316,13 @@ const categoryCourseMilestonModuleLesson = ({
 const categoryCourseMilestonModule = ({
   whereConditions,
   sortConditions,
+  option,
 }: IMilestonePipeline) => {
+  const condition = [{ $eq: ['$isDelete', ENUM_YN.NO] }];
+  if (option.author) {
+    //@ts-ignore
+    condition.push({ $eq: ['$author', new Types.ObjectId(option.author)] });
+  }
   const pipeline: PipelineStage[] = [
     { $match: whereConditions },
     { $sort: sortConditions },
@@ -313,14 +330,15 @@ const categoryCourseMilestonModule = ({
     {
       $lookup: {
         from: 'courses',
-        let: { id: '$_id' },
+        let: { id: '$_id' }, //category ID
         pipeline: [
           {
             $match: {
               $expr: {
                 $and: [
                   { $eq: ['$category', '$$id'] },
-                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                  ...condition,
+                  // { $eq: ['$isDelete', ENUM_YN.NO] },
                 ], // The condition to match the fields
               },
             },
@@ -408,7 +426,13 @@ const categoryCourseMilestonModule = ({
 const categoryCourseMileston = ({
   whereConditions,
   sortConditions,
+  option,
 }: IMilestonePipeline) => {
+  const condition = [{ $eq: ['$isDelete', ENUM_YN.NO] }];
+  if (option.author) {
+    //@ts-ignore
+    condition.push({ $eq: ['$author', new Types.ObjectId(option.author)] });
+  }
   const pipeline: PipelineStage[] = [
     { $match: whereConditions },
     { $sort: sortConditions },
@@ -423,7 +447,8 @@ const categoryCourseMileston = ({
               $expr: {
                 $and: [
                   { $eq: ['$category', '$$id'] },
-                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                  ...condition,
+                  // { $eq: ['$isDelete', ENUM_YN.NO] },
                 ], // The condition to match the fields
               },
             },
@@ -482,7 +507,13 @@ const categoryCourse = ({
   sortConditions,
   limit,
   skip,
+  option,
 }: IMilestonePipeline) => {
+  const condition = [{ $eq: ['$isDelete', ENUM_YN.NO] }];
+  if (option.author) {
+    //@ts-ignore
+    condition.push({ $eq: ['$author', new Types.ObjectId(option.author)] });
+  }
   const pipeline: PipelineStage[] = [
     { $match: whereConditions },
     { $sort: sortConditions },
@@ -498,7 +529,8 @@ const categoryCourse = ({
               $expr: {
                 $and: [
                   { $eq: ['$category', '$$id'] },
-                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                  ...condition,
+                  // { $eq: ['$isDelete', ENUM_YN.NO] },
                 ], // The condition to match the fields
               },
             },

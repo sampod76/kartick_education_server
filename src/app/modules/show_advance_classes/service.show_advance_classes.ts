@@ -9,7 +9,10 @@ import { ENUM_YN } from '../../../enums/globalEnums';
 import ApiError from '../../errors/ApiError';
 
 import { Show_advance_classes_SEARCHABLE_FIELDS } from './constant.show_advance_classes';
-import { IShow_advance_classes, IShow_advance_classesFilters } from './interface.show_advance_classes';
+import {
+  IShow_advance_classes,
+  IShow_advance_classesFilters,
+} from './interface.show_advance_classes';
 import { Show_advance_classes } from './model.show_advance_classes';
 
 const createShow_advance_classesByDb = async (
@@ -101,7 +104,9 @@ const getAllShow_advance_classesFromDb = async (
     //     pipeline: [
     //       {
     //         $match: {
-    //           $expr: { $eq: ['$_id', '$$id'] },
+    //           $expr: {
+    //   $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+    // },
     //           // Additional filter conditions for collection2
     //         },
     //       },
@@ -186,10 +191,14 @@ const updateShow_advance_classesFromDb = async (
         demo_video[key as keyof typeof demo_video];
     });
   }
-  const result = await Show_advance_classes.findOneAndUpdate({ _id: id }, updateData, {
-    new: true,
-    runValidators: true,
-  });
+  const result = await Show_advance_classes.findOneAndUpdate(
+    { _id: id },
+    updateData,
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
   if (!result) {
     throw new ApiError(500, 'Show_advance_classes update fail!!😪😭😰');
   }

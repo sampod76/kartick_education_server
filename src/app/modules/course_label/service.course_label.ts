@@ -82,14 +82,14 @@ const getAllCourse_labelFromDb = async (
 
   const whereConditions =
     andConditions.length > 0 ? { $and: andConditions } : {};
-  const condition = [{ $eq: ['$isDelete', ENUM_YN.YES] }];
+  // const condition = [{ $eq: ['$isDelete', ENUM_YN.YES] }];
   // const result = await Course_label.find(whereConditions)
   //   .populate('thumbnail')
   //   .sort(sortConditions)
   //   .skip(Number(skip))
   //   .limit(Number(limit));
   const pipeline: PipelineStage[] = [
-    { $match: { ...condition } },
+    { $match: whereConditions },
     { $sort: sortConditions },
     { $skip: Number(skip) || 0 },
     { $limit: Number(limit) || 99999 },
@@ -222,9 +222,13 @@ const getAllCourse_labelChildrenTitleFromDb = async (
 
   if (Object.keys(filtersData).length) {
     andConditions.push({
-      $and: Object.entries(filtersData).map(([field, value]) => ({
-        [field]: value,
-      })),
+      $and: Object.entries(filtersData).map(([field, value]) =>
+        field === 'author'
+          ? { [field]: new Types.ObjectId(value) }
+          : field === 'category'
+            ? { [field]: new Types.ObjectId(value) }
+            : { [field]: value },
+      ),
     });
   }
 

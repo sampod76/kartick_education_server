@@ -11,8 +11,13 @@ import { CourseService } from './course.service';
 
 // import { z } from 'zod'
 const createCourse = catchAsync(async (req: Request, res: Response) => {
-  const { ...courseData } = req.body;
-  const result = await CourseService.createCourseByDb(courseData);
+  if (!req.body?.author) {
+    req.body = {
+      ...req.body,
+      author: req?.user?.id,
+    };
+  }
+  const result = await CourseService.createCourseByDb(req.body);
   sendResponse<ICourse>(res, {
     success: true,
     statusCode: httpStatus.OK,
