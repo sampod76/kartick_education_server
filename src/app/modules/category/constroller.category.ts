@@ -71,8 +71,6 @@ const getAllCategory = catchAsync(async (req: Request, res: Response) => {
 });
 const checkPurchaseCategory = catchAsync(
   async (req: Request, res: Response) => {
-
-
     let result2 = false;
 
     //!---- student -----
@@ -83,14 +81,13 @@ const checkPurchaseCategory = catchAsync(
       //   isDelete: ENUM_YN.NO,
       //   status: ENUM_STATUS.ACTIVE,
       // });
-      const filter:any ={
-        
+      const filter: any = {
         user: new Types.ObjectId(req.user.id),
         isDelete: ENUM_YN.NO,
         status: ENUM_STATUS.ACTIVE,
-      }
-      if(req?.query?.course){
-       filter.course = new Types.ObjectId(req?.query?.course as string)
+      };
+      if (req?.query?.course) {
+        filter.course = new Types.ObjectId(req?.query?.course as string);
       }
       const checkCourse = await PurchaseCourse.findOne(filter);
       // console.log("🚀 ~ checkCourse:", checkCourse)
@@ -103,8 +100,6 @@ const checkPurchaseCategory = catchAsync(
       }
       if (!result2) {
         const query: any = {};
-
-      
         const getAuthor = await User.findOne({
           _id: req?.user?.id,
           isDelete: ENUM_YN.NO,
@@ -113,15 +108,16 @@ const checkPurchaseCategory = catchAsync(
         // console.log("🚀 ~ getAuthor:", getAuthor)
         if (getAuthor?.author) {
           //@ts-ignore
-          query.author = getAuthor?.author
+          query.author = getAuthor?.author;
         }
-        
-        const checkPackage = await AddSellerStudentPurchasePackageCategoryCourse.find({
-          ...query,
-          user: getAuthor?._id,
-          isDelete: ENUM_YN.NO,
-          status: ENUM_STATUS.ACTIVE,
-        }).populate('sellerPackage');
+
+        const checkPackage =
+          await AddSellerStudentPurchasePackageCategoryCourse.find({
+            ...query,
+            user: getAuthor?._id,
+            isDelete: ENUM_YN.NO,
+            status: ENUM_STATUS.ACTIVE,
+          }).populate('sellerPackage');
         // console.log("🚀 ~ checkPackage:", checkPackage)
 
         if (checkPackage.length) {
@@ -132,10 +128,8 @@ const checkPurchaseCategory = catchAsync(
             if (
               new Date(data?.sellerPackage?.expiry_date)?.getTime() > Date.now()
             ) {
-
               data?.sellerPackage?.categories?.forEach((data: any) => {
                 if (data?.category?.toString() === req.params.id) {
-
                   result2 = true;
                 }
               });
@@ -147,12 +141,10 @@ const checkPurchaseCategory = catchAsync(
       //! ---- student ----
     } else if (req?.user?.role === ENUM_USER_ROLE.SELLER) {
       const checkPackage = await PurchasePackage.find({
-
         user: new Types.ObjectId(req?.user?.id),
         isDelete: ENUM_YN.NO,
         status: ENUM_STATUS.ACTIVE,
         'categories.category': new Types.ObjectId(req.params.id),
-
       });
       console.log('🚀 ~ checkPackage:', checkPackage);
       if (checkPackage.length) {

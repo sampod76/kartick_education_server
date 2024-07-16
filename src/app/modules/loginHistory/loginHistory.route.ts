@@ -16,6 +16,7 @@ router
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
       ENUM_USER_ROLE.SELLER,
+      ENUM_USER_ROLE.STUDENT,
     ),
     UserLoginHistoryController.getAllUserLoginHistorys,
   );
@@ -28,6 +29,7 @@ router
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
       ENUM_USER_ROLE.SELLER,
+      ENUM_USER_ROLE.STUDENT,
     ),
     UserLoginHistoryController.getSingleUserLoginHistory,
   )

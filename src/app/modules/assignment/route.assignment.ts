@@ -2,49 +2,45 @@ import express from 'express';
 import { ENUM_USER_ROLE } from '../../../enums/users';
 import authMiddleware from '../../middlewares/authMiddleware';
 import validateRequestZod from '../../middlewares/validateRequestZod';
-import { ResourceController } from './resource.constroller';
-import { ResourceValidation } from './resource.validation';
+import { AssignmentController } from './constroller.assignment';
+import { AssignmentValidation } from './validation.assignment';
 
 const router = express.Router();
 
 router
   .route('/')
-  .get(ResourceController.getAllResource)
+  // This route is open
+  .get(AssignmentController.getAllAssignment)
   .post(
     authMiddleware(
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
-      ENUM_USER_ROLE.TEACHER,
-
       ENUM_USER_ROLE.SELLER,
     ),
-    validateRequestZod(ResourceValidation.createResourceZodSchema),
-    ResourceController.createResource,
+    validateRequestZod(AssignmentValidation.createAssignmentZodSchema),
+    AssignmentController.createAssignment,
   );
 
 router
   .route('/:id')
-  .get(ResourceController.getSingleResource)
+  // This route is open
+  .get(AssignmentController.getSingleAssignment)
   .patch(
     authMiddleware(
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
-      ENUM_USER_ROLE.TEACHER,
-
       ENUM_USER_ROLE.SELLER,
     ),
-    validateRequestZod(ResourceValidation.updateResourceZodSchema),
-    ResourceController.updateResource,
+    validateRequestZod(AssignmentValidation.updateAssignmentZodSchema),
+    AssignmentController.updateAssignment,
   )
   .delete(
     authMiddleware(
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
-      ENUM_USER_ROLE.TEACHER,
-
       ENUM_USER_ROLE.SELLER,
     ),
-    ResourceController.deleteResource,
+    AssignmentController.deleteAssignment,
   );
 
-export const ResourceRoute = router;
+export const AssignmentRoute = router;

@@ -9,6 +9,8 @@ import { LessonRoute } from '../modules/lesson/lesson.route';
 import { MilestoneRoute } from '../modules/milestone/milestone.route';
 
 import { StudentPurchasePackageCategoryCourseRoute } from '../modules/addStudentToPackageAndCourse/route.studentPurchaseCourseBuy';
+import { AssignmentRoute } from '../modules/assignment/route.assignment';
+import { ContactMailRoute } from '../modules/contactMail/route.contactMail';
 import { CourseCartRoute } from '../modules/courseCart/courseCart.route';
 import { Course_labelRoute } from '../modules/course_label/route.course_label';
 import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
@@ -17,6 +19,7 @@ import { UserLoginHistoryRoutes } from '../modules/loginHistory/loginHistory.rou
 import { ModuleRoute } from '../modules/module/module.route';
 import { PackageRoute } from '../modules/package/package.route';
 import { PaymentRoute } from '../modules/payment/payment.router';
+import { Purchase_categoryRoute } from '../modules/purchase_category/purchase_category.route';
 import { PurchaseCourseRoute } from '../modules/purchase_courses/purchase_courses.route';
 import { PurchasePackageRoute } from '../modules/purchase_package/purchase_package.route';
 import { QuizRoute } from '../modules/quiz/quiz.route';
@@ -30,8 +33,6 @@ import { Skills_planRoute } from '../modules/skills_plan/skills_plan.route';
 import { StudentRoutes } from '../modules/student/student.route';
 import { TrainerRoutes } from '../modules/trainer/trainer.route';
 import { UserRoutes } from '../modules/user/user.route';
-import { Purchase_categoryRoute } from '../modules/purchase_category/purchase_category.route';
-import { ContactMailRoute } from '../modules/contactMail/route.contactMail';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -53,6 +54,10 @@ const moduleRoutes = [
   {
     path: '/lesson',
     route: LessonRoute,
+  },
+  {
+    path: '/assignment',
+    route: AssignmentRoute,
   },
   {
     path: '/quiz',

@@ -78,22 +78,36 @@ const uploadeMultipalFileByServer = catchAsync(
 const uploadePdfFileByServer = catchAsync(
   async (req: Request, res: Response) => {
     const fileDetails = req.file;
-
-    const file = {
-      original_filename: fileDetails?.filename as string,
-      fileType: fileDetails?.mimetype || 'pdf',
-      user: req?.user?.id,
-      category: 'dashboard',
-      path: 'uploadFile/images',
-      server_url: 'uploadFile/images/' + fileDetails?.filename,
-      size: fileDetails?.size,
-    };
-    const data = await FileUploadeService.createFileUploadeByDb(file);
+    const multipleFiles = req.files;
+    let fileData;
+    if (fileDetails) {
+      fileData = {
+        original_filename: fileDetails?.filename as string,
+        fileType: fileDetails?.mimetype || 'pdf',
+        user: req?.user?.id,
+        category: 'dashboard',
+        path: 'uploadFile/pdfs',
+        server_url: 'uploadFile/pdfs/' + fileDetails?.filename,
+        size: fileDetails?.size,
+      };
+    } else if (Array.isArray(multipleFiles) && multipleFiles?.length) {
+      fileData = multipleFiles.map(file => ({
+        original_filename: file?.filename as string,
+        fileType: file?.mimetype || 'pdf',
+        user: req?.user?.id,
+        category: 'dashboard',
+        path: 'uploadFile/pdfs',
+        server_url: 'uploadFile/pdfs/' + file?.filename,
+        size: file?.size,
+      }));
+    }
+    console.log('🚀 ~ file:', fileData);
+    // const data = await FileUploadeService.createFileUploadeByDb(file);
     sendResponse<any>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: 'successfull uploade single file',
-      data: data,
+      data: fileData,
     });
   },
 );

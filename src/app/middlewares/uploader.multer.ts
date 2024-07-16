@@ -14,13 +14,12 @@ import path from 'path';
 //-------------single file upload----start------------
 const storage: StorageEngine = multer.diskStorage({
   destination: (req, file, cb) => {
-
     cb(null, path.join(__dirname, '../../../../uploadFile/images/'));
   },
   filename: (
     req,
     file: { originalname: string },
-    cb: (arg0: null, arg1: string) => any
+    cb: (arg0: null, arg1: string) => any,
   ) => {
     const fileExt = path.extname(file.originalname);
     const fileName =
@@ -38,9 +37,8 @@ const storage: StorageEngine = multer.diskStorage({
 const fileFilter = (
   req: Request,
   file: Express.Multer.File,
-  cb: FileFilterCallback
+  cb: FileFilterCallback,
 ) => {
-
   if (
     file.mimetype === 'image/png' ||
     file.mimetype === 'image/jpg' ||
@@ -69,7 +67,7 @@ const storageByProfile: StorageEngine = multer.diskStorage({
   filename: (
     req,
     file: { originalname: string },
-    cb: (arg0: null, arg1: string) => any
+    cb: (arg0: null, arg1: string) => any,
   ) => {
     const fileExt = path.extname(file.originalname);
     const fileName =
@@ -87,7 +85,7 @@ const storageByProfile: StorageEngine = multer.diskStorage({
 const fileFilterByProfile = (
   req: Request,
   file: Express.Multer.File,
-  cb: FileFilterCallback
+  cb: FileFilterCallback,
 ) => {
   if (
     file.mimetype === 'image/png' ||
@@ -131,7 +129,7 @@ const storageMultiple: StorageEngine = multer.diskStorage({
 const fileFilterMultiple = (
   req: Request,
   file: Express.Multer.File,
-  cb: FileFilterCallback
+  cb: FileFilterCallback,
 ) => {
   if (
     file.mimetype === 'image/png' ||
@@ -161,7 +159,7 @@ const videoStorage: StorageEngine = multer.diskStorage({
   filename: (
     req: any,
     file: { originalname: string },
-    cb: (arg0: null, arg1: string) => any
+    cb: (arg0: null, arg1: string) => any,
   ) => {
     const fileExt = path.extname(file.originalname);
     const fileName =
@@ -179,7 +177,7 @@ const videoStorage: StorageEngine = multer.diskStorage({
 const fileFilterVideo = (
   req: Request,
   file: Express.Multer.File,
-  cb: FileFilterCallback
+  cb: FileFilterCallback,
 ) => {
   if (file.mimetype === 'video/mp4') {
     cb(null, true);
@@ -204,7 +202,7 @@ const pdfStorage: StorageEngine = multer.diskStorage({
   filename: (
     req: any,
     file: { originalname: string },
-    cb: (arg0: null, arg1: string) => any
+    cb: (arg0: null, arg1: string) => any,
   ) => {
     const fileExt = path.extname(file.originalname);
     const fileName =
@@ -222,9 +220,8 @@ const pdfStorage: StorageEngine = multer.diskStorage({
 const fileFilterPdf = (
   req: Request,
   file: Express.Multer.File,
-  cb: FileFilterCallback
+  cb: FileFilterCallback,
 ) => {
-  
   if (file.mimetype === 'file/pdf' || file.mimetype === 'application/pdf') {
     cb(null, true);
   } else {
@@ -232,13 +229,13 @@ const fileFilterPdf = (
   }
 };
 
-export const uploadPdfFile: RequestHandler = multer({
+export const uploadPdfFile: any = multer({
   storage: pdfStorage,
   limits: {
     fileSize: 10 * 1024 * 1024, // 10 MB
   },
   fileFilter: fileFilterPdf,
-}).single('pdf');
+});
 //------------upload video file --end---------------
 
 //------------upload audio file ---start-----------
@@ -249,7 +246,7 @@ const audioStorage: StorageEngine = multer.diskStorage({
   filename: (
     req: any,
     file: { originalname: string },
-    cb: (arg0: null, arg1: string) => any
+    cb: (arg0: null, arg1: string) => any,
   ) => {
     const fileExt = path.extname(file.originalname);
     const fileName =
@@ -267,9 +264,8 @@ const audioStorage: StorageEngine = multer.diskStorage({
 const fileFilterAudio = (
   req: Request,
   file: Express.Multer.File,
-  cb: FileFilterCallback
+  cb: FileFilterCallback,
 ) => {
-
   if (file.mimetype === 'file/mpeg' || file.mimetype === 'audio/mpeg') {
     cb(null, true);
   } else {
