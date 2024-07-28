@@ -21,8 +21,8 @@ import ffmpegPath from '@ffmpeg-installer/ffmpeg';
 import ffmpeg from 'fluent-ffmpeg';
 ffmpeg.setFfmpegPath(ffmpegPath.path);
 
-import fs from 'fs';
 import routers from './app/routes/index_route';
+import catchAsync from './app/share/catchAsync';
 const app: Application = express();
 // app.use(cors());
 
@@ -95,26 +95,58 @@ const run: RequestHandler = (req, res, next) => {
   }
 };
 
-const downloadFunction: RequestHandler = (req, res, next) => {
-  try {
-    const filePath = path.resolve(
-      __dirname,
-      `../../uploadFile/pdfs/${req.params?.filename}`,
-    );
-    const fileContents = fs.readFileSync(filePath);
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename=${req.params?.filename}`,
-    );
-    res.status(200).end(fileContents, 'binary');
-    // jwtHelpers.verifyToken(`${req.headers.authorization}`, config.jwt.secret as string);
-    // console.log('first');
-    // next();
-  } catch (error) {
-    res.status(500).end({ message: 'File not found' });
+const middlewareFunction: RequestHandler = catchAsync((req, res, next) => {
+  const extractDirectoryName = (url: string) => {
+    // "/pdfs/file-sample_150b-d.pdf"
+    const match = url.match(/\/([^/]+)\//); //! get /(text)/file-sample_150b-d.pdf to
+    if (match) {
+      return match[0]; // Return the matched directory name
+    }
+    return null; // Return null if no match is found
+  };
+  const getPathName = extractDirectoryName(req.originalUrl); //ans: images / pdfs /videos --get from url
+  const filePath = path.resolve(
+    __dirname,
+    `../../uploadFile/${getPathName}/${req.params?.filename}`,
+  );
+
+  //!--- you went when any image not found then throw 404.png your custom image
+  // if (!fs.existsSync(filePath)) {
+  //   return res
+  //     .status(200)
+  //     .sendFile(path.resolve(__dirname, '../public/404.jpg'));
+  // }
+  if (req.query.download === 'yes') {
+    return res.status(200).download(filePath);
+    /* // -- second method if when not work first method then use this
+    fs.promises
+      .readFile(filePath)
+      .then(response => {
+        const contentType =
+          mimeTypes.lookup(filePath) || 'application/octet-stream';
+
+        res.setHeader('Content-Type', contentType);
+        res.setHeader(
+          'Content-Disposition',
+          `attachment; filename=${req.params?.filename}`,
+        );
+
+        return res.status(200).end(response, 'binary');
+      })
+      .catch(err => {
+        console.log(err);
+        return res
+          .status(200)
+          .sendFile(path.resolve(__dirname, '../public/404.jpg'));
+      }); 
+      */
+  } else {
+    return res.status(200).sendFile(filePath);
   }
-};
+  // jwtHelpers.verifyToken(`${req.headers.authorization}`, config.jwt.secret as string);
+  // console.log('first');
+  // next();
+});
 
 app.use(
   '/images',
@@ -140,14 +172,15 @@ app.use(
   // (req, res, next) => {
   //   req.customData &&  req.customData.downloadType = 'pdf';
   // },
-  downloadFunction,
+  // downloadFunction,
+  middlewareFunction,
   // express.static(path.join(__dirname, `../../uploadFile/pdfs/`)),
 );
 
 app.use(
   '/audios-download/:filename',
   run,
-  downloadFunction,
+  middlewareFunction,
   // express.static(path.join(__dirname, `../../uploadFile/pdfs/`)),
 );
 app.use(

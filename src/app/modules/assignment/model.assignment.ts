@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { AssignmentModel, IAssignment } from './interface.assignment';
+import { STATUS_ARRAY } from '../../../constant/globalConstant';
 const mongooseFileSchema = new Schema(
   {
     original_filename: { type: String },
@@ -47,6 +48,16 @@ const AssignmentSchema = new Schema<IAssignment, AssignmentModel>(
       type: Schema.Types.ObjectId,
       required: true,
       ref: 'Author',
+    },
+    status: {
+      type: String,
+      enum: STATUS_ARRAY,
+      default: 'active',
+    },
+    isDelete: {
+      type: String,
+      enum: ['yes', 'no'],
+      default: 'no',
     },
   },
   {

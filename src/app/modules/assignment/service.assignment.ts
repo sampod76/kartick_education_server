@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { PipelineStage, Types } from 'mongoose';
 import { paginationHelper } from '../../../helper/paginationHelper';
 
@@ -60,10 +61,11 @@ const getAllAssignmentFromDb = async (
         } else {
           modifyFiled = { [field]: value };
         }
-        // console.log(modifyFiled);
+        console.log(modifyFiled);
         return modifyFiled;
       },
     );
+    andConditions.push({ $and: condition });
   }
   //****************search and filters end**********/
 
@@ -187,6 +189,84 @@ const getAllAssignmentFromDb = async (
     },
     {
       $unwind: '$lesson',
+    },
+    //-----------course-------------------
+    {
+      $lookup: {
+        from: 'courses',
+        let: { id: '$course' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$_id', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
+              },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+          {
+            $lookup: {
+              from: '_id',
+              let: { id: '$categories' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $and: [
+                        { $eq: ['$_id', '$$id'] },
+                        { $eq: ['$isDelete', ENUM_YN.NO] },
+                      ],
+                    },
+                    // Additional filter conditions for collection2
+                  },
+                },
+                // Additional stages for collection2
+                // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+                {
+                  $project: {
+                    title: 1,
+                  },
+                },
+              ],
+              as: 'category',
+            },
+          },
+          {
+            $project: {
+              title: 1,
+            },
+          },
+        ],
+        as: 'courseDetails',
+      },
+    },
+
+    {
+      $project: { course: 0 },
+    },
+    {
+      $addFields: {
+        course: {
+          $cond: {
+            if: { $eq: [{ $size: '$courseDetails' }, 0] },
+            then: [{}],
+            else: '$courseDetails',
+          },
+        },
+      },
+    },
+
+    {
+      $project: { courseDetails: 0 },
+    },
+    {
+      $unwind: '$course',
     },
   ];
 

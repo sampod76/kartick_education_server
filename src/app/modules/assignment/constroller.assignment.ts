@@ -15,6 +15,7 @@ import { AssignmentService } from './service.assignment';
 // import { z } from 'zod'
 const createAssignment = catchAsync(async (req: Request, res: Response) => {
   const { ...AssignmentData } = req.body;
+  AssignmentData.author = req?.user?.id;
   const result = await AssignmentService.createAssignmentByDb(AssignmentData);
 
   sendResponse<IAssignment>(res, {

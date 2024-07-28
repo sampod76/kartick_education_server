@@ -1,5 +1,8 @@
+import httpStatus from 'http-status';
 import { Types } from 'mongoose';
 import { z } from 'zod';
+import { STATUS_ARRAY, YN_ARRAY } from '../../../constant/globalConstant';
+import ApiError from '../../errors/ApiError';
 export const zodFileSchema = z.object({
   original_filename: z.string(),
   fileType: z.string(),
@@ -11,6 +14,14 @@ export const zodFileSchema = z.object({
 export const assignmentBodyData = z.object({
   title: z.string(),
   description: z.string(),
+  totalMarks: z.number(),
+  passMarks: z.number(),
+  startTime: z
+    .union([z.string({ required_error: 'startTime is required' }), z.date()])
+    .optional(),
+  endTime: z
+    .union([z.string({ required_error: 'endTime is required' }), z.date()])
+    .optional(),
   pdfs: z.array(zodFileSchema),
   lesson: z.union([
     z.string({ required_error: 'lesson is required' }),
@@ -36,20 +47,76 @@ export const assignmentBodyData = z.object({
     z.string({ required_error: 'author is required' }),
     z.instanceof(Types.ObjectId),
   ]),
+  status: z.enum([...STATUS_ARRAY] as [string, ...string[]]).optional(),
 });
-const createAssignmentZodSchema = z.object({
-  body: assignmentBodyData,
-});
-const updateAssignmentZodSchema = z.object({
-  body: z
-    .object({
-      title: z.string().optional(),
-      description: z.string().optional(),
-      pdfs: z.array(zodFileSchema).optional(),
-      isDelete: z.string().optional(),
-    })
-    .deepPartial(),
-});
+const createAssignmentZodSchema = z
+  .object({
+    body: assignmentBodyData,
+  })
+  .refine(
+    ({ body }) => {
+      if (body.startTime || body.endTime) {
+        if (body.startTime && new Date(body.startTime).getTime() < Date.now()) {
+          throw new ApiError(
+            httpStatus.NOT_ACCEPTABLE,
+            'StartTime is not be gater then now date',
+          );
+        } else if (
+          body.endTime &&
+          body.startTime &&
+          new Date(body?.startTime).getTime() > new Date(body.endTime).getTime()
+        ) {
+          throw new ApiError(
+            httpStatus.NOT_ACCEPTABLE,
+            'Start time should be before End time',
+          );
+        } else {
+          return true;
+        }
+      }
+      return true;
+    },
+    {
+      message: 'Date time error',
+    },
+  );
+const updateAssignmentZodSchema = z
+  .object({
+    body: assignmentBodyData.merge(
+      z
+        .object({
+          isDelete: z.enum([...YN_ARRAY] as [string, ...string[]]).optional(),
+        })
+        .deepPartial(),
+    ),
+  })
+  .refine(
+    ({ body }) => {
+      if (body.startTime || body.endTime) {
+        if (body.startTime && new Date(body.startTime).getTime() < Date.now()) {
+          throw new ApiError(
+            httpStatus.NOT_ACCEPTABLE,
+            'StartTime is not be gater then now date',
+          );
+        } else if (
+          body.endTime &&
+          body.startTime &&
+          new Date(body?.startTime).getTime() > new Date(body.endTime).getTime()
+        ) {
+          throw new ApiError(
+            httpStatus.NOT_ACCEPTABLE,
+            'Start time should be before End time',
+          );
+        } else {
+          return true;
+        }
+      }
+      return true;
+    },
+    {
+      message: 'Date time error',
+    },
+  );
 
 export const AssignmentValidation = {
   createAssignmentZodSchema,
