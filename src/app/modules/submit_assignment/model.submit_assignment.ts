@@ -1,6 +1,10 @@
 import { Schema, model } from 'mongoose';
 import { STATUS_ARRAY } from '../../../constant/globalConstant';
-import { AssignmentModel, IAssignment } from './interface.assignment';
+import {
+  ISubmitAssignment,
+  SubmitAssignmentModel,
+} from './interface.submit_assignment';
+
 const mongooseFileSchema = new Schema(
   {
     original_filename: { type: String },
@@ -14,12 +18,16 @@ const mongooseFileSchema = new Schema(
   },
   { _id: false },
 );
-const AssignmentSchema = new Schema<IAssignment, AssignmentModel>(
+const SubmitAssignmentSchema = new Schema<
+  ISubmitAssignment,
+  SubmitAssignmentModel
+>(
   {
-    title: { type: String },
-    description: { type: String },
-    totalMarks: { type: Number },
-    passMarks: { type: Number },
+    assignment: { type: Schema.Types.ObjectId, ref: 'Assignment' },
+    accountCreateAuthor: { type: Schema.Types.ObjectId, ref: 'Teacher' },
+    authorEmail: { type: String },
+    //
+    marks: { type: Number },
     pdfs: { type: [mongooseFileSchema] },
     lesson: {
       type: Schema.Types.ObjectId,
@@ -71,17 +79,17 @@ const AssignmentSchema = new Schema<IAssignment, AssignmentModel>(
   },
 );
 
-// AssignmentSchema.pre('findOneAndDelete', async function (next) {
+// SubmitAssignmentSchema.pre('findOneAndDelete', async function (next) {
 //   try {
 //     // eslint-disable-next-line @typescript-eslint/no-this-alias
 //     const dataId = this.getFilter();
 //     console.log(dataId);
 //     const { _id, ...data } = (await this.model.findOne({ _id: dataId?._id?._id }).lean()) as { _id: mongoose.Schema.Types.ObjectId; data: any };
-//     console.log("🚀 ~ file: model.Assignment.ts:40 ~ _id:", data)
+//     console.log("🚀 ~ file: model.SubmitAssignment.ts:40 ~ _id:", data)
 //     if (_id) {
-//      await ArchivedAssignment.create(data);
+//      await ArchivedSubmitAssignment.create(data);
 //       // or
-//       // const result = await DeleteAssignment.create(data);
+//       // const result = await DeleteSubmitAssignment.create(data);
 //     }else{
 //       throw new ApiError(400,"Not found this item")
 //     }
@@ -91,7 +99,7 @@ const AssignmentSchema = new Schema<IAssignment, AssignmentModel>(
 //   }
 // });
 
-export const Assignment = model<IAssignment, AssignmentModel>(
-  'Assignment',
-  AssignmentSchema,
+export const SubmitAssignment = model<ISubmitAssignment, SubmitAssignmentModel>(
+  'SubmitAssignment',
+  SubmitAssignmentSchema,
 );

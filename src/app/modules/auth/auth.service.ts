@@ -21,7 +21,7 @@ import { sendEmail } from './sendResetMail';
 
 const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   const { email, password } = payload;
-  console.log('🚀 ~ loginUser ~ password:', password);
+  // console.log('🚀 ~ loginUser ~ password:', password);
 
   const isUserExist = await User.findOne({
     email,
@@ -309,10 +309,7 @@ const resetPassword = async (
     throw new ApiError(httpStatus.BAD_REQUEST, 'User not found!');
   }
 
-  await jwtHelpers.verifyToken(
-    token,
-    config.jwt.secret as string,
-  );
+  await jwtHelpers.verifyToken(token, config.jwt.secret as string);
   // console.log(isVarified);
 
   const password = await bcrypt.hash(

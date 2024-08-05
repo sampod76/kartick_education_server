@@ -14,4 +14,5 @@ export const LESSON_FILTERABLE_FIELDS = [
   'module',
   'delete',
   'isDelete',
+  'needProperty',
 ];

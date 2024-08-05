@@ -8,7 +8,6 @@ import express, {
   RequestHandler,
   Response,
 } from 'express';
-import paypal from 'paypal-rest-sdk';
 // create xss-clean.d.ts file after work this xss
 import path from 'path';
 // import xss from 'xss-clean';
@@ -79,11 +78,6 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-paypal.configure({
-  mode: 'sandbox',
-  client_id: process.env.PAYPAL_CLIENT_ID as string,
-  client_secret: process.env.PAYPAL_SECRET_KEY as string,
-});
 
 const run: RequestHandler = (req, res, next) => {
   try {
@@ -105,6 +99,7 @@ const middlewareFunction: RequestHandler = catchAsync((req, res, next) => {
     return null; // Return null if no match is found
   };
   const getPathName = extractDirectoryName(req.originalUrl); //ans: images / pdfs /videos --get from url
+
   const filePath = path.resolve(
     __dirname,
     `../../uploadFile/${getPathName}/${req.params?.filename}`,
@@ -164,6 +159,11 @@ app.use(
   '/videos',
   run,
   express.static(path.join(__dirname, '../../uploadFile/videos/')),
+);
+app.use(
+  '/uploadFile/pdfs',
+  run,
+  express.static(path.join(__dirname, '../../uploadFile/pdfs/')),
 );
 
 app.use(

@@ -82,13 +82,13 @@ const createAssignmentZodSchema = z
   );
 const updateAssignmentZodSchema = z
   .object({
-    body: assignmentBodyData.merge(
-      z
-        .object({
+    body: assignmentBodyData
+      .merge(
+        z.object({
           isDelete: z.enum([...YN_ARRAY] as [string, ...string[]]).optional(),
-        })
-        .deepPartial(),
-    ),
+        }),
+      )
+      .deepPartial(),
   })
   .refine(
     ({ body }) => {

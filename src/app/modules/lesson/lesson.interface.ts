@@ -12,6 +12,7 @@ export type ILessonFilters = {
   select?: string;
   //
   category?: string;
+  needProperty?: string;
   course?: string;
   author?: string;
   milestone?: string;

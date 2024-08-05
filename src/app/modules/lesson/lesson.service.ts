@@ -23,7 +23,7 @@ const getAllLessonFromDb = async (
   paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<ILesson[]>> => {
   //****************search and filters start************/
-  const { searchTerm, select, ...filtersData } = filters;
+  const { searchTerm, needProperty, select, ...filtersData } = filters;
   filtersData.status = filtersData.status
     ? filtersData.status
     : ENUM_STATUS.ACTIVE;
@@ -71,7 +71,7 @@ const getAllLessonFromDb = async (
       ),
     });
   }
-  console.log(JSON.stringify(andConditions));
+
   //****************search and filters end**********/
 
   //****************pagination start **************/
@@ -152,16 +152,30 @@ const getAllLessonFromDb = async (
     },
   ];
 
-  let result = null;
-  if (select) {
-    result = await Lesson.find(whereConditions)
-      .sort({ ...sortConditions })
-      .skip(Number(skip))
-      .limit(Number(limit))
-      .select({ ...projection });
-  } else {
-    result = await Lesson.aggregate(pipeline);
+  if (needProperty?.includes('assignment')) {
+    pipeline.push({
+      $lookup: {
+        from: 'assignments',
+        let: { id: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$lesson', '$$id'] },
+                  { $eq: ['$isDelete', ENUM_YN.NO] },
+                ],
+              },
+              // Additional filter conditions for collection2
+            },
+          },
+        ],
+        as: 'assignmentDetails',
+      },
+    });
   }
+
+  const result = await Lesson.aggregate(pipeline);
 
   const total = await Lesson.countDocuments(whereConditions);
   return {

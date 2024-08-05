@@ -27,10 +27,11 @@ const PurchasePackageSchema = new Schema<
       },
     ],
     //
-    expiry_date: String,
+    expiry_date: Date,
     total_purchase_student: Number,
     remaining_purchase_student: Number,
     students: [String],
+    // students: [{ type: Types.ObjectId }],
     //------------ for  PendingPurchasePackage  ------------
     payment: {
       transactionId: String,

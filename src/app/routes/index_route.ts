@@ -33,6 +33,7 @@ import { Skills_planRoute } from '../modules/skills_plan/skills_plan.route';
 import { StudentRoutes } from '../modules/student/student.route';
 import { TrainerRoutes } from '../modules/trainer/trainer.route';
 import { UserRoutes } from '../modules/user/user.route';
+import { SubmitAssignmentRoute } from '../modules/submit_assignment/route.submit_assignment';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -58,6 +59,10 @@ const moduleRoutes = [
   {
     path: '/assignment',
     route: AssignmentRoute,
+  },
+  {
+    path: '/assignment-submission',
+    route: SubmitAssignmentRoute,
   },
   {
     path: '/quiz',

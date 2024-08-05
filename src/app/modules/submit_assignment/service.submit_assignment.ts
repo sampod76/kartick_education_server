@@ -6,28 +6,47 @@ import { IGenericResponse } from '../../interface/common';
 import { IPaginationOption } from '../../interface/pagination';
 
 import { ENUM_YN } from '../../../enums/globalEnums';
-import { ASSESSMENT_SEARCHABLE_FIELDS } from './consent.assignment';
-import { IAssignment, IAssignmentFilters } from './interface.assignment';
-import { Assignment } from './model.assignment';
+import { ENUM_USER_ROLE } from '../../../enums/users';
+import ApiError from '../../errors/ApiError';
+import { User } from '../user/user.model';
+import { SubmitAssignment_SEARCHABLE_FIELDS } from './consent.submit_assignment';
+import {
+  ISubmitAssignment,
+  ISubmitAssignmentFilters,
+} from './interface.submit_assignment';
+import { SubmitAssignment } from './model.submit_assignment';
 
-const createAssignmentByDb = async (
-  payload: IAssignment,
-): Promise<IAssignment> => {
-  // const find = await Assignment.findOne({ title: payload.title, isDelete: true });
-  // if (find) {
-  //   throw new ApiError(400, 'This Assignment All Ready Exist');
-  // }
-  const result = await Assignment.create(payload);
+const createSubmitAssignmentByDb = async (
+  payload: ISubmitAssignment,
+): Promise<ISubmitAssignment> => {
+  const findUser = await User.findById(payload.author);
+  if (findUser?.role !== ENUM_USER_ROLE.STUDENT) {
+    throw new ApiError(400, 'Only student can submit assignment');
+  }
+  payload = {
+    ...payload,
+    accountCreateAuthor: findUser?.author as any,
+  };
+  const find = await SubmitAssignment.findOne({
+    assignment: payload.assignment,
+    authorEmail: payload.authorEmail,
+    isDelete: 'no',
+  });
+  if (find) {
+    throw new ApiError(400, 'Already submitted this assignment');
+  }
+  const result = await SubmitAssignment.create(payload);
   return result;
 };
 
-//getAllAssignmentFromDb
-const getAllAssignmentFromDb = async (
-  filters: IAssignmentFilters,
+//getAllSubmitAssignmentFromDb
+const getAllSubmitAssignmentFromDb = async (
+  filters: ISubmitAssignmentFilters,
   paginationOptions: IPaginationOption,
-): Promise<IGenericResponse<IAssignment[]> | any> => {
+): Promise<IGenericResponse<ISubmitAssignment[]> | any> => {
   //****************search and filters start************/
   const { searchTerm, ...filtersData } = filters;
+  console.log('🚀 ~ filtersData:', filtersData);
 
   filtersData.isDelete = filtersData.isDelete
     ? filtersData.isDelete
@@ -35,7 +54,7 @@ const getAllAssignmentFromDb = async (
   const andConditions = [];
   if (searchTerm) {
     andConditions.push({
-      $or: ASSESSMENT_SEARCHABLE_FIELDS.map(field => ({
+      $or: SubmitAssignment_SEARCHABLE_FIELDS.map(field => ({
         [field]: {
           $regex: searchTerm,
           $options: 'i',
@@ -55,13 +74,15 @@ const getAllAssignmentFromDb = async (
           field === 'course' ||
           field === 'lesson' ||
           field === 'milestone' ||
-          field === 'module'
+          field === 'module' ||
+          field === 'assignment' ||
+          field === 'accountCreateAuthor'
         ) {
           modifyFiled = { [field]: new Types.ObjectId(value) };
         } else {
           modifyFiled = { [field]: value };
         }
-        console.log(modifyFiled);
+
         return modifyFiled;
       },
     );
@@ -82,7 +103,7 @@ const getAllAssignmentFromDb = async (
   const whereConditions =
     andConditions.length > 0 ? { $and: andConditions } : {};
 
-  // const result = await Assignment.find(whereConditions)
+  // const result = await SubmitAssignment.find(whereConditions)
   //   .populate('thumbnail')
   //   .sort(sortConditions)
   //   .skip(Number(skip))
@@ -92,6 +113,55 @@ const getAllAssignmentFromDb = async (
     { $sort: sortConditions },
     { $skip: Number(skip) || 0 },
     { $limit: Number(limit) || 99999 },
+    //*******assignment******* */
+    {
+      $lookup: {
+        from: 'assignments',
+        let: { id: '$assignment' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+          {
+            $project: {
+              password: 0,
+            },
+          },
+        ],
+        as: 'assignmentDetails',
+      },
+    },
+
+    {
+      $project: { assignment: 0 },
+    },
+    {
+      $addFields: {
+        assignment: {
+          $cond: {
+            if: { $eq: [{ $size: '$assignmentDetails' }, 0] },
+            then: [{}],
+            else: '$assignmentDetails',
+          },
+        },
+      },
+    },
+
+    {
+      $project: { assignmentDetails: 0 },
+    },
+    {
+      $unwind: '$assignment',
+    },
+    //************assignment *******end */
     //*******author******* */
     {
       $lookup: {
@@ -271,9 +341,9 @@ const getAllAssignmentFromDb = async (
   ];
 
   // console.log(pipeline);
-  const result = await Assignment.aggregate(pipeline);
+  const result = await SubmitAssignment.aggregate(pipeline);
   // console.log(result, 127);
-  const total = await Assignment.countDocuments(whereConditions);
+  const total = await SubmitAssignment.countDocuments(whereConditions);
   return {
     meta: {
       page,
@@ -285,11 +355,60 @@ const getAllAssignmentFromDb = async (
 };
 
 // get single Assignmente form db
-const getSingleAssignmentFromDb = async (
+const getSingleSubmitAssignmentFromDb = async (
   id: string,
-): Promise<IAssignment | null> => {
+): Promise<ISubmitAssignment | null> => {
   const pipeline: PipelineStage[] = [
     { $match: { _id: new Types.ObjectId(id) } },
+    //*******assignment******* */
+    {
+      $lookup: {
+        from: 'users',
+        let: { id: '$assignment' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+          {
+            $project: {
+              password: 0,
+            },
+          },
+        ],
+        as: 'assignmentDetails',
+      },
+    },
+
+    {
+      $project: { assignment: 0 },
+    },
+    {
+      $addFields: {
+        assignment: {
+          $cond: {
+            if: { $eq: [{ $size: '$assignmentDetails' }, 0] },
+            then: [{}],
+            else: '$assignmentDetails',
+          },
+        },
+      },
+    },
+
+    {
+      $project: { assignmentDetails: 0 },
+    },
+    {
+      $unwind: '$assignment',
+    },
+    //************assignment *******end */
     //*******author******* */
     {
       $lookup: {
@@ -391,36 +510,36 @@ const getSingleAssignmentFromDb = async (
     ///***************** */ images field ******start
   ];
 
-  const result = await Assignment.aggregate(pipeline);
+  const result = await SubmitAssignment.aggregate(pipeline);
 
   return result[0];
 };
 
 // update Assignmente form db
-const updateAssignmentFromDb = async (
+const updateSubmitAssignmentFromDb = async (
   id: string,
-  payload: Partial<IAssignment>,
-): Promise<IAssignment | null> => {
+  payload: Partial<ISubmitAssignment>,
+): Promise<ISubmitAssignment | null> => {
   console.log('🚀 ~ payload:', payload);
-  const result = await Assignment.findOneAndUpdate({ _id: id }, payload, {
+  const result = await SubmitAssignment.findOneAndUpdate({ _id: id }, payload, {
     new: true,
   });
   return result;
 };
 
 // delete Assignmente form db
-const deleteAssignmentByIdFromDb = async (
+const deleteSubmitAssignmentByIdFromDb = async (
   id: string,
-): Promise<IAssignment | null> => {
-  const result = await Assignment.findOneAndDelete({ _id: id });
+): Promise<ISubmitAssignment | null> => {
+  const result = await SubmitAssignment.findOneAndDelete({ _id: id });
   return result;
 };
 //
 
-export const AssignmentService = {
-  createAssignmentByDb,
-  getAllAssignmentFromDb,
-  getSingleAssignmentFromDb,
-  updateAssignmentFromDb,
-  deleteAssignmentByIdFromDb,
+export const SubmitAssignmentService = {
+  createSubmitAssignmentByDb,
+  getAllSubmitAssignmentFromDb,
+  getSingleSubmitAssignmentFromDb,
+  updateSubmitAssignmentFromDb,
+  deleteSubmitAssignmentByIdFromDb,
 };
