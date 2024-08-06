@@ -119,7 +119,7 @@ const getAllStudentPurchasePackageCategoryCourseFromDb = async (
       ),
     });
   }
-
+  console.log(JSON.stringify(andConditions));
   //****************search and filters end**********/
 
   //****************pagination start **************/
@@ -288,7 +288,7 @@ const updateStudentPurchasePackageCategoryCourseFromDb = async (
     author: req?.user?.id,
     _id: id,
   });
-  console.log('🚀 ~ find:', find);
+
   if (!find) {
     throw new ApiError(400, 'Not Found');
   }

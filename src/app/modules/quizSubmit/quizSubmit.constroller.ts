@@ -118,6 +118,19 @@ const deleteQuizSubmit = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const deleteSubmitQuizByUserId = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await QuizSubmitService.deleteSubmitQuizByUserIdFromDb(
+      req.body,
+    );
+    sendResponse<IQuizSubmit>(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'successfull delete  QuizSubmit',
+      data: result,
+    });
+  },
+);
 
 export const QuizSubmitController = {
   createQuizSubmit,
@@ -126,4 +139,5 @@ export const QuizSubmitController = {
   deleteQuizSubmit,
   getVerifyQuizSubmit,
   getQuizSubmitAnalytics,
+  deleteSubmitQuizByUserId,
 };

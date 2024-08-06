@@ -45,6 +45,17 @@ router
     ),
     QuizSubmitController.getQuizSubmitAnalytics,
   );
+router
+  .route('/delete-submitted-quiz')
+  .patch(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.TEACHER,
+      ENUM_USER_ROLE.SELLER,
+    ),
+    QuizSubmitController.deleteSubmitQuizByUserId,
+  );
 
 router
   .route('/:id')

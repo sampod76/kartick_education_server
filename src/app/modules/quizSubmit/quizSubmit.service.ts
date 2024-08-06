@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import mongoose, { PipelineStage, Types } from 'mongoose';
 
 import { paginationHelper } from '../../../helper/paginationHelper';
@@ -7,6 +8,7 @@ import { IPaginationOption } from '../../interface/pagination';
 
 import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
 import ApiError from '../../errors/ApiError';
+import { User } from '../user/user.model';
 import { QUIZ_SUBMIT_SEARCHABLE_FIELDS } from './quizSubmit.constant';
 import { IQuizSubmit, IQuizSubmitFilters } from './quizSubmit.interface';
 import { QuizSubmit } from './quizSubmit.model';
@@ -537,6 +539,26 @@ const deleteQuizSubmitByIdFromDb = async (
   }
   return result;
 };
+const deleteSubmitQuizByUserIdFromDb = async (bodyData: {
+  userUniqueId?: string;
+  quizId: string;
+  email?: string;
+}): Promise<IQuizSubmit | any> => {
+  const findUser = await User.findOne({
+    $or: [{ email: bodyData.email }, { userId: bodyData?.userUniqueId }],
+  });
+
+  let result;
+  if (findUser && bodyData.quizId) {
+    result = await QuizSubmit.deleteMany({
+      //@ts-ignore
+      user: findUser?._id,
+      quiz: new Types.ObjectId(bodyData.quizId),
+    });
+  }
+
+  return result;
+};
 
 export const QuizSubmitService = {
   createQuizSubmitByDb,
@@ -545,4 +567,5 @@ export const QuizSubmitService = {
   deleteQuizSubmitByIdFromDb,
   getQuizSubmitVerifyFromDb,
   getQuizSubmitAnalyticsFromDb,
+  deleteSubmitQuizByUserIdFromDb,
 };

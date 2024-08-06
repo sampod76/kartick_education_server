@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import mongoose, { SortOrder, Types } from 'mongoose';
+import mongoose, { PipelineStage, Types } from 'mongoose';
 
 import httpStatus from 'http-status';
 
@@ -37,26 +37,35 @@ const getAllStudents = async (
 
   if (Object.keys(filtersData).length) {
     andConditions.push({
-      $and: Object.entries(filtersData).map(([field, value]) => 
+      $and: Object.entries(filtersData).map(([field, value]) =>
         field === 'author'
           ? { [field]: new Types.ObjectId(value) }
-          : { [field]: value }
-    ),
+          : { [field]: value },
+      ),
     });
   }
 
-  const sortConditions: { [key: string]: SortOrder } = {};
-
+  const sortConditions: { [key: string]: 1 | -1 } = {};
   if (sortBy && sortOrder) {
-    sortConditions[sortBy] = sortOrder;
+    sortConditions[sortBy] = sortOrder === 'asc' ? 1 : -1;
   }
   const whereConditions =
     andConditions.length > 0 ? { $and: andConditions } : {};
-
-  const result = await Student.find(whereConditions)
-    .sort(sortConditions)
-    .skip(skip)
-    .limit(limit);
+  const pipeline: PipelineStage[] = [
+    { $match: whereConditions },
+    { $sort: sortConditions },
+    { $skip: Number(skip) || 0 },
+    { $limit: Number(limit) || 10 },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'email',
+        foreignField: 'email',
+        as: 'userDetails',
+      },
+    },
+  ];
+  const result = await Student.aggregate(pipeline);
 
   const total = await Student.countDocuments(whereConditions);
 

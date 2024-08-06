@@ -18,6 +18,7 @@ import { PurchasePackage } from '../purchase_package/purchase_package.model';
 import { User } from '../user/user.model';
 
 import { AddSellerStudentPurchasePackageCategoryCourse } from '../addStudentToPackageAndCourse/model.studentPurchaseCourseBuy';
+import { IPurchaseCourse } from '../purchase_courses/purchase_courses.interface';
 import { PurchaseCourse } from '../purchase_courses/purchase_courses.model';
 import { CATEGORY_FILTERABLE_FIELDS } from './consent.category';
 import { ICategory } from './interface.category';
@@ -89,7 +90,9 @@ const checkPurchaseCategory = catchAsync(
       if (req?.query?.course) {
         filter.course = new Types.ObjectId(req?.query?.course as string);
       }
-      const checkCourse = await PurchaseCourse.findOne(filter);
+      const checkCourse = (await PurchaseCourse.findOne(
+        filter,
+      )) as IPurchaseCourse;
       // console.log("🚀 ~ checkCourse:", checkCourse)
       if (checkCourse) {
         if (new Date(checkCourse?.expiry_date)?.getTime() < Date.now()) {
@@ -105,7 +108,7 @@ const checkPurchaseCategory = catchAsync(
           isDelete: ENUM_YN.NO,
           status: ENUM_STATUS.ACTIVE,
         });
-        // console.log("🚀 ~ getAuthor:", getAuthor)
+        // console.log('🚀 ~ getAuthor:', getAuthor);
         if (getAuthor?.author) {
           //@ts-ignore
           query.author = getAuthor?.author;
@@ -114,11 +117,11 @@ const checkPurchaseCategory = catchAsync(
         const checkPackage =
           await AddSellerStudentPurchasePackageCategoryCourse.find({
             ...query,
-            user: getAuthor?._id,
+            user: new Types.ObjectId(getAuthor?._id?.toString()),
             isDelete: ENUM_YN.NO,
             status: ENUM_STATUS.ACTIVE,
           }).populate('sellerPackage');
-        // console.log("🚀 ~ checkPackage:", checkPackage)
+        // console.log('🚀 ~ checkPackage:', checkPackage);
 
         if (checkPackage.length) {
           checkPackage.forEach((data: any) => {
@@ -146,7 +149,7 @@ const checkPurchaseCategory = catchAsync(
         status: ENUM_STATUS.ACTIVE,
         'categories.category': new Types.ObjectId(req.params.id),
       });
-      console.log('🚀 ~ checkPackage:', checkPackage);
+      // console.log('🚀 ~ checkPackage:', checkPackage);
       if (checkPackage.length) {
         checkPackage.forEach((data: any) => {
           if (new Date(data?.expiry_date)?.getTime() > Date.now()) {

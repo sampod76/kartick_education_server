@@ -57,7 +57,7 @@ const SubmitAssignmentSchema = new Schema<
     author: {
       type: Schema.Types.ObjectId,
       required: true,
-      ref: 'Author',
+      ref: 'User',
     },
     status: {
       type: String,

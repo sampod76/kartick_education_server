@@ -11,7 +11,9 @@ export const SubmitAssignment_FILTERABLE_FIELDS = [
   'module',
   'lesson',
   'isDelete',
+  'authorEmail',
+  'accountCreateAuthor',
   //
-  'author', // for student add seller category
-  'assignment', // for student add seller category
+  'author', // for student
+  'assignment', //
 ];
