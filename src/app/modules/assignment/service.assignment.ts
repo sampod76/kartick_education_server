@@ -61,7 +61,7 @@ const getAllAssignmentFromDb = async (
         } else {
           modifyFiled = { [field]: value };
         }
-        console.log(modifyFiled);
+        //console.log(modifyFiled);
         return modifyFiled;
       },
     );
@@ -401,7 +401,7 @@ const updateAssignmentFromDb = async (
   id: string,
   payload: Partial<IAssignment>,
 ): Promise<IAssignment | null> => {
-  console.log('🚀 ~ payload:', payload);
+ // console.log('🚀 ~ payload:', payload);
   const result = await Assignment.findOneAndUpdate({ _id: id }, payload, {
     new: true,
   });

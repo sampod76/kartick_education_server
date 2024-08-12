@@ -130,7 +130,7 @@ const uploadToCloudinaryMultiple = async (
   try {
     return await Promise.all(uploadPromises);
   } catch (error) {
-    console.error('Error uploading to Cloudinary:', error);
+    //console.error('Error uploading to Cloudinary:', error);
     throw new ApiError(400, 'Error uploading to Cloudinary');
   }
 };

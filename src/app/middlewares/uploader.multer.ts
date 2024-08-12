@@ -179,7 +179,7 @@ const fileFilterVideo = (
   file: Express.Multer.File,
   cb: FileFilterCallback,
 ) => {
-  if (file.mimetype === 'video/mp4') {
+  if (file.mimetype.includes('video')) {
     cb(null, true);
   } else {
     cb(new Error('Only mp4 format is allowed!'));
@@ -189,7 +189,7 @@ const fileFilterVideo = (
 export const uploadVideoFile: RequestHandler = multer({
   storage: videoStorage,
   limits: {
-    fileSize: 200 * 1024 * 1024, // 200 MB
+    fileSize: 500 * 1024 * 1024, // 200 MB
   },
   fileFilter: fileFilterVideo,
 }).single('video');

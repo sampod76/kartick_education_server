@@ -62,7 +62,7 @@ const createPaymentStripe = catchAsync(async (req: Request, res: Response) => {
     success_url: config.payment_url.stripe_success_url + '?data=sampod',
     cancel_url: config.payment_url.stripe_cancel_url,
   });
-  console.log('🚀 ~ createPaymentStripe ~ session:', session);
+ // console.log('🚀 ~ createPaymentStripe ~ session:', session);
   if (session?.id) {
     res.status(200).send({
       success: true,

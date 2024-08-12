@@ -46,7 +46,7 @@ const getAllSubmitAssignmentFromDb = async (
 ): Promise<IGenericResponse<ISubmitAssignment[]> | any> => {
   //****************search and filters start************/
   const { searchTerm, ...filtersData } = filters;
-  console.log('🚀 ~ filtersData:', filtersData);
+  // console.log('🚀 ~ filtersData:', filtersData);
 
   filtersData.isDelete = filtersData.isDelete
     ? filtersData.isDelete

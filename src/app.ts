@@ -227,6 +227,33 @@ app.get(
   },
 );
 
+app.get(
+  '/api/v1/paly-video/:filename',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      console.log(req.params);
+      const filePath = path.resolve(
+        __dirname,
+        `../src/uploadFile/video/${req.params?.filename}`,
+      );
+      return res.sendFile(filePath);
+    } catch (error: any) {
+      // next(error);
+      return res.status(500).send({
+        success: false,
+        message: error?.message || 'Internal Server Error',
+        errorMessages: [
+          {
+            path: '',
+            message: error?.message || 'Internal Server Error',
+          },
+        ],
+      });
+    }
+    // res.send('server is running');
+  },
+);
+
 const test = async () => {
   // const result = encryptCryptoData({id:"sdfjksdjfkl"},config.encryptCrypto as string)
   // const getData = "U2FsdGVkX19dOA/shL0SLR2JyDtmLpQJy88CwzgKP18YXxHGl5lrNcVpYOzLeI6ITy/cWRTBrTK0V6PkGhbl1Ik fBtfhZUFBsLHrZmvFNuC4OpxwvY79/xToKurgOskLiz7aazvvxeghiVMtnRfEw==".split(" ").join("+")

@@ -34,6 +34,7 @@ import { StudentRoutes } from '../modules/student/student.route';
 import { TrainerRoutes } from '../modules/trainer/trainer.route';
 import { UserRoutes } from '../modules/user/user.route';
 import { SubmitAssignmentRoute } from '../modules/submit_assignment/route.submit_assignment';
+import { HomeVideoRoute } from '../modules/homeVideoUpload/route.homeVideoUpload';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -172,6 +173,10 @@ const moduleRoutes = [
   {
     path: '/contact_mail',
     route: ContactMailRoute,
+  },
+  {
+    path: '/home_video',
+    route: HomeVideoRoute,
   },
 ];
 

@@ -16,6 +16,7 @@ router
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
       ENUM_USER_ROLE.SELLER,
+      ENUM_USER_ROLE.STUDENT,
     ),
     StudentController.getAllStudents,
   );
@@ -27,6 +28,7 @@ router
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
+      ENUM_USER_ROLE.SELLER,
       ENUM_USER_ROLE.STUDENT,
     ),
     StudentController.getSingleStudent,
@@ -36,8 +38,8 @@ router
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
-
       ENUM_USER_ROLE.SELLER,
+      ENUM_USER_ROLE.STUDENT,
     ),
     validateRequestZod(StudentValidation.updateStudentZodSchema),
     StudentController.updateStudent,
@@ -47,8 +49,8 @@ router
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
-
       ENUM_USER_ROLE.SELLER,
+      ENUM_USER_ROLE.STUDENT,
     ),
     StudentController.deleteStudent,
   );
