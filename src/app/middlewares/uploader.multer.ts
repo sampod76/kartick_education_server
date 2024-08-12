@@ -154,7 +154,7 @@ export const uploadMultipleImage: RequestHandler = multer({
 //------------upload video file ---start-----------
 const videoStorage: StorageEngine = multer.diskStorage({
   destination: (req: any, file: any, cb: (arg0: null, arg1: string) => any) => {
-    cb(null, path.join(__dirname, '../../../../uploadFile/video/'));
+    cb(null, path.join(__dirname, '../../../../uploadFile/videos/'));
   },
   filename: (
     req: any,

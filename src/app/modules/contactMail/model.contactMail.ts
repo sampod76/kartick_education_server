@@ -8,21 +8,16 @@ const ContactMailSchema = new Schema<IContactMail, ContactMailModel>(
       required: true,
       //unique: true,
       trim: true,
-     
     },
     subject: {
       type: String,
-   
       //unique: true,
       trim: true,
-     
     },
     message: {
       type: String,
-   
       //unique: true,
       trim: true,
-     
     },
     email: {
       type: String,
@@ -32,10 +27,12 @@ const ContactMailSchema = new Schema<IContactMail, ContactMailModel>(
       index: true,
       lowercase: true,
     },
-    images: [{
-      type: String,
-      trim: true,
-    }],
+    images: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
     user: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -67,21 +64,18 @@ const ArchivedContactMailSchema = new Schema<IContactMail, ContactMailModel>(
       required: true,
       //unique: true,
       trim: true,
-     
     },
     subject: {
       type: String,
-   
+
       //unique: true,
       trim: true,
-     
     },
     message: {
       type: String,
-   
+
       //unique: true,
       trim: true,
-     
     },
     email: {
       type: String,
@@ -91,10 +85,12 @@ const ArchivedContactMailSchema = new Schema<IContactMail, ContactMailModel>(
       index: true,
       lowercase: true,
     },
-    images: [{
-      type: String,
-      trim: true,
-    }],
+    images: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
     user: {
       type: Schema.Types.ObjectId,
       ref: 'User',

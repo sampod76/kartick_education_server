@@ -234,7 +234,7 @@ app.get(
       console.log(req.params);
       const filePath = path.resolve(
         __dirname,
-        `../src/uploadFile/video/${req.params?.filename}`,
+        `../src/uploadFile/videos/${req.params?.filename}`,
       );
       return res.sendFile(filePath);
     } catch (error: any) {

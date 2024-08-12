@@ -12,6 +12,17 @@ const createContactMailZodSchema = z.object({
     user: z.string().optional(),
   }),
 });
+const createSupportZodSchema = z.object({
+  body: z.object({
+    subject: z.string({
+      required_error: 'subject is required',
+    }),
+    name: z.string({
+      required_error: 'name is required',
+    }),
+    message: z.string({ required_error: 'message is required' }),
+  }),
+});
 const updateContactMailZodSchema = z.object({
   body: z.object({
     name: z.string().optional(),
@@ -26,4 +37,5 @@ const updateContactMailZodSchema = z.object({
 export const ContactMailValidation = {
   createContactMailZodSchema,
   updateContactMailZodSchema,
+  createSupportZodSchema,
 };

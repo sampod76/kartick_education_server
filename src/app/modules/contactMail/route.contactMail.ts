@@ -14,25 +14,35 @@ router
   .post(
     // authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),
     validateRequestZod(ContactMailValidation.createContactMailZodSchema),
-    ContactMailController.createContactMail
+    ContactMailController.createContactMail,
   );
 
-
-
-
+router
+  .route('/support')
+  .post(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+      ENUM_USER_ROLE.STUDENT,
+      ENUM_USER_ROLE.TEACHER,
+    ),
+    validateRequestZod(ContactMailValidation.createSupportZodSchema),
+    ContactMailController.createSupport,
+  );
 
 router
   .route('/:id')
   // This route is open
   .get(ContactMailController.getSingleContactMail)
   .patch(
-    authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
     validateRequestZod(ContactMailValidation.updateContactMailZodSchema),
-    ContactMailController.updateContactMail
+    ContactMailController.updateContactMail,
   )
   .delete(
-    authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),
-    ContactMailController.deleteContactMail
+    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+    ContactMailController.deleteContactMail,
   );
 
 export const ContactMailRoute = router;
