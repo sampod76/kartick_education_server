@@ -15,7 +15,6 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     req.body,
   );
 
-
   if (req?.cookies?.refreshToken) {
     const checkLoginHistory = await UserLoginHistory.findOne({
       //@ts-ignore
@@ -68,13 +67,13 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
 
     // ! -------------- set login history function end --------------
   }
- 
+
   const cookieOptions = {
     // secure: config.env === 'development' ? false : true,
     secure: false,
     httpOnly: true,
     // maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'),
-    
+
     maxAge: 31536000000,
   };
 
@@ -118,7 +117,7 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
     secure: false,
     httpOnly: true,
     // when my site is same url example: frontend ->sampodnath.com , backend ->sampodnath-api.com. then sameSite lagba na, when frontend ->sampodnath.com , but backend api.sampodnath.com then  sameSite: 'none',
-   
+
     maxAge: 31536000000,
     // maxAge: parseInt(config.jwt.refresh_expires_in || '31536000000'),
   };
@@ -168,7 +167,11 @@ const forgotPass = catchAsync(async (req: Request, res: Response) => {
 
 const resetPassword = catchAsync(async (req: Request, res: Response) => {
   const token = req.headers.authorization || '';
-  await AuthService.resetPassword(req.body, token);
+  req.body = {
+    ...req.body,
+    token,
+  };
+  await AuthService.resetPassword(req.body);
   sendResponse(res, {
     statusCode: 200,
     success: true,
