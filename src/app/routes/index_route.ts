@@ -15,6 +15,7 @@ import { CourseCartRoute } from '../modules/courseCart/courseCart.route';
 import { Course_labelRoute } from '../modules/course_label/route.course_label';
 import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 import { GlossaryRoute } from '../modules/glossary/glossary.route';
+import { HomeVideoRoute } from '../modules/homeVideoUpload/route.homeVideoUpload';
 import { UserLoginHistoryRoutes } from '../modules/loginHistory/loginHistory.route';
 import { ModuleRoute } from '../modules/module/module.route';
 import { PackageRoute } from '../modules/package/package.route';
@@ -31,10 +32,9 @@ import { Show_advance_classesRoute } from '../modules/show_advance_classes/route
 import { SingleQuizRoute } from '../modules/single_quiz/single_quiz.route';
 import { Skills_planRoute } from '../modules/skills_plan/skills_plan.route';
 import { StudentRoutes } from '../modules/student/student.route';
+import { SubmitAssignmentRoute } from '../modules/submit_assignment/route.submit_assignment';
 import { TrainerRoutes } from '../modules/trainer/trainer.route';
 import { UserRoutes } from '../modules/user/user.route';
-import { SubmitAssignmentRoute } from '../modules/submit_assignment/route.submit_assignment';
-import { HomeVideoRoute } from '../modules/homeVideoUpload/route.homeVideoUpload';
 
 // import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 
@@ -150,10 +150,7 @@ const moduleRoutes = [
     path: '/course-cart',
     route: CourseCartRoute,
   },
-  {
-    path: '/upload',
-    route: CourseCartRoute,
-  },
+
   {
     path: '/show_advance_classes',
     route: Show_advance_classesRoute,
