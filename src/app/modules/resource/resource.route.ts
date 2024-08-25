@@ -11,22 +11,40 @@ router
   .route('/')
   .get(ResourceController.getAllResource)
   .post(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.TEACHER,
+
+      ENUM_USER_ROLE.SELLER,
+    ),
     validateRequestZod(ResourceValidation.createResourceZodSchema),
-    ResourceController.createResource
+    ResourceController.createResource,
   );
 
 router
   .route('/:id')
   .get(ResourceController.getSingleResource)
   .patch(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.TEACHER,
+
+      ENUM_USER_ROLE.SELLER,
+    ),
     validateRequestZod(ResourceValidation.updateResourceZodSchema),
-    ResourceController.updateResource
+    ResourceController.updateResource,
   )
   .delete(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-    ResourceController.deleteResource
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.TEACHER,
+
+      ENUM_USER_ROLE.SELLER,
+    ),
+    ResourceController.deleteResource,
   );
 
 export const ResourceRoute = router;

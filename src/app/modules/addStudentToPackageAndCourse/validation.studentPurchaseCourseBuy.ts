@@ -1,25 +1,28 @@
 import { z } from 'zod';
 
-const createStudentPurchasePackageCourseZodSchema = z.object({
+const createStudentPurchasePackageCategoryCourseZodSchema = z.object({
   body: z.object({
     //
     sellerPackage: z.string().optional(),
     purchaseCourse: z.string().optional(),
+
+    purchaseCategory: z.string().optional(), // when seller by single category then add
     author: z.string().optional(),
     status: z.enum(['active', 'deactivate', 'save']).optional(),
   }),
 });
 
-const updateStudentPurchasePackageCourseZodSchema = z.object({
+const updateStudentPurchasePackageCategoryCourseZodSchema = z.object({
   body: z.object({
     sellerPackage: z.string().optional(),
     purchaseCourse: z.string().optional(),
+    purchaseCategory: z.string().optional(), // when seller by single category then add
     author: z.string().optional(),
     status: z.enum(['active', 'deactivate', 'save']).optional(),
   }),
 });
 
-export const StudentPurchasePackageCourseValidation = {
-  createStudentPurchasePackageCourseZodSchema,
-  updateStudentPurchasePackageCourseZodSchema,
+export const StudentPurchasePackageCategoryCourseValidation = {
+  createStudentPurchasePackageCategoryCourseZodSchema,
+  updateStudentPurchasePackageCategoryCourseZodSchema,
 };

@@ -8,22 +8,31 @@ import { CourseRoute } from '../modules/course/course.route';
 import { LessonRoute } from '../modules/lesson/lesson.route';
 import { MilestoneRoute } from '../modules/milestone/milestone.route';
 
-import { StudentPurchasePackageCourseRoute } from '../modules/addStudentToPackageAndCourse/route.studentPurchaseCourseBuy';
+import { StudentPurchasePackageCategoryCourseRoute } from '../modules/addStudentToPackageAndCourse/route.studentPurchaseCourseBuy';
+import { AssignmentRoute } from '../modules/assignment/route.assignment';
+import { ContactMailRoute } from '../modules/contactMail/route.contactMail';
 import { CourseCartRoute } from '../modules/courseCart/courseCart.route';
+import { Course_labelRoute } from '../modules/course_label/route.course_label';
 import { FileUploadeRoute } from '../modules/fileUploade/route.fileUploade';
 import { GlossaryRoute } from '../modules/glossary/glossary.route';
+import { HomeVideoRoute } from '../modules/homeVideoUpload/route.homeVideoUpload';
 import { UserLoginHistoryRoutes } from '../modules/loginHistory/loginHistory.route';
 import { ModuleRoute } from '../modules/module/module.route';
 import { PackageRoute } from '../modules/package/package.route';
 import { PaymentRoute } from '../modules/payment/payment.router';
+import { Purchase_categoryRoute } from '../modules/purchase_category/purchase_category.route';
 import { PurchaseCourseRoute } from '../modules/purchase_courses/purchase_courses.route';
 import { PurchasePackageRoute } from '../modules/purchase_package/purchase_package.route';
 import { QuizRoute } from '../modules/quiz/quiz.route';
 import { QuizSubmitRoute } from '../modules/quizSubmit/quizSubmit.route';
 import { ResourceRoute } from '../modules/resource/resource.route';
 import { SellerRoutes } from '../modules/seller/seller.route';
+import { Short_overviewRoute } from '../modules/short_overview/short_overview.route';
+import { Show_advance_classesRoute } from '../modules/show_advance_classes/route.show_advance_classes';
 import { SingleQuizRoute } from '../modules/single_quiz/single_quiz.route';
+import { Skills_planRoute } from '../modules/skills_plan/skills_plan.route';
 import { StudentRoutes } from '../modules/student/student.route';
+import { SubmitAssignmentRoute } from '../modules/submit_assignment/route.submit_assignment';
 import { TrainerRoutes } from '../modules/trainer/trainer.route';
 import { UserRoutes } from '../modules/user/user.route';
 
@@ -47,6 +56,14 @@ const moduleRoutes = [
   {
     path: '/lesson',
     route: LessonRoute,
+  },
+  {
+    path: '/assignment',
+    route: AssignmentRoute,
+  },
+  {
+    path: '/assignment-submission',
+    route: SubmitAssignmentRoute,
   },
   {
     path: '/quiz',
@@ -114,8 +131,12 @@ const moduleRoutes = [
     route: PurchaseCourseRoute,
   },
   {
+    path: '/purchase_categories',
+    route: Purchase_categoryRoute,
+  },
+  {
     path: '/student_purchase_packages_course',
-    route: StudentPurchasePackageCourseRoute,
+    route: StudentPurchasePackageCategoryCourseRoute,
   },
   {
     path: '/payment',
@@ -129,9 +150,30 @@ const moduleRoutes = [
     path: '/course-cart',
     route: CourseCartRoute,
   },
+
   {
-    path: '/upload',
-    route: CourseCartRoute,
+    path: '/show_advance_classes',
+    route: Show_advance_classesRoute,
+  },
+  {
+    path: '/skills_plan',
+    route: Skills_planRoute,
+  },
+  {
+    path: '/short_overview',
+    route: Short_overviewRoute,
+  },
+  {
+    path: '/course_label',
+    route: Course_labelRoute,
+  },
+  {
+    path: '/contact_mail',
+    route: ContactMailRoute,
+  },
+  {
+    path: '/home_video',
+    route: HomeVideoRoute,
   },
 ];
 

@@ -1,18 +1,23 @@
 import { Schema, model } from 'mongoose';
 import {
-  IStudentPurchasePackageCourse,
-  StudentPurchasePackageCourseModel,
+  IStudentPurchasePackageCategoryCourse,
+  StudentPurchasePackageCategoryCourseModel,
 } from './interface.studentPurchaseCourseBuy';
 
-const StudentPurchasePackageCourseSchema = new Schema<
-  IStudentPurchasePackageCourse,
-  StudentPurchasePackageCourseModel
+const StudentPurchasePackageCategoryCourseSchema = new Schema<
+  IStudentPurchasePackageCategoryCourse,
+  StudentPurchasePackageCategoryCourseModel
 >(
   {
-    // for -c
+    // for -not use
     purchaseCourse: {
       type: Schema.Types.ObjectId,
       ref: 'PurchaseCourse',
+    },
+    //! when seller by single category then add not use
+    purchaseCategory: {
+      type: Schema.Types.ObjectId,
+      ref: 'PurchaseCategory',
     },
     //
     sellerPackage: {
@@ -43,7 +48,10 @@ const StudentPurchasePackageCourseSchema = new Schema<
   },
 );
 
-export const StudentPurchasePackageCourse = model<
-  IStudentPurchasePackageCourse,
-  StudentPurchasePackageCourseModel
->('StudentPurchasePackageCourse', StudentPurchasePackageCourseSchema);
+export const AddSellerStudentPurchasePackageCategoryCourse = model<
+  IStudentPurchasePackageCategoryCourse,
+  StudentPurchasePackageCategoryCourseModel
+>(
+  'StudentPurchasePackageCategoryCourse',
+  StudentPurchasePackageCategoryCourseSchema,
+);

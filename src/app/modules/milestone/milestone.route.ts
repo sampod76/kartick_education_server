@@ -11,19 +11,34 @@ router
   .route('/')
   .get(MilestoneController.getAllMilestone)
   .post(
-    authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+    ),
     validateRequestZod(MilestoneValidation.createMilestoneZodSchema),
-    MilestoneController.createMilestone
+    MilestoneController.createMilestone,
   );
 
 router
   .route('/:id')
   .get(MilestoneController.getSingleMilestone)
   .patch(
-    authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+    ),
     validateRequestZod(MilestoneValidation.updateMilestoneZodSchema),
-    MilestoneController.updateMilestone
+    MilestoneController.updateMilestone,
   )
-  .delete(authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN), MilestoneController.deleteMilestone);
+  .delete(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+    ),
+    MilestoneController.deleteMilestone,
+  );
 
 export const MilestoneRoute = router;

@@ -5,15 +5,16 @@ import { PAGINATION_FIELDS } from '../../../constant/pagination';
 import catchAsync from '../../share/catchAsync';
 import pick from '../../share/pick';
 import sendResponse from '../../share/sendResponse';
-import { ModuleService } from './module.service';
 import { MODULE_FILTERABLE_FIELDS } from './module.constant';
 import { IModule } from './module.interface';
+import { ModuleService } from './module.service';
 
 // import { z } from 'zod'
 const createModule = catchAsync(async (req: Request, res: Response) => {
-  const { ...ModuleData } = req.body;
-
-  const result = await ModuleService.createModuleByDb(ModuleData);
+  if (req?.user?.id) {
+    req.body.author = req.user.id;
+  }
+  const result = await ModuleService.createModuleByDb(req.body);
 
   sendResponse<IModule>(res, {
     success: true,
@@ -36,7 +37,7 @@ const getAllModule = catchAsync(async (req: Request, res: Response) => {
 
   const result = await ModuleService.getAllModuleFromDb(
     filters,
-    paginationOptions
+    paginationOptions,
   );
 
   sendResponse<IModule[]>(res, {
@@ -52,7 +53,7 @@ const getAllModule = catchAsync(async (req: Request, res: Response) => {
 const getSingleModule = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const filters = pick(req.query, MODULE_FILTERABLE_FIELDS);
-  const result = await ModuleService.getSingleModuleFromDb(id,filters);
+  const result = await ModuleService.getSingleModuleFromDb(id, filters);
   sendResponse<IModule>(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -76,10 +77,7 @@ const updateModule = catchAsync(async (req: Request, res: Response) => {
 
 const deleteModule = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await ModuleService.deleteModuleByIdFromDb(
-    id,
-    req.query
-  );
+  const result = await ModuleService.deleteModuleByIdFromDb(id, req.query);
   sendResponse<IModule>(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -88,20 +86,18 @@ const deleteModule = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const ModuleReviewsByUser = catchAsync(
-  async (req: Request, res: Response) => {
-    // const { id } = req.params;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const result = await ModuleService.ModuleReviewsByUserFromDb();
+const ModuleReviewsByUser = catchAsync(async (req: Request, res: Response) => {
+  // const { id } = req.params;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const result = await ModuleService.ModuleReviewsByUserFromDb();
 
-    sendResponse<IModule>(res, {
-      success: true,
-      statusCode: httpStatus.OK,
-      message: 'successfull update reviews',
-      data: result,
-    });
-  }
-);
+  sendResponse<IModule>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'successfull update reviews',
+    data: result,
+  });
+});
 export const ModuleController = {
   createModule,
   getAllModule,

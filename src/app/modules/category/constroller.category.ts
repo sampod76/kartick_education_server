@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { PAGINATION_FIELDS } from '../../../constant/pagination';
@@ -7,6 +8,18 @@ import catchAsync from '../../share/catchAsync';
 import pick from '../../share/pick';
 import sendResponse from '../../share/sendResponse';
 
+import { Types } from 'mongoose';
+
+import { ENUM_STATUS, ENUM_YN } from '../../../enums/globalEnums';
+import { ENUM_USER_ROLE } from '../../../enums/users';
+import ApiError from '../../errors/ApiError';
+import { PurchasePackage } from '../purchase_package/purchase_package.model';
+
+import { User } from '../user/user.model';
+
+import { AddSellerStudentPurchasePackageCategoryCourse } from '../addStudentToPackageAndCourse/model.studentPurchaseCourseBuy';
+import { IPurchaseCourse } from '../purchase_courses/purchase_courses.interface';
+import { PurchaseCourse } from '../purchase_courses/purchase_courses.model';
 import { CATEGORY_FILTERABLE_FIELDS } from './consent.category';
 import { ICategory } from './interface.category';
 import { CategoryService } from './service.category';
@@ -35,7 +48,7 @@ const getAllCategory = catchAsync(async (req: Request, res: Response) => {
   let queryObject = req.query;
   queryObject = Object.fromEntries(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    Object.entries(queryObject).filter(([_, value]) => Boolean(value))
+    Object.entries(queryObject).filter(([_, value]) => Boolean(value)),
   );
   const filters = pick(queryObject, CATEGORY_FILTERABLE_FIELDS);
 
@@ -45,7 +58,7 @@ const getAllCategory = catchAsync(async (req: Request, res: Response) => {
 
   const result = await CategoryService.getAllCategoryFromDb(
     filters,
-    paginationOptions
+    paginationOptions,
   );
 
   sendResponse<ICategory[]>(res, {
@@ -57,13 +70,115 @@ const getAllCategory = catchAsync(async (req: Request, res: Response) => {
   });
   // next();
 });
+const checkPurchaseCategory = catchAsync(
+  async (req: Request, res: Response) => {
+    let result2 = false;
+
+    //!---- student -----
+    if (req?.user?.role === ENUM_USER_ROLE.STUDENT) {
+      // const checkCategory = await Purchase_category.findOne({
+      //   category: new Types.ObjectId(req.params.id),
+      //   user: new Types.ObjectId(req.user.id),
+      //   isDelete: ENUM_YN.NO,
+      //   status: ENUM_STATUS.ACTIVE,
+      // });
+      const filter: any = {
+        user: new Types.ObjectId(req.user.id),
+        isDelete: ENUM_YN.NO,
+        status: ENUM_STATUS.ACTIVE,
+      };
+      if (req?.query?.course) {
+        filter.course = new Types.ObjectId(req?.query?.course as string);
+      }
+      const checkCourse = (await PurchaseCourse.findOne(
+        filter,
+      )) as IPurchaseCourse;
+      // console.log("🚀 ~ checkCourse:", checkCourse)
+      if (checkCourse) {
+        if (new Date(checkCourse?.expiry_date)?.getTime() < Date.now()) {
+          throw new ApiError(400, 'Your package has expired please Renew it');
+        } else {
+          result2 = true;
+        }
+      }
+      if (!result2) {
+        const query: any = {};
+        const getAuthor = await User.findOne({
+          _id: req?.user?.id,
+          isDelete: ENUM_YN.NO,
+          status: ENUM_STATUS.ACTIVE,
+        });
+        // console.log('🚀 ~ getAuthor:', getAuthor);
+        if (getAuthor?.author) {
+          //@ts-ignore
+          query.author = getAuthor?.author;
+        }
+
+        const checkPackage =
+          await AddSellerStudentPurchasePackageCategoryCourse.find({
+            ...query,
+            user: new Types.ObjectId(getAuthor?._id?.toString()),
+            isDelete: ENUM_YN.NO,
+            status: ENUM_STATUS.ACTIVE,
+          }).populate('sellerPackage');
+        // console.log('🚀 ~ checkPackage:', checkPackage);
+
+        if (checkPackage.length) {
+          checkPackage.forEach((data: any) => {
+            // if (data?.sellerPackage && new Date(data.sellerPackage?.expiry_date)?.getTime() < Date.now()) {
+            //   throw new ApiError(400, 'Your package has expired please Renew it');
+            // }
+            if (
+              new Date(data?.sellerPackage?.expiry_date)?.getTime() > Date.now()
+            ) {
+              data?.sellerPackage?.categories?.forEach((data: any) => {
+                if (data?.category?.toString() === req.params.id) {
+                  result2 = true;
+                }
+              });
+            }
+          });
+        }
+      }
+
+      //! ---- student ----
+    } else if (req?.user?.role === ENUM_USER_ROLE.SELLER) {
+      const checkPackage = await PurchasePackage.find({
+        user: new Types.ObjectId(req?.user?.id),
+        isDelete: ENUM_YN.NO,
+        status: ENUM_STATUS.ACTIVE,
+        'categories.category': new Types.ObjectId(req.params.id),
+      });
+      // console.log('🚀 ~ checkPackage:', checkPackage);
+      if (checkPackage.length) {
+        checkPackage.forEach((data: any) => {
+          if (new Date(data?.expiry_date)?.getTime() > Date.now()) {
+            result2 = true;
+          }
+        });
+      }
+    } else if (req?.user?.role === ENUM_USER_ROLE.ADMIN) {
+      result2 = true;
+    }
+    // console.log('🚀 ~ result2:', result2);
+
+    sendResponse<any>(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'successfull Get category Category',
+      data: result2,
+    });
+    // next();
+  },
+);
+
 const getAllCategoryChildrenTitle = catchAsync(
   async (req: Request, res: Response) => {
     //****************search and filter start******* */
     let queryObject = req.query;
     queryObject = Object.fromEntries(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      Object.entries(queryObject).filter(([_, value]) => Boolean(value))
+      Object.entries(queryObject).filter(([_, value]) => Boolean(value)),
     );
     const filters = pick(queryObject, CATEGORY_FILTERABLE_FIELDS);
 
@@ -73,7 +188,7 @@ const getAllCategoryChildrenTitle = catchAsync(
 
     const result = await CategoryService.getAllCategoryChildrenTitleFromDb(
       filters,
-      paginationOptions
+      paginationOptions,
     );
 
     sendResponse<ICategory[]>(res, {
@@ -84,7 +199,7 @@ const getAllCategoryChildrenTitle = catchAsync(
       data: result.data,
     });
     // next();
-  }
+  },
 );
 
 const getSingleCategory = catchAsync(async (req: Request, res: Response) => {
@@ -143,4 +258,5 @@ export const CategoryController = {
   updateCategory,
   deleteCategory,
   getAllCategoryChildrenTitle,
+  checkPurchaseCategory,
 };

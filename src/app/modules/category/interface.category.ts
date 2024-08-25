@@ -5,15 +5,21 @@ export type ICategoryFilters = {
   searchTerm?: string;
   title?: string;
   status?: IStatus;
+  serial_number?: number;
   delete?: 'yes' | 'no';
   children?: string;
   isDelete?: string;
+  // only
+  author?: string;
+  category?: string;
+  course?: string;
 };
 
 export type ICategory = {
   title: string;
   img?: string;
   status: IStatus;
+  serial_number?: number;
   isDelete: string;
 };
 

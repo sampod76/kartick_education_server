@@ -8,7 +8,6 @@ import express, {
   RequestHandler,
   Response,
 } from 'express';
-import paypal from 'paypal-rest-sdk';
 // create xss-clean.d.ts file after work this xss
 import path from 'path';
 // import xss from 'xss-clean';
@@ -17,37 +16,41 @@ import httpStatus from 'http-status';
 import requestIp from 'request-ip';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 // import { uploadSingleImage } from './app/middlewares/uploader.multer';
+import ffmpegPath from '@ffmpeg-installer/ffmpeg';
+import ffmpeg from 'fluent-ffmpeg';
+ffmpeg.setFfmpegPath(ffmpegPath.path);
 
-import fs from 'fs';
 import routers from './app/routes/index_route';
-import config from './config';
+import catchAsync from './app/share/catchAsync';
 const app: Application = express();
 // app.use(cors());
 
 app.use(helmetOriginal());
 app.use(requestIp.mw());
 
-app.use(
-  cors({
-    origin:
-      config.env === 'development'
-        ? [
-            'http://localhost:3000',
-            'http://127.0.0.1:3000',
-            'http://192.168.0.101:3000',
-          ]
-        : ['https://iblossomlearn.org'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  }),
-);
 // app.use(
 //   cors({
-//     origin: true,
+//     origin:
+//       config.env === 'development'
+//         ? [
+//             'http://localhost:3000',
+//             'http://127.0.0.1:3000',
+//             'http://192.168.0.101:3000',
+//             'http://192.168.10.60:3000∏',
+//           ]
+//         : ['https://iblossomlearn.org'],
 //     credentials: true,
 //     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
 //   }),
 // );
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  }),
+);
+// app.use(cors());
 
 // app.use(cors(corsOptions));
 
@@ -75,11 +78,6 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-paypal.configure({
-  mode: 'sandbox',
-  client_id: process.env.PAYPAL_CLIENT_ID as string,
-  client_secret: process.env.PAYPAL_SECRET_KEY as string,
-});
 
 const run: RequestHandler = (req, res, next) => {
   try {
@@ -91,26 +89,59 @@ const run: RequestHandler = (req, res, next) => {
   }
 };
 
-const downloadFunction: RequestHandler = (req, res, next) => {
-  try {
-    const filePath = path.resolve(
-      __dirname,
-      `../../uploadFile/pdfs/${req.params?.filename}`,
-    );
-    const fileContents = fs.readFileSync(filePath);
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename=${req.params?.filename}`,
-    );
-    res.status(200).end(fileContents, 'binary');
-    // jwtHelpers.verifyToken(`${req.headers.authorization}`, config.jwt.secret as string);
-    // console.log('first');
-    // next();
-  } catch (error) {
-    res.status(500).end({message:'File not found'});
+const middlewareFunction: RequestHandler = catchAsync((req, res, next) => {
+  const extractDirectoryName = (url: string) => {
+    // "/pdfs/file-sample_150b-d.pdf"
+    const match = url.match(/\/([^/]+)\//); //! get /(text)/file-sample_150b-d.pdf to
+    if (match) {
+      return match[0]; // Return the matched directory name
+    }
+    return null; // Return null if no match is found
+  };
+  const getPathName = extractDirectoryName(req.originalUrl); //ans: images / pdfs /videos --get from url
+
+  const filePath = path.resolve(
+    __dirname,
+    `../../uploadFile/${getPathName}/${req.params?.filename}`,
+  );
+
+  //!--- you went when any image not found then throw 404.png your custom image
+  // if (!fs.existsSync(filePath)) {
+  //   return res
+  //     .status(200)
+  //     .sendFile(path.resolve(__dirname, '../public/404.jpg'));
+  // }
+  if (req.query.download === 'yes') {
+    return res.status(200).download(filePath);
+    /* // -- second method if when not work first method then use this
+    fs.promises
+      .readFile(filePath)
+      .then(response => {
+        const contentType =
+          mimeTypes.lookup(filePath) || 'application/octet-stream';
+
+        res.setHeader('Content-Type', contentType);
+        res.setHeader(
+          'Content-Disposition',
+          `attachment; filename=${req.params?.filename}`,
+        );
+
+        return res.status(200).end(response, 'binary');
+      })
+      .catch(err => {
+        console.log(err);
+        return res
+          .status(200)
+          .sendFile(path.resolve(__dirname, '../public/404.jpg'));
+      }); 
+      */
+  } else {
+    return res.status(200).sendFile(filePath);
   }
-};
+  // jwtHelpers.verifyToken(`${req.headers.authorization}`, config.jwt.secret as string);
+  // console.log('first');
+  // next();
+});
 
 app.use(
   '/images',
@@ -129,18 +160,27 @@ app.use(
   run,
   express.static(path.join(__dirname, '../../uploadFile/videos/')),
 );
+app.use(
+  '/uploadFile/pdfs',
+  run,
+  express.static(path.join(__dirname, '../../uploadFile/pdfs/')),
+);
 
 app.use(
   '/pdfs/:filename',
   run,
-  downloadFunction,
+  // (req, res, next) => {
+  //   req.customData &&  req.customData.downloadType = 'pdf';
+  // },
+  // downloadFunction,
+  middlewareFunction,
   // express.static(path.join(__dirname, `../../uploadFile/pdfs/`)),
 );
 
 app.use(
   '/audios-download/:filename',
   run,
-  downloadFunction,
+  middlewareFunction,
   // express.static(path.join(__dirname, `../../uploadFile/pdfs/`)),
 );
 app.use(
@@ -161,48 +201,71 @@ app.get('/', async (req: Request, res: Response, next: NextFunction) => {
   }
   // res.send('server is running');
 });
+app.get(
+  '/api/v1/paly-audio/:filename',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const filePath = path.resolve(
+        __dirname,
+        `../../uploadFile/audios/${req.params?.filename}`,
+      );
+      return res.sendFile(filePath);
+    } catch (error: any) {
+      // next(error);
+      return res.status(500).send({
+        success: false,
+        message: error?.message || 'Internal Server Error',
+        errorMessages: [
+          {
+            path: '',
+            message: error?.message || 'Internal Server Error',
+          },
+        ],
+      });
+    }
+    // res.send('server is running');
+  },
+);
+
+app.get(
+  '/api/v1/paly-video/:filename',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      console.log(req.params);
+      const filePath = path.resolve(
+        __dirname,
+        `../src/uploadFile/videos/${req.params?.filename}`,
+      );
+      return res.sendFile(filePath);
+    } catch (error: any) {
+      // next(error);
+      return res.status(500).send({
+        success: false,
+        message: error?.message || 'Internal Server Error',
+        errorMessages: [
+          {
+            path: '',
+            message: error?.message || 'Internal Server Error',
+          },
+        ],
+      });
+    }
+    // res.send('server is running');
+  },
+);
 
 const test = async () => {
-  // const restul = await User.updateMany({}, { isDelete: ENUM_YN.NO });
-  // console.log(restul);
-  // const updateArray = await Course.find({});
-  // const promess: any = [];
-  // updateArray.forEach((data, index) => {
-  //   console.log(index);
-  //   promess.push(
-  //     Course.findByIdAndUpdate(data._id, {
-  //       courseId: `00${index + 1}`,
-  //     })
-  //   );
-  // });
-  // Promise.all(promess).then(values => {
-  //   console.log(values);
-  // });
   // const result = encryptCryptoData({id:"sdfjksdjfkl"},config.encryptCrypto as string)
   // const getData = "U2FsdGVkX19dOA/shL0SLR2JyDtmLpQJy88CwzgKP18YXxHGl5lrNcVpYOzLeI6ITy/cWRTBrTK0V6PkGhbl1Ik fBtfhZUFBsLHrZmvFNuC4OpxwvY79/xToKurgOskLiz7aazvvxeghiVMtnRfEw==".split(" ").join("+")
   // const verify = decryptCryptoData(getData,config.encryptCrypto as string)
   // console.log(verify);
-  // const result = await PurchasePackage.updateMany(
-  //   {},
-  //   [
-  //     {
-  //       $set: {
-  //         total_price: {
-  //           $sum: [
-  //             '$purchase.price',
-  //             {
-  //               $multiply: [
-  //                 '$purchase.each_student_increment',
-  //                 '$total_purchase_student',
-  //               ],
-  //             },
-  //           ],
-  //         },
-  //       },
-  //     },
-  //   ]
-  // );
+  // const result = await Category.updateMany({serial_number:{$exists:false}},{$set:{serial_number:999}})
   // console.log("🚀 ~ test ~ result:", result)
+  // const res = await Lesson.updateMany(
+  //   {author:{$exists:false}},
+  //   { $set: { author: new Types.ObjectId('6593993eebee58320ec7cc9c') } },
+  // );
+  // console.log(res);
 };
 test();
 

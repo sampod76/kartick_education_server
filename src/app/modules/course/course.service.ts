@@ -69,7 +69,9 @@ const getAllCourseFromDb = async (
             ? { [field]: new Types.ObjectId(value) }
             : field === 'category'
               ? { [field]: new Types.ObjectId(value) }
-              : { [field]: value },
+              : field === 'label_id'
+                ? { [field]: new Types.ObjectId(value) }
+                : { [field]: value },
       ),
     });
   }
@@ -109,7 +111,9 @@ const getAllCourseFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -261,6 +265,157 @@ const getAllCourseFromDb = async (
       },
     },
     { $project: { totalStudents: 0 } },
+    //
+
+    {
+      $lookup: {
+        from: 'course_labels',
+        let: { id: '$label_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+          {
+            $project: {
+              password: 0,
+            },
+          },
+        ],
+        as: 'label',
+      },
+    },
+
+    {
+      $addFields: {
+        labelDetails: {
+          $cond: {
+            if: { $eq: [{ $size: '$label' }, 0] },
+            then: [{}],
+            else: '$label',
+          },
+        },
+      },
+    },
+    {
+      $project: { label: 0 },
+    },
+    {
+      $unwind: '$labelDetails',
+    },
+  ];
+
+  let result = null;
+  if (select) {
+    result = await Course.find(whereConditions)
+      .sort({ ...sortConditions })
+      .skip(Number(skip))
+      .limit(Number(limit))
+      .select({ ...projection });
+  } else {
+    result = await Course.aggregate(pipeline);
+  }
+
+  const total = await Course.countDocuments(whereConditions);
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
+const getAllCourseLevelFromDb = async (
+  filters: ICourseFilters,
+  paginationOptions: IPaginationOption,
+): Promise<IGenericResponse<ICourse[]>> => {
+  //****************search and filters start************/
+  const { searchTerm, select, ...filtersData } = filters;
+
+  filtersData.isDelete = filtersData.isDelete
+    ? filtersData.isDelete
+    : ENUM_YN.NO;
+
+  // Split the string and extract field names
+  const projection: { [key: string]: number } = {};
+  if (select) {
+    console.log(select);
+    const fieldNames = select?.split(',').map(field => field.trim());
+    // Create the projection object
+    fieldNames.forEach(field => {
+      projection[field] = 1;
+    });
+  }
+
+  const andConditions = [];
+  if (searchTerm) {
+    andConditions.push({
+      $or: COURSE_SEARCHABLE_FIELDS.map(field =>
+        //search array value
+        field === 'tags'
+          ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
+          : {
+              [field]: new RegExp(searchTerm, 'i'),
+            },
+      ),
+    });
+  }
+
+  if (Object.keys(filtersData).length) {
+    andConditions.push({
+      $and: Object.entries(filtersData).map(([field, value]) =>
+        field === 'price'
+          ? { [field]: { $gte: parseInt(value as string) } }
+          : field === 'author'
+            ? { [field]: new Types.ObjectId(value) }
+            : field === 'category'
+              ? { [field]: new Types.ObjectId(value) }
+              : { [field]: value },
+      ),
+    });
+  }
+
+  //****************search and filters end**********/
+
+  //****************pagination start **************/
+
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationHelper.calculatePagination(paginationOptions);
+
+  const sortConditions: { [key: string]: 1 | -1 } = {};
+  if (sortBy && sortOrder) {
+    sortConditions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+  }
+
+  //****************pagination end ***************/
+
+  const whereConditions =
+    andConditions.length > 0 ? { $and: andConditions } : {};
+
+  /* 
+  const result = await Course.find(whereConditions)
+    .sort(sortConditions)
+    .skip(Number(skip))
+    .limit(Number(limit)); 
+  */
+  const pipeline: PipelineStage[] = [
+    { $sort: sortConditions },
+    { $skip: Number(skip) || 0 },
+    { $limit: Number(limit) || 999999999 },
+    {
+      $group: {
+        _id: { level: '$level', category: '$category' },
+        // levels:{$push:"$_id"}
+      },
+    },
   ];
 
   let result = null;
@@ -461,7 +616,9 @@ const getSingleCourseFromDb = async (id: string): Promise<ICourse | null> => {
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -475,7 +632,12 @@ const getSingleCourseFromDb = async (id: string): Promise<ICourse | null> => {
               pipeline: [
                 {
                   $match: {
-                    $expr: { $eq: ['$_id', '$$id'] },
+                    $expr: {
+                      $and: [
+                        { $ne: ['$$id', undefined] },
+                        { $eq: ['$_id', '$$id'] },
+                      ],
+                    },
                     // Additional filter conditions for collection2
                   },
                 },
@@ -519,7 +681,12 @@ const getSingleCourseFromDb = async (id: string): Promise<ICourse | null> => {
               pipeline: [
                 {
                   $match: {
-                    $expr: { $eq: ['$_id', '$$id'] },
+                    $expr: {
+                      $and: [
+                        { $ne: ['$$id', undefined] },
+                        { $eq: ['$_id', '$$id'] },
+                      ],
+                    },
                     // Additional filter conditions for collection2
                   },
                 },
@@ -629,6 +796,52 @@ const getSingleCourseFromDb = async (id: string): Promise<ICourse | null> => {
     },
     {
       $unwind: '$category',
+    },
+
+    //
+
+    {
+      $lookup: {
+        from: 'course_labels',
+        let: { id: '$label_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
+              // Additional filter conditions for collection2
+            },
+          },
+          // Additional stages for collection2
+          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
+
+          {
+            $project: {
+              password: 0,
+            },
+          },
+        ],
+        as: 'label',
+      },
+    },
+
+    {
+      $addFields: {
+        labelDetails: {
+          $cond: {
+            if: { $eq: [{ $size: '$label' }, 0] },
+            then: [{}],
+            else: '$label',
+          },
+        },
+      },
+    },
+    {
+      $project: { label: 0 },
+    },
+    {
+      $unwind: '$labelDetails',
     },
   ]);
 
@@ -768,7 +981,7 @@ const updateCourseFromDb = async (
 ): Promise<ICourse | null> => {
   const { demo_video, ...otherData } = payload;
   const updateData = { ...otherData };
-  console.log(updateData, id);
+
   if (demo_video && Object.keys(demo_video).length > 0) {
     Object.keys(demo_video).forEach(key => {
       const demo_videoKey = `demo_video.${key}`; // `demo_video.status`
@@ -792,7 +1005,7 @@ const deleteCourseByIdFromDb = async (
   query: ICourseFilters,
 ): Promise<ICourse | null> => {
   let result;
-  result = await Course.findByIdAndDelete(id);
+
   if (query.delete === ENUM_YN.YES) {
     result = await Course.findByIdAndDelete(id);
   } else {
@@ -813,6 +1026,7 @@ export const CourseService = {
   createCourseByDb,
   getAllCourseFromDb,
   getSingleCourseFromDb,
+  getAllCourseLevelFromDb,
   getAllCourseMilestoneModuleListFromDb,
   updateCourseFromDb,
   deleteCourseByIdFromDb,

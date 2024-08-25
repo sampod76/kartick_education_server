@@ -75,4 +75,15 @@ router.post(
   UserController.createTrainer,
 );
 
+router.patch(
+  '/:id',
+  authMiddleware(
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.TEACHER,
+    ENUM_USER_ROLE.SELLER,
+  ),
+  UserController.updateUser,
+);
+
 export const UserRoutes = router;

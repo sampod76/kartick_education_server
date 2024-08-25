@@ -12,30 +12,43 @@ router
   // This route is open
   .get(CategoryController.getAllCategory)
   .post(
-    authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
     validateRequestZod(CategoryValidation.createCategoryZodSchema),
-    CategoryController.createCategory
+    CategoryController.createCategory,
   );
-
 
 router
   .route('/category-children')
   // This route is open
-  .get(CategoryController.getAllCategoryChildrenTitle)
+  .get(CategoryController.getAllCategoryChildrenTitle);
 
+router
+
+  .route('/check-purchase/:id')
+
+  // This route is open
+  .get(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+      ENUM_USER_ROLE.STUDENT,
+    ),
+    CategoryController.checkPurchaseCategory,
+  );
 
 router
   .route('/:id')
   // This route is open
   .get(CategoryController.getSingleCategory)
   .patch(
-    authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
     validateRequestZod(CategoryValidation.updateCategoryZodSchema),
-    CategoryController.updateCategory
+    CategoryController.updateCategory,
   )
   .delete(
-    authMiddleware(ENUM_USER_ROLE.ADMIN,ENUM_USER_ROLE.SUPER_ADMIN),
-    CategoryController.deleteCategory
+    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+    CategoryController.deleteCategory,
   );
 
 export const CategoryRoute = router;

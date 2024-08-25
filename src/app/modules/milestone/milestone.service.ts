@@ -71,9 +71,11 @@ const getAllMilestoneFromDb = async (
       $and: Object.entries(filtersData).map(([field, value]) =>
         field === 'category'
           ? { [field]: new Types.ObjectId(value) }
-          : field === 'course'
+          : field === 'author'
             ? { [field]: new Types.ObjectId(value) }
-            : { [field]: value },
+            : field === 'course'
+              ? { [field]: new Types.ObjectId(value) }
+              : { [field]: value },
       ),
     });
   }
@@ -173,11 +175,11 @@ const getSingleMilestoneFromDb = async (
                 {
                   $match: {
                     $expr: {
-                $and: [
-                  { $eq: ['$_id', '$$id'] },
-                  { $eq: ['$isDelete', ENUM_YN.NO] },
-                ],
-              },
+                      $and: [
+                        { $eq: ['$_id', '$$id'] },
+                        { $eq: ['$isDelete', ENUM_YN.NO] },
+                      ],
+                    },
                     // Additional filter conditions for collection2
                   },
                 },

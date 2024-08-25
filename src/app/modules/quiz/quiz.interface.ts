@@ -17,7 +17,8 @@ export type IQuizFilters = {
   milestone?: string;
   module?: string;
   lesson?: string;
- //
+  author?: string;
+  //
   delete?: 'yes' | 'no';
   isDelete?: string;
   // other query parameters

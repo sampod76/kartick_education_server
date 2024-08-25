@@ -14,10 +14,10 @@ import { Seller } from './seller.model';
 
 const getAllSellersDB = async (
   filters: ISellerFilters,
-  paginationOptions: IPaginationOption
+  paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<ISeller[]>> => {
   const { searchTerm, ...filtersData } = filters;
-  filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
+  filtersData.isDelete = filtersData.isDelete ? filtersData.isDelete : 'no';
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelper.calculatePagination(paginationOptions);
 
@@ -49,6 +49,7 @@ const getAllSellersDB = async (
   }
   const whereConditions =
     andConditions.length > 0 ? { $and: andConditions } : {};
+  // console.log('🚀 ~ whereConditions:', whereConditions);
 
   const result = await Seller.find(whereConditions)
     .sort(sortConditions)
@@ -74,7 +75,7 @@ const getSingleSellerDB = async (id: string): Promise<ISeller | null> => {
 
 const updateSellerDB = async (
   id: string,
-  payload: Partial<ISeller>
+  payload: Partial<ISeller>,
 ): Promise<ISeller | null> => {
   const isExist = await Seller.findById(id);
 
@@ -93,15 +94,19 @@ const updateSellerDB = async (
     });
   }
 
-  const result = await Seller.findOneAndUpdate({ _id: id }, updatedStudentData, {
-    new: true,
-  });
+  const result = await Seller.findOneAndUpdate(
+    { _id: id },
+    updatedStudentData,
+    {
+      new: true,
+    },
+  );
   return result;
 };
 
 const deleteSellerDB = async (
   id: string,
-  query: ISellerFilters
+  query: ISellerFilters,
 ): Promise<ISeller | null> => {
   // check if the faculty is exist
   const isExist = await Seller.findById(id);
@@ -117,7 +122,7 @@ const deleteSellerDB = async (
       //delete student first
       const SellerResult = await Seller.findOneAndDelete(
         { _id: id },
-        { session }
+        { session },
       );
       if (!SellerResult) {
         throw new ApiError(404, 'Failed to delete Seller');
@@ -134,7 +139,7 @@ const deleteSellerDB = async (
       const SellerResult = await Seller.findOneAndUpdate(
         { _id: id },
         { status: ENUM_STATUS.DEACTIVATE },
-        { session }
+        { session },
       );
 
       if (SellerResult) {
@@ -144,7 +149,7 @@ const deleteSellerDB = async (
       await User.findOneAndUpdate(
         { email: isExist.email },
         { status: ENUM_STATUS.DEACTIVATE },
-        { session }
+        { session },
       );
       session.commitTransaction();
       session.endSession();

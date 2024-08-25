@@ -36,7 +36,7 @@ const createPaymentStripeZodSchema = z.object({
         quantity: z.number().optional().default(1),
       }),
     ),
-    data: productData,
+    data: productData.optional(),
   }),
 });
 

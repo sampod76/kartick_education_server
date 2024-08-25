@@ -22,7 +22,10 @@ import { sendEmail } from './sendResetMail';
 const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   const { email, password } = payload;
 
-  const isUserExist = await User.findOne({ email, isDelete: ENUM_YN.NO });
+  const isUserExist = await User.findOne({
+    email,
+    isDelete: ENUM_YN.NO,
+  }).select('+password');
 
   if (!isUserExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist');
@@ -100,7 +103,7 @@ const loginOutFromDb = async (
   }
 
   // const result = await UserLoginHistory.findByIdAndDelete(id);
-  console.log('🚀 ~ result:', result);
+
   return result;
 };
 
@@ -127,18 +130,18 @@ const refreshToken = async (
 
   const isUserExist = await User.findById(id);
   if (!isUserExist) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist');
+    throw new ApiError(403, 'User does not exist');
   }
   //generate new token
   if (isUserExist.status === ENUM_STATUS.DEACTIVATE) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Your account is deactivated');
+    throw new ApiError(403, 'Your account is deactivated');
   } else if (isUserExist.status === ENUM_STATUS.BLOCK) {
     throw new ApiError(
-      httpStatus.NOT_FOUND,
+      403,
       `Your account is blocked ${isUserExist?.blockingTimeout}`,
     );
   } else if (isUserExist.isDelete === ENUM_YN.YES) {
-    throw new ApiError(httpStatus.NOT_FOUND, `Your account is delete`);
+    throw new ApiError(403, `Your account is delete`);
   }
   const user_agent = req.headers['user-agent'];
   const checkLoginHistory = await UserLoginHistory.findOne({
@@ -180,7 +183,7 @@ const changePassword = async (
   // const isUserExist = await User.isUserExist(user?.userId);
 
   //alternative way
-  const isUserExist = await User.findOne({
+  const isUserExist: any = await User.findOne({
     email: user?.email,
     isDelete: ENUM_YN.NO,
   }).select('+password');
@@ -190,12 +193,6 @@ const changePassword = async (
   }
 
   // checking old password
-  if (
-    isUserExist.password &&
-    !(await User.isPasswordMatchMethod(oldPassword, isUserExist.password))
-  ) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'Old Password is incorrect');
-  }
   if (isUserExist.status === ENUM_STATUS.DEACTIVATE) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Your account is deactivated');
   } else if (isUserExist.status === ENUM_STATUS.BLOCK) {
@@ -204,6 +201,13 @@ const changePassword = async (
       `Your account is blocked ${isUserExist?.blockingTimeout}`,
     );
   }
+  if (
+    isUserExist.password &&
+    !(await User.isPasswordMatchMethod(oldPassword, isUserExist.password))
+  ) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Old Password is incorrect');
+  }
+
   // // hash password before saving
   // const newHashedPassword = await bcrypt.hash(
   //   newPassword,
@@ -227,77 +231,54 @@ const changePassword = async (
 };
 
 const forgotPass = async (payload: { email: string }) => {
-  const profile: any = await User.isUserExistMethod(payload.email);
+  console.log(payload.email);
+
+  const profile = await User.findOne({
+    email: payload.email,
+  });
+
+  console.log(profile);
 
   if (!profile) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User does not exist!');
   }
 
-  // let profile = null;
-  // if (user.role === ENUM_USER_ROLE.ADMIN) {
-  //   profile = await Admin.findById(user.id);
-  // } else if (user.role === ENUM_USER_ROLE.MODERATOR) {
-  //   profile = await Moderator.findById(user.id);
-  // } else if (user.role === ENUM_USER_ROLE.student) {
-  //   profile = await Student.findById(user.id);
-  // }
-
-  // if (!profile) {
-  //   throw new ApiError(httpStatus.BAD_REQUEST, 'Pofile not found!');
-  // }
-
   if (!profile.email) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email not found!');
   }
 
-  const passResetToken = await jwtHelpers.createResetToken(
+  // Generate a password reset token
+  const passResetToken = jwtHelpers.createToken(
     { email: profile.email, role: profile.role, id: profile._id },
-    config.jwt.secret as string,
+    config.jwt.secret as Secret,
     '50m',
   );
 
-  const resetLink: string =
-    config.resetlink + `${profile._id}?token=${passResetToken}`;
+  // Construct the reset link
+  const resetLink = `${config.resetlink}${profile._id}?token=${passResetToken}`;
 
-  console.log('profile: ', profile);
-  await sendEmail(
-    profile.email,
-    `<body style="font-family: 'Arial', sans-serif; line-height: 1.6; background-color: #f4f4f4; margin: 0; padding: 0;">
+  // Send the password reset email
+  const html = `
+    <p>You requested a password reset</p>
+    <p>Click <a href="${resetLink}">here</a> to reset your password.</p>
+    <p>If you did not request this, please ignore this email.</p>
+  `;
 
-  <div style="max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+  await sendEmail(profile.email, html);
 
-    <div style="text-align: center;">
-      <h1 style="color: #3498db;">Password Reset</h1>
-    </div>
-
-    <div style="margin-top: 20px; padding: 20px; background-color: #fff; border-radius: 5px;">
-
-      <p>Hi,</p>
-      <p>We received a request to reset your password. Click the link below to reset it:</p>
-      <p><a style="display: inline-block; padding: 10px 15px; background-color: #2ecc71; color: #fff; text-decoration: none; border-radius: 5px;" href="${resetLink}">Reset Password</a></p>
-      <p>If you didn't request a password reset, please ignore this email.</p>
-    </div>
-    <div style="text-align: center; margin-top: 20px; color: #555;">
-      <p>Thank you,</p>
-      <p></p>
-    </div>
-
-  </div>
-
-</body>
-  `,
-  );
-
-  // return {
-  //   message: "Check your email!"
-  // }
+  return {
+    message: 'Check your email for the password reset link!',
+  };
 };
 
-const resetPassword = async (
-  payload: { id: string; newPassword: string },
-  token: string,
-) => {
-  const { id, newPassword } = payload;
+const resetPassword = async (payload: {
+  id: string;
+  newPassword: string;
+  token: string;
+}) => {
+  const { id, newPassword, token } = payload;
+
+  console.log(payload);
   const user = await User.findById({ _id: id }, { _id: 1 });
 
   if (!user) {
@@ -315,7 +296,13 @@ const resetPassword = async (
     Number(config.bycrypt_salt_rounds),
   );
 
-  await User.updateOne({ id }, { password });
+  const updateUser = await User.updateOne({ _id: id }, { password });
+
+  console.log(updateUser);
+
+  return {
+    message: 'Password Updated',
+  };
 };
 
 export const AuthService = {

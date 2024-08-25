@@ -8,15 +8,18 @@ import validateRequestZod from '../../middlewares/validateRequestZod';
 import { StudentValidation } from './student.validation';
 const router = express.Router();
 
-router.route('/').get(
-  authMiddleware(
-    ENUM_USER_ROLE.ADMIN,
-    ENUM_USER_ROLE.SUPER_ADMIN,
-    ENUM_USER_ROLE.TEACHER,
-    ENUM_USER_ROLE.SELLER,
-  ),
-  StudentController.getAllStudents,
-);
+router
+  .route('/')
+  .get(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.TEACHER,
+      ENUM_USER_ROLE.SELLER,
+      ENUM_USER_ROLE.STUDENT,
+    ),
+    StudentController.getAllStudents,
+  );
 
 router
   .route('/:id')
@@ -25,17 +28,30 @@ router
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.TEACHER,
+      ENUM_USER_ROLE.SELLER,
       ENUM_USER_ROLE.STUDENT,
     ),
     StudentController.getSingleStudent,
   )
   .patch(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.TEACHER,
+      ENUM_USER_ROLE.SELLER,
+      ENUM_USER_ROLE.STUDENT,
+    ),
     validateRequestZod(StudentValidation.updateStudentZodSchema),
     StudentController.updateStudent,
   )
   .delete(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.TEACHER,
+      ENUM_USER_ROLE.SELLER,
+      ENUM_USER_ROLE.STUDENT,
+    ),
     StudentController.deleteStudent,
   );
 

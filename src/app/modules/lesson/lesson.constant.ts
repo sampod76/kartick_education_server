@@ -1,6 +1,18 @@
 export const LESSON_SEARCHABLE_FIELDS = [
-    'title', 
-// 'details',
-"tags"
+  'title',
+  // 'details',
+  'tags',
 ];
-export const LESSON_FILTERABLE_FIELDS = ['searchTerm', 'status',"select","category","course","milestone","module",'delete',"isDelete"];
+export const LESSON_FILTERABLE_FIELDS = [
+  'searchTerm',
+  'status',
+  'select',
+  'category',
+  'course',
+  'author',
+  'milestone',
+  'module',
+  'delete',
+  'isDelete',
+  'needProperty',
+];

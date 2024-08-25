@@ -20,11 +20,13 @@ const createResourceByDb = async (payload: IResource): Promise<IResource> => {
 //getAllResourceFromDb
 const getAllResourceFromDb = async (
   filters: IResourceFilters,
-  paginationOptions: IPaginationOption
+  paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<IResource[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-  filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
+  filtersData.status = filtersData.status
+    ? filtersData.status
+    : ENUM_STATUS.ACTIVE;
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -44,7 +46,7 @@ const getAllResourceFromDb = async (
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
           : {
               [field]: new RegExp(searchTerm, 'i'),
-            }
+            },
       ),
     });
   }
@@ -54,7 +56,7 @@ const getAllResourceFromDb = async (
       $and: Object.entries(filtersData).map(([field, value]) =>
         field === 'module'
           ? { [field]: new Types.ObjectId(value) }
-          : { [field]: value }
+          : { [field]: value },
       ),
     });
   }
@@ -94,7 +96,9 @@ const getAllResourceFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -158,7 +162,7 @@ const getAllResourceFromDb = async (
 
 // get single e form db
 const getSingleResourceFromDb = async (
-  id: string
+  id: string,
 ): Promise<IResource | null> => {
   const result = await Resource.aggregate([
     { $match: { _id: new ObjectId(id) } },
@@ -169,7 +173,9 @@ const getSingleResourceFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -212,7 +218,7 @@ const getSingleResourceFromDb = async (
 // update e form db
 const updateResourceFromDb = async (
   id: string,
-  payload: Partial<IResource>
+  payload: Partial<IResource>,
 ): Promise<IResource | null> => {
   const { demo_video, ...otherData } = payload;
   const updateData = { ...otherData };
@@ -237,15 +243,15 @@ const updateResourceFromDb = async (
 // delete e form db
 const deleteResourceByIdFromDb = async (
   id: string,
-  query: IResourceFilters
+  query: IResourceFilters,
 ): Promise<IResource | null> => {
   let result;
   if (query.delete === ENUM_YN.YES) {
     result = await Resource.findByIdAndDelete(id);
   } else {
     result = await Resource.findOneAndUpdate(
-     { _id: id },
-      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
+      { _id: id },
+      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES },
     );
   }
   return result;

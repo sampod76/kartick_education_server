@@ -20,11 +20,13 @@ const createGlossaryByDb = async (payload: IGlossary): Promise<IGlossary> => {
 //getAllGlossaryFromDb
 const getAllGlossaryFromDb = async (
   filters: IGlossaryFilters,
-  paginationOptions: IPaginationOption
+  paginationOptions: IPaginationOption,
 ): Promise<IGenericResponse<IGlossary[]>> => {
   //****************search and filters start************/
   const { searchTerm, select, ...filtersData } = filters;
-  filtersData.status= filtersData.status ? filtersData.status : ENUM_STATUS.ACTIVE
+  filtersData.status = filtersData.status
+    ? filtersData.status
+    : ENUM_STATUS.ACTIVE;
   // Split the string and extract field names
   const projection: { [key: string]: number } = {};
   if (select) {
@@ -44,7 +46,7 @@ const getAllGlossaryFromDb = async (
           ? { [field]: { $in: [new RegExp(searchTerm, 'i')] } }
           : {
               [field]: new RegExp(searchTerm, 'i'),
-            }
+            },
       ),
     });
   }
@@ -54,7 +56,7 @@ const getAllGlossaryFromDb = async (
       $and: Object.entries(filtersData).map(([field, value]) =>
         field === 'module'
           ? { [field]: new Types.ObjectId(value) }
-          : { [field]: value }
+          : { [field]: value },
       ),
     });
   }
@@ -94,7 +96,9 @@ const getAllGlossaryFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -158,9 +162,8 @@ const getAllGlossaryFromDb = async (
 
 // get single e form db
 const getSingleGlossaryFromDb = async (
-  id: string
+  id: string,
 ): Promise<IGlossary | null> => {
-  console.log("🚀 ~ id:", id)
   const result = await Glossary.aggregate([
     { $match: { _id: new ObjectId(id) } },
     // {
@@ -170,7 +173,9 @@ const getSingleGlossaryFromDb = async (
     //     pipeline: [
     //       {
     //         $match: {
-    //           $expr: { $eq: ['$_id', '$$id'] },
+    //           $expr: {
+    //   $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+    // },
     //           // Additional filter conditions for collection2
     //         },
     //       },
@@ -206,7 +211,6 @@ const getSingleGlossaryFromDb = async (
     //   $unwind: '$module',
     // },
   ]);
-  console.log("🚀 ~ result:", result)
 
   return result[0];
 };
@@ -214,7 +218,7 @@ const getSingleGlossaryFromDb = async (
 // update e form db
 const updateGlossaryFromDb = async (
   id: string,
-  payload: Partial<IGlossary>
+  payload: Partial<IGlossary>,
 ): Promise<IGlossary | null> => {
   const { demo_video, ...otherData } = payload;
   const updateData = { ...otherData };
@@ -239,17 +243,16 @@ const updateGlossaryFromDb = async (
 // delete e form db
 const deleteGlossaryByIdFromDb = async (
   id: string,
-  query: IGlossaryFilters
+  query: IGlossaryFilters,
 ): Promise<IGlossary | null> => {
   let result;
   // result = await Glossary.findByIdAndDelete(id);
   if (query.delete === ENUM_YN.YES) {
     result = await Glossary.findByIdAndDelete(id);
-  }
-   else {
+  } else {
     result = await Glossary.findOneAndUpdate(
-     { _id: id },
-      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES }
+      { _id: id },
+      { status: ENUM_STATUS.DEACTIVATE, isDelete: ENUM_YN.YES },
     );
   }
   return result;

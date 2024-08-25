@@ -1,4 +1,5 @@
 import { Model, Types } from 'mongoose';
+import { ICourse_label } from '../course_label/interface.course_label';
 // import { IFileUploade } from '../fileUploade/interface.fileUploade';
 // import { IUser } from '../users/users.interface';
 
@@ -7,6 +8,8 @@ export type ICourseFilters = {
   price?: number;
   duration?: string;
   level?: string;
+  label_id?: string;
+ 
   status?: string;
   price_type?: string;
   category?: string;
@@ -36,6 +39,8 @@ export type ICourse = {
   vat?: number;
   duration?: string[];
   level?: string;
+  label_id?: string | ICourse_label | Types.ObjectId;
+
   price_type: 'free' | 'paid' | 'closed' | 'recurring';
   status: 'active' | 'deactivate' | 'save' | 'disable';
   showing_number?: number;

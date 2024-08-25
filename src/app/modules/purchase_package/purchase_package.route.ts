@@ -31,7 +31,7 @@ router
     PurchasePackageController.createPurchasePackage,
   );
 
-  router
+router
   .route('/total-amount')
   .get(
     authMiddleware(
@@ -41,7 +41,7 @@ router
       ENUM_USER_ROLE.SELLER,
     ),
     PurchasePackageController.getAllPackagePurchaseToAmount,
-  )
+  );
 router
   .route('/purchase-and-pending-package')
   .get(
@@ -78,7 +78,11 @@ router
     PurchasePackageController.getSinglePackagePurchase,
   )
   .delete(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+    ),
     PurchasePackageController.deletePackagePurchase,
   )
   .patch(

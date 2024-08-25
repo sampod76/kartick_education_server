@@ -9,34 +9,52 @@ const router = express.Router();
 
 router
   .route('/')
-  .get(  authMiddleware(
-    ENUM_USER_ROLE.ADMIN,
-    ENUM_USER_ROLE.SUPER_ADMIN,
-    ENUM_USER_ROLE.STUDENT,
-    ENUM_USER_ROLE.SELLER,
-  ),SingleQuizController.getAllSingleQuiz)
+  .get(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.STUDENT,
+      ENUM_USER_ROLE.SELLER,
+    ),
+    SingleQuizController.getAllSingleQuiz,
+  )
   .post(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+    ),
     validateRequestZod(SingleQuizValidation.createSingleQuizZodSchema),
-    SingleQuizController.createSingleQuiz
+    SingleQuizController.createSingleQuiz,
   );
 
 router
   .route('/:id')
-  .get(  authMiddleware(
-    ENUM_USER_ROLE.ADMIN,
-    ENUM_USER_ROLE.SUPER_ADMIN,
-    ENUM_USER_ROLE.STUDENT,
-    ENUM_USER_ROLE.SELLER,
-  ),SingleQuizController.getSingleSingleQuiz)
+  .get(
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.STUDENT,
+      ENUM_USER_ROLE.SELLER,
+    ),
+    SingleQuizController.getSingleSingleQuiz,
+  )
   .patch(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+    ),
     validateRequestZod(SingleQuizValidation.updateSingleQuizZodSchema),
-    SingleQuizController.updateSingleQuiz
+    SingleQuizController.updateSingleQuiz,
   )
   .delete(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-    SingleQuizController.deleteSingleQuiz
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.SELLER,
+    ),
+    SingleQuizController.deleteSingleQuiz,
   );
 
 export const SingleQuizRoute = router;

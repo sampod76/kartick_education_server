@@ -25,7 +25,7 @@ const uploadeSingleFileByServer = catchAsync(
     const data = await FileUploadeService.createFileUploadeByDb({
       user: req?.user?.id,
       category: 'admin',
-      server_url: 'uploadFile/pdfs/' + req?.file?.filename,
+      server_url: 'uploadFile/images/' + req?.file?.filename,
       fileType: req?.file?.mimetype || 'image',
       ...result,
     });
@@ -62,7 +62,7 @@ const uploadeMultipalFileByServer = catchAsync(
         user: req?.user?.id,
         category: 'admin',
         fileType: req?.file?.mimetype || 'image',
-        server_url: 'uploadFile/pdfs/' + file?.filename,
+        server_url: 'uploadFile/images/' + file?.filename,
         path: 'uploadFile/images',
       })),
     );
@@ -78,22 +78,36 @@ const uploadeMultipalFileByServer = catchAsync(
 const uploadePdfFileByServer = catchAsync(
   async (req: Request, res: Response) => {
     const fileDetails = req.file;
-
-    const file = {
-      original_filename: fileDetails?.filename as string,
-      fileType: fileDetails?.mimetype || 'pdf',
-      user: req?.user?.id,
-      category: 'dashboard',
-      path: 'uploadFile/pdfs',
-      server_url: 'uploadFile/pdfs/' + fileDetails?.filename,
-      size: fileDetails?.size,
-    };
-    const data = await FileUploadeService.createFileUploadeByDb(file);
+    const multipleFiles = req.files;
+    let fileData;
+    if (fileDetails) {
+      fileData = {
+        original_filename: fileDetails?.filename as string,
+        fileType: fileDetails?.mimetype || 'pdf',
+        user: req?.user?.id,
+        category: 'dashboard',
+        path: 'uploadFile/pdfs',
+        server_url: 'uploadFile/pdfs/' + fileDetails?.filename,
+        size: fileDetails?.size,
+      };
+    } else if (Array.isArray(multipleFiles) && multipleFiles?.length) {
+      fileData = multipleFiles.map(file => ({
+        original_filename: file?.filename as string,
+        fileType: file?.mimetype || 'pdf',
+        user: req?.user?.id,
+        category: 'dashboard',
+        path: 'uploadFile/pdfs',
+        server_url: 'uploadFile/pdfs/' + file?.filename,
+        size: file?.size,
+      }));
+    }
+    console.log('🚀 ~ file:', fileData);
+    // const data = await FileUploadeService.createFileUploadeByDb(file);
     sendResponse<any>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: 'successfull uploade single file',
-      data: data,
+      data: fileData,
     });
   },
 );

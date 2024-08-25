@@ -18,6 +18,7 @@ const allUser = ({
     { $sort: sortConditions },
     { $skip: Number(skip) || 0 },
     { $limit: Number(limit) || 15 },
+
     //admin
     {
       $lookup: {
@@ -26,7 +27,9 @@ const allUser = ({
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -34,7 +37,7 @@ const allUser = ({
 
           {
             $project: {
-              // password: 0,
+              password: 0,
               __v: 0,
             },
           },
@@ -64,52 +67,6 @@ const allUser = ({
       $unwind: '$admin',
     },
 
-    // student
-    {
-      $lookup: {
-        from: 'students',
-        let: { id: '$student' },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
-              // Additional filter conditions for collection2
-            },
-          },
-          // Additional stages for collection2
-
-          {
-            $project: {
-              password: 0,
-              __v: 0,
-            },
-          },
-        ],
-        as: 'studentDetails',
-      },
-    },
-
-    {
-      $project: { student: 0 },
-    },
-    {
-      $addFields: {
-        student: {
-          $cond: {
-            if: { $eq: [{ $size: '$studentDetails' }, 0] },
-            then: [{}],
-            else: '$studentDetails',
-          },
-        },
-      },
-    },
-    {
-      $project: { studentDetails: 0 },
-    },
-    {
-      $unwind: '$student',
-    },
-    // trainer
     {
       $lookup: {
         from: 'trainers',
@@ -117,7 +74,9 @@ const allUser = ({
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -153,21 +112,25 @@ const allUser = ({
     {
       $unwind: '$trainer',
     },
+    {
+      $project: { password: 0 },
+    },
 
-    // seller
+    //
     {
       $lookup: {
-        from: 'sellers',
-        let: { id: '$seller' },
+        from: 'students',
+        let: { id: '$student' },
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
           // Additional stages for collection2
-          // প্রথম লুকাপ চালানোর পরে যে ডাটা আসছে তার উপরে যদি আমি যেই কোন কিছু করতে চাই তাহলে এখানে করতে হবে |যেমন আমি এখানে project করেছি
 
           {
             $project: {
@@ -176,28 +139,28 @@ const allUser = ({
             },
           },
         ],
-        as: 'sellerDetails',
+        as: 'studentDetails',
       },
     },
     {
-      $project: { seller: 0 },
+      $project: { student: 0 },
     },
     {
       $addFields: {
-        seller: {
+        student: {
           $cond: {
-            if: { $eq: [{ $size: '$sellerDetails' }, 0] },
+            if: { $eq: [{ $size: '$studentDetails' }, 0] },
             then: [{}],
-            else: '$sellerDetails',
+            else: '$studentDetails',
           },
         },
       },
     },
     {
-      $project: { sellerDetails: 0 },
+      $project: { studentDetails: 0 },
     },
     {
-      $unwind: '$seller',
+      $unwind: '$student',
     },
     {
       $project: { password: 0 },
@@ -225,7 +188,9 @@ const author = ({
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -262,7 +227,7 @@ const author = ({
     {
       $unwind: '$admin',
     },
-    
+
     {
       $lookup: {
         from: 'trainers',
@@ -270,7 +235,9 @@ const author = ({
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -313,9 +280,7 @@ const author = ({
   return pipeline;
 };
 
-
-
 export const userPipeline = {
-    allUser,
-    author
+  allUser,
+  author,
 };

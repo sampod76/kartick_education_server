@@ -11,22 +11,34 @@ router
   .route('/')
   .get(GlossaryController.getAllGlossary)
   .post(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.TEACHER,
+    ),
     validateRequestZod(GlossaryValidation.createGlossaryZodSchema),
-    GlossaryController.createGlossary
+    GlossaryController.createGlossary,
   );
 
 router
   .route('/:id')
   .get(GlossaryController.getSingleGlossary)
   .patch(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.TEACHER,
+    ),
     validateRequestZod(GlossaryValidation.updateGlossaryZodSchema),
-    GlossaryController.updateGlossary
+    GlossaryController.updateGlossary,
   )
   .delete(
-    authMiddleware(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-    GlossaryController.deleteGlossary
+    authMiddleware(
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.TEACHER,
+    ),
+    GlossaryController.deleteGlossary,
   );
 
 export const GlossaryRoute = router;

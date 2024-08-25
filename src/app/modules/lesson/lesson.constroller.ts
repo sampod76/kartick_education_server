@@ -11,9 +11,11 @@ import { LessonService } from './lesson.service';
 
 // import { z } from 'zod'
 const createLesson = catchAsync(async (req: Request, res: Response) => {
-  const { ...LessonData } = req.body;
+  if (req?.user?.id) {
+    req.body.author = req.user.id;
+  }
 
-  const result = await LessonService.createLessonByDb(LessonData);
+  const result = await LessonService.createLessonByDb(req.body);
 
   sendResponse<ILesson>(res, {
     success: true,
@@ -36,7 +38,7 @@ const getAllLesson = catchAsync(async (req: Request, res: Response) => {
 
   const result = await LessonService.getAllLessonFromDb(
     filters,
-    paginationOptions
+    paginationOptions,
   );
 
   sendResponse<ILesson[]>(res, {
@@ -75,10 +77,7 @@ const updateLesson = catchAsync(async (req: Request, res: Response) => {
 
 const deleteLesson = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await LessonService.deleteLessonByIdFromDb(
-    id,
-    req.query
-  );
+  const result = await LessonService.deleteLessonByIdFromDb(id, req.query);
   sendResponse<ILesson>(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -87,20 +86,18 @@ const deleteLesson = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const LessonReviewsByUser = catchAsync(
-  async (req: Request, res: Response) => {
-    // const { id } = req.params;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const result = await LessonService.LessonReviewsByUserFromDb();
+const LessonReviewsByUser = catchAsync(async (req: Request, res: Response) => {
+  // const { id } = req.params;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const result = await LessonService.LessonReviewsByUserFromDb();
 
-    sendResponse<ILesson>(res, {
-      success: true,
-      statusCode: httpStatus.OK,
-      message: 'successfull update reviews',
-      data: result,
-    });
-  }
-);
+  sendResponse<ILesson>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'successfull update reviews',
+    data: result,
+  });
+});
 export const LessonController = {
   createLesson,
   getAllLesson,

@@ -11,9 +11,10 @@ import { QuizService } from './quiz.service';
 
 // import { z } from 'zod'
 const createQuiz = catchAsync(async (req: Request, res: Response) => {
-  const { ...QuizData } = req.body;
-
-  const result = await QuizService.createQuizByDb(QuizData);
+  if (req?.user?.id) {
+    req.body.author = req.user.id;
+  }
+  const result = await QuizService.createQuizByDb(req.body);
 
   sendResponse<IQuiz>(res, {
     success: true,
@@ -34,10 +35,7 @@ const getAllQuiz = catchAsync(async (req: Request, res: Response) => {
 
   const paginationOptions = pick(queryObject, PAGINATION_FIELDS);
 
-  const result = await QuizService.getAllQuizFromDb(
-    filters,
-    paginationOptions
-  );
+  const result = await QuizService.getAllQuizFromDb(filters, paginationOptions);
 
   sendResponse<IQuiz[]>(res, {
     success: true,
@@ -75,10 +73,7 @@ const updateQuiz = catchAsync(async (req: Request, res: Response) => {
 
 const deleteQuiz = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await QuizService.deleteQuizByIdFromDb(
-    id,
-    req.query
-  );
+  const result = await QuizService.deleteQuizByIdFromDb(id, req.query);
   sendResponse<IQuiz>(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -87,20 +82,18 @@ const deleteQuiz = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const QuizReviewsByUser = catchAsync(
-  async (req: Request, res: Response) => {
-    // const { id } = req.params;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const result = await QuizService.QuizReviewsByUserFromDb();
+const QuizReviewsByUser = catchAsync(async (req: Request, res: Response) => {
+  // const { id } = req.params;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const result = await QuizService.QuizReviewsByUserFromDb();
 
-    sendResponse<IQuiz>(res, {
-      success: true,
-      statusCode: httpStatus.OK,
-      message: 'successfull update reviews',
-      data: result,
-    });
-  }
-);
+  sendResponse<IQuiz>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'successfull update reviews',
+    data: result,
+  });
+});
 export const QuizController = {
   createQuiz,
   getAllQuiz,

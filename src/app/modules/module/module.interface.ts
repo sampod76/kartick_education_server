@@ -4,17 +4,17 @@ import { ICourse } from '../course/course.interface';
 import { IMilestone } from '../milestone/milestone.interface';
 import { IUser } from '../user/user.interface';
 
-
 export type IModuleFilters = {
   searchTerm?: string;
   status?: string;
   category?: string;
   course?: string;
+  author?: string;
   milestone?: string;
 
   select?: string;
-  delete?: "yes" | "no" ;
-  lesson_quiz?: "yes" | "no" ;
+  delete?: 'yes' | 'no';
+  lesson_quiz?: 'yes' | 'no';
   isDelete?: string;
   // other query parameters
 };

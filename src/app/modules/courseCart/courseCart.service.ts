@@ -89,7 +89,9 @@ const getAllCourseCartFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -109,7 +111,9 @@ const getAllCourseCartFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -152,7 +156,9 @@ const getSingleCourseCartFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },
@@ -172,7 +178,9 @@ const getSingleCourseCartFromDb = async (
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ['$_id', '$$id'] },
+              $expr: {
+                $and: [{ $ne: ['$$id', undefined] }, { $eq: ['$_id', '$$id'] }],
+              },
               // Additional filter conditions for collection2
             },
           },

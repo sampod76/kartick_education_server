@@ -11,9 +11,11 @@ import { IResource } from './resource.interface';
 
 // import { z } from 'zod'
 const createResource = catchAsync(async (req: Request, res: Response) => {
-  const { ...ResourceData } = req.body;
+  if (req?.user?.id) {
+    req.body.author = req.user.id;
+  }
 
-  const result = await ResourceService.createResourceByDb(ResourceData);
+  const result = await ResourceService.createResourceByDb(req.body);
 
   sendResponse<IResource>(res, {
     success: true,
@@ -36,7 +38,7 @@ const getAllResource = catchAsync(async (req: Request, res: Response) => {
 
   const result = await ResourceService.getAllResourceFromDb(
     filters,
-    paginationOptions
+    paginationOptions,
   );
 
   sendResponse<IResource[]>(res, {
@@ -75,10 +77,7 @@ const updateResource = catchAsync(async (req: Request, res: Response) => {
 
 const deleteResource = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await ResourceService.deleteResourceByIdFromDb(
-    id,
-    req.query
-  );
+  const result = await ResourceService.deleteResourceByIdFromDb(id, req.query);
   sendResponse<IResource>(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -99,7 +98,7 @@ const ResourceReviewsByUser = catchAsync(
       message: 'successfull update reviews',
       data: result,
     });
-  }
+  },
 );
 export const ResourceController = {
   createResource,

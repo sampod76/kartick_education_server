@@ -19,8 +19,10 @@ export type IQuizSubmitFilters = {
   milestone?: string;
   module?: string;
   lesson?: string;
+  author?: string;
   //
   delete?: 'yes' | 'no';
+  isCorrect?: 'yes' | 'no';
   isDelete?: string;
   // other query parameters
   quiz?: string;
@@ -50,11 +52,12 @@ export type IQuizSubmit = {
   singleQuiz: Types.ObjectId | IQuiz | string;
   status: 'active' | 'deactivate' | 'save';
   isDelete: string;
+  isCorrect: 'yes' | 'no';
   //
   // userSubmitQuizzes: IProvideUserQuiz[];
   // userSubmitQuiz: IProvideUserQuiz;
   submitAnswers?: string[];
-  singleAnswer?:string;
+  singleAnswer?: string;
 };
 
 export type QuizSubmitModel = Model<IQuizSubmit, Record<string, unknown>>;

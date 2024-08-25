@@ -5,5 +5,10 @@ export const CATEGORY_FILTERABLE_FIELDS = [
   'status',
   'delete',
   'children',
-  "isDelete"
+  'serial_number',
+  'isDelete',
+  //
+  'author', // for student add seller category
+  'category', // category _id
+  'course'
 ];
